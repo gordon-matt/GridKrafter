@@ -125,7 +125,7 @@ The setting becomes part of the board, so it comes back in `gk-changed` and is s
 
 ## Widgets
 
-- **Frames:** `Panel` (SmartAdmin's coloured header), `Card`, or `Plain` (no header, buttons in edit mode).
+- **Frames:** `Panel` (coloured header), `Card`, or `Plain` (no header, buttons in edit mode).
 - **Buttons:** refresh, colour, edit, full screen, collapse and delete, chosen per widget or for the whole dashboard, optionally shown only on hover.
 - **Colours:** sixteen named colours, or a hex, `rgb()`, `hsl()` or `oklch()` colour of your own.
 - **Settings:** text, text area, number, range, switch, select and colour fields in the edit panel, from the widget's definition.

@@ -126,7 +126,7 @@ public sealed partial class Dashboard : IAsyncDisposable
     [Parameter] public bool ReadOnly { get; set; }
 
     /// <summary>
-    /// Gets or sets a value indicating whether widgets can be dragged by their header outside edit mode, as SmartAdmin widgets can.
+    /// Gets or sets a value indicating whether widgets can be dragged by their header outside edit mode.
     /// </summary>
     [Parameter] public bool MoveWithoutEditMode { get; set; } = true;
 

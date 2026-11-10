@@ -1111,7 +1111,7 @@ textarea.gk-input {
     padding: 0;
 }
 
-/* Panel: SmartAdmin's frame. A colour fills the header. */
+/* Panel: A colour fills the header. */
 .gk-widget-panel.gk-colored {
     border-color: var(--gk-tone);
 }
@@ -1146,7 +1146,7 @@ textarea.gk-input {
     outline-color: #ffffff;
 }
 
-/* Card: homarr's look. The header sits on the card, and a colour is an accent. */
+/* Card: The header sits on the card, and a colour is an accent. */
 .gk-widget-card {
     border-radius: calc(var(--gk-radius) + 4px);
 }

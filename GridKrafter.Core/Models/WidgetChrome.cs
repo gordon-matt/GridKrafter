@@ -4,11 +4,11 @@ namespace GridKrafter.Models;
 [JsonConverter(typeof(JsonStringEnumConverter<WidgetChrome>))]
 public enum WidgetChrome
 {
-    /// <summary>A header bar with the icon, title, toolbar and buttons above the body, like SmartAdmin's widgets.</summary>
+    /// <summary>A header bar with the icon, title, toolbar and buttons above the body.</summary>
     [JsonStringEnumMemberName("panel")]
     Panel,
 
-    /// <summary>The content fills the card; the title is a small badge and the buttons appear on hover, like homarr's.</summary>
+    /// <summary>The content fills the card; the title is a small badge and the buttons appear on hover.</summary>
     [JsonStringEnumMemberName("card")]
     Card,
 

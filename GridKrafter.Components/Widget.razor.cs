@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace GridKrafter.Components;
 
 /// <summary>
-/// A widget in the SmartAdmin style: a header with an icon, a title, a toolbar and buttons to
+/// A widget; a header with an icon, a title, a toolbar and buttons to
 /// refresh, recolour, rename, fill the window, collapse and delete, over a body with an optional
 /// toolbar, timestamp and footer. Use it on its own anywhere, or let a <see cref="Dashboard"/>
 /// lay widgets out and remember what people did to them.
