@@ -1,0 +1,105 @@
+@* The bar above a dashboard: edit mode, the catalog, new sections, hidden widgets, the layout showing, and reset. *@
+<div class="gk-toolbar" role="toolbar" aria-label="@Text["dashboard.label"]">
+    <div class="gk-toolbar-group">
+        @if (Owner.CanEdit)
+        {
+            <button type="button" class="@(Owner.IsEditing ? "gk-button gk-button-primary" : "gk-button")" aria-pressed="@(Owner.IsEditing ? "true" : "false")" @onclick="ToggleEditAsync">
+                <Icon Name="@(Owner.IsEditing ? "check" : "pencil")" />
+                <span>@(Owner.IsEditing ? Text["dashboard.done"] : Text["dashboard.edit"])</span>
+            </button>
+            @if (Owner.IsEditing)
+            {
+                @if (Owner.Definitions.Count > 0)
+                {
+                    <button type="button" class="gk-button" @onclick="() => Owner.OpenCatalog()">
+                        <Icon Name="plus" />
+                        <span>@Text["dashboard.addWidget"]</span>
+                    </button>
+                }
+                <button type="button" class="gk-button" @onclick="AddSectionAsync">
+                    <Icon Name="layers" />
+                    <span>@Text["dashboard.addSection"]</span>
+                </button>
+            }
+            @if (Owner.HiddenItems is { Count: > 0 } hidden)
+            {
+                <span class="gk-popover-anchor">
+                    <button type="button" class="gk-button" aria-haspopup="true" aria-expanded="@(menuOpen ? "true" : "false")" @onclick="() => menuOpen = !menuOpen">
+                        <Icon Name="eye-off" />
+                        <span>@Text.Format("dashboard.hidden", hidden.Count)</span>
+                    </button>
+                    @if (menuOpen)
+                    {
+                        <div class="gk-menu-layer" @onclick="() => menuOpen = false"></div>
+                        <div class="gk-popover gk-menu" role="menu">
+                            @foreach (var item in hidden)
+                            {
+                                <button type="button" class="gk-menu-item" role="menuitem" @onclick="() => RestoreAsync(item.Id)">
+                                    <Icon Name="eye" />
+                                    <span>@Text.Format("dashboard.restore", string.IsNullOrWhiteSpace(item.Title) ? Text["widget.untitled"] : item.Title)</span>
+                                </button>
+                            }
+                            @if (hidden.Count > 1)
+                            {
+                                <hr class="gk-menu-divider" />
+                                <button type="button" class="gk-menu-item" role="menuitem" @onclick="RestoreAllAsync">
+                                    <Icon Name="reset" />
+                                    <span>@Text["dashboard.restoreAll"]</span>
+                                </button>
+                            }
+                        </div>
+                    }
+                </span>
+            }
+        }
+    </div>
+    <div class="gk-toolbar-group gk-toolbar-end">
+        <span class="gk-badge" title="@LayoutLabel">
+            <Icon Name="@(Owner.ActiveLayout.Columns == 1 ? "monitor" : "layout")" />
+            <span>@LayoutLabel</span>
+        </span>
+        @if (Owner.CanEdit && Owner.IsEditing)
+        {
+            <button type="button" class="gk-button gk-button-ghost" @onclick="ResetAsync">
+                <Icon Name="reset" />
+                <span>@Text["dashboard.reset"]</span>
+            </button>
+        }
+    </div>
+</div>
+
+@code {
+    private bool menuOpen;
+
+    /// <summary>
+    /// Gets or sets the dashboard the bar controls.
+    /// </summary>
+    [Parameter, EditorRequired] public Dashboard Owner { get; set; } = default!;
+
+    private GridKrafterText Text => Owner.Text;
+
+    private string LayoutLabel => Owner.ActiveLayout.Columns == 1
+        ? Text.Format("dashboard.layoutOne", Text.LayoutName(Owner.ActiveLayout))
+        : Text.Format("dashboard.layout", Text.LayoutName(Owner.ActiveLayout), Owner.ActiveLayout.Columns);
+
+    private Task ToggleEditAsync() => Owner.SetEditModeAsync(!Owner.IsEditing);
+
+    private Task AddSectionAsync() => Owner.AddSectionAsync();
+
+    private Task ResetAsync() => Owner.ResetAsync();
+
+    private async Task RestoreAsync(string id)
+    {
+        menuOpen = false;
+        await Owner.RestoreAsync(id);
+    }
+
+    private async Task RestoreAllAsync()
+    {
+        menuOpen = false;
+        foreach (var item in Owner.HiddenItems)
+        {
+            await Owner.RestoreAsync(item.Id);
+        }
+    }
+}

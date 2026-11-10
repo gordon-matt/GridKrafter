@@ -1,0 +1,22 @@
+@inherits LayoutComponentBase
+
+<div class="demo-shell">
+    <header class="demo-nav">
+        <a class="demo-brand" href="">
+            <img src="@Assets["img/Logo.png"]" alt="GridKrafter" />
+            <span>Blazor demo</span>
+        </a>
+        <nav>
+            <NavLink href="" Match="NavLinkMatch.All">Dashboard</NavLink>
+            <NavLink href="widgets">Smart widgets</NavLink>
+            <NavLink href="bootstrap">With Bootstrap</NavLink>
+        </nav>
+    </header>
+    <main class="demo-main">
+        @Body
+    </main>
+</div>
+
+<div id="blazor-error-ui" data-nosnippet>
+    Something went wrong. <a href="." class="reload">Reload</a>
+</div>

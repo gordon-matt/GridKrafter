@@ -1,0 +1,18 @@
+@inherits WidgetComponentBase
+
+<textarea class="demo-notes" aria-label="Notes" placeholder="Jot something down…" maxlength="4000"
+          @bind="text" @bind:after="SaveAsync"></textarea>
+
+@code {
+    private string text = string.Empty;
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        text = Option("text", string.Empty) ?? string.Empty;
+    }
+
+    protected override void OnWidgetChanged() => text = Option("text", text) ?? text;
+
+    private Task SaveAsync() => Context?.SetOptionAsync("text", text) ?? Task.CompletedTask;
+}

@@ -1,0 +1,127 @@
+@* The widgets people can add, searchable, with the section to add them to. *@
+@if (open)
+{
+    <div class="gk-backdrop" @onclick="Close"></div>
+    <div class="gk-dialog gk-catalog" role="dialog" aria-modal="true" aria-labelledby="@titleId" @onkeydown="OnKeyDown">
+        <header class="gk-dialog-header">
+            <h2 class="gk-dialog-title" id="@titleId">@Text["catalog.title"]</h2>
+            <button type="button" class="gk-icon-button" title="@Text["dialog.close"]" aria-label="@Text["dialog.close"]" @onclick="Close">
+                <Icon Name="x" />
+            </button>
+        </header>
+        <div class="gk-catalog-filters">
+            <span class="gk-search">
+                <Icon Name="search" />
+                <input @ref="searchInput" type="search" class="gk-input" placeholder="@Text["catalog.search"]" aria-label="@Text["catalog.search"]"
+                       @bind="search" @bind:event="oninput" />
+            </span>
+            @if (Owner.Sections.Count > 1)
+            {
+                <label class="gk-field-inline">
+                    <span class="gk-field-label">@Text["catalog.section"]</span>
+                    <select class="gk-input" @bind="sectionId">
+                        @foreach (var section in Owner.Sections)
+                        {
+                            <option value="@section.Id">@(string.IsNullOrWhiteSpace(section.Title) ? Text["section.untitled"] : section.Title)</option>
+                        }
+                    </select>
+                </label>
+            }
+        </div>
+        <div class="gk-catalog-list">
+            @if (Available.Count == 0)
+            {
+                <p class="gk-catalog-empty">@Text["catalog.none"]</p>
+            }
+            else if (Matches.Count == 0)
+            {
+                <p class="gk-catalog-empty">@Text.Format("catalog.empty", search)</p>
+            }
+            else
+            {
+                @foreach (var definition in Matches)
+                {
+                    <button type="button" class="gk-catalog-card" @onclick="() => AddAsync(definition)">
+                        <span class="@ToneClass(definition)" style="@ToneStyle(definition)"><Icon Name="@(definition.Icon ?? "box")" /></span>
+                        <span class="gk-catalog-text">
+                            <span class="gk-catalog-name">@(definition.Name ?? definition.Kind)</span>
+                            @if (!string.IsNullOrWhiteSpace(definition.Description))
+                            {
+                                <span class="gk-catalog-description">@definition.Description</span>
+                            }
+                        </span>
+                        <span class="gk-badge">@Text.Format("catalog.size", definition.W, definition.H)</span>
+                        <span class="gk-catalog-add"><Icon Name="plus" /><span class="gk-sr-only">@Text["catalog.add"]</span></span>
+                    </button>
+                }
+            }
+        </div>
+    </div>
+}
+
+@code {
+    private readonly string titleId = $"gk-catalog-{Guid.NewGuid():N}";
+    private ElementReference searchInput;
+    private bool open;
+    private bool focusPending;
+    private string search = string.Empty;
+    private string? sectionId;
+
+    /// <summary>
+    /// Gets or sets the dashboard to add to.
+    /// </summary>
+    [Parameter, EditorRequired] public Dashboard Owner { get; set; } = default!;
+
+    private GridKrafterText Text => Owner.Text;
+
+    private List<WidgetDefinition> Available => [.. Owner.Definitions.Where(d => !d.Single || !Owner.IsAdded(d.Kind))];
+
+    private List<WidgetDefinition> Matches => string.IsNullOrWhiteSpace(search)
+        ? Available
+        : [.. Available.Where(d => Contains(d.Name) || Contains(d.Description) || Contains(d.Kind))];
+
+    /// <summary>Shows the catalog.</summary>
+    /// <param name="section">The section to add to by default.</param>
+    public void Open(string? section)
+    {
+        open = true;
+        focusPending = true;
+        search = string.Empty;
+        sectionId = section ?? Owner.Sections.FirstOrDefault(s => !s.Collapsed)?.Id ?? Owner.Sections[0].Id;
+        StateHasChanged();
+    }
+
+    /// <inheritdoc/>
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (open && focusPending)
+        {
+            focusPending = false;
+            await searchInput.FocusAsync();
+        }
+    }
+
+    private static string ToneClass(WidgetDefinition definition) =>
+        WidgetColors.IsNamed(definition.Color) ? $"gk-catalog-icon gk-color-{definition.Color!.ToLowerInvariant()}" : "gk-catalog-icon";
+
+    private static string? ToneStyle(WidgetDefinition definition) =>
+        WidgetColors.IsCustom(definition.Color) ? $"--gk-tone: {definition.Color};" : null;
+
+    private bool Contains(string? value) => value?.Contains(search.Trim(), StringComparison.CurrentCultureIgnoreCase) == true;
+
+    private void Close() => open = false;
+
+    private async Task AddAsync(WidgetDefinition definition)
+    {
+        open = false;
+        await Owner.AddWidgetAsync(definition.Kind, sectionId);
+    }
+
+    private void OnKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Escape")
+        {
+            open = false;
+        }
+    }
+}

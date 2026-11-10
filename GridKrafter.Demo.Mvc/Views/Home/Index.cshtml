@@ -1,0 +1,76 @@
+@model DashboardPage
+@{
+    ViewData["Theme"] = Model.Theme;
+}
+
+<div class="demo-intro">
+    <div>
+        <h1>Dashboard</h1>
+        <p>
+            Rendered into a Razor view. The widgets come from partial views fetched by URL (refreshing one fetches it
+            again), from <code>&lt;template&gt;</code>s in this view and from HTML strings. Every change is saved on the
+            server, so the board follows you from browser to browser.
+        </p>
+    </div>
+    <div class="demo-intro-actions">
+        <form method="get" class="demo-theme">
+            <label for="theme">Theme</label>
+            <select id="theme" name="theme" data-autosubmit>
+                <option value="auto" selected="@(Model.Theme == "auto")">Auto</option>
+                <option value="light" selected="@(Model.Theme == "light")">Light</option>
+                <option value="dark" selected="@(Model.Theme == "dark")">Dark</option>
+            </select>
+            <noscript><button type="submit" class="demo-button">Apply</button></noscript>
+        </form>
+        <form method="post" asp-controller="Home" asp-action="Reset">
+            <input type="hidden" name="theme" value="@Model.Theme" />
+            <button type="submit" class="demo-button">Reset the board</button>
+        </form>
+    </div>
+</div>
+
+<p id="save-status" class="demo-status" role="status">
+    @(Model.Saved is null ? "This is the page's own board. Change something and it's saved on the server." : "This is the board saved on the server.")
+</p>
+
+<div id="dashboard">
+    <component type="typeof(DashboardElement)" render-mode="Server"
+               param-Board="@Model.Board"
+               param-Saved="@Model.Saved"
+               param-Theme="@Model.Theme"
+               param-Chrome='"card"'
+               param-ShowToolbar="true" />
+</div>
+
+<section class="demo-log">
+    <h2>Events</h2>
+    <p class="demo-muted">Move, resize, collapse or edit a widget and it shows up here.</p>
+    <ol id="log"></ol>
+</section>
+
+@* Template widgets: the dashboard clones these into widget bodies. *@
+<template id="tpl-about">
+    <p>The board is defined in C# and shown with <code>&lt;component type="typeof(DashboardElement)"&gt;</code>. Widget content comes from:</p>
+    <ul class="gk-list">
+        <li><span><strong>Partial views</strong> fetched by URL, like the orders and server load.</span></li>
+        <li><span><strong>Templates</strong> in the view, like this one.</span></li>
+        <li><span><strong>HTML strings</strong>, like the figures at the top.</span></li>
+    </ul>
+    <p class="gk-muted">Changes are sent to <code>api/board</code> and kept in App_Data.</p>
+</template>
+
+<template id="tpl-note">
+    <p>Templates suit content that's part of the page: help, notices or a form that posts with the page.</p>
+</template>
+
+<template id="tpl-links">
+    <ul class="gk-list">
+        <li><a class="demo-link" href="https://github.com/gordon-matt/GridKrafter">GridKrafter on GitHub</a></li>
+        <li><a class="demo-link" href="https://learn.microsoft.com/aspnet/core/mvc/views/view-components">Razor views and components</a></li>
+        <li><a class="demo-link" href="https://developer.mozilla.org/docs/Web/HTML/Element/template">The template element</a></li>
+    </ul>
+</template>
+
+@section Scripts {
+    <script src="~/site.js" asp-append-version="true"></script>
+}

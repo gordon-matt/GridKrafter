@@ -1,0 +1,22 @@
+{
+  "name": "gridkrafter.demo.react",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "gridkrafter": "node scripts/publish-gridkrafter.mjs --force",
+    "predev": "node scripts/publish-gridkrafter.mjs",
+    "dev": "vite",
+    "prebuild": "node scripts/publish-gridkrafter.mjs",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^5.1.0",
+    "vite": "^7.2.0"
+  }
+}

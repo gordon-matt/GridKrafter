@@ -1,0 +1,43 @@
+@implements IDisposable
+@* Declares a section of a Dashboard. It renders nothing itself; the dashboard draws sections from the board. *@
+<CascadingValue Value="this" IsFixed="true">@ChildContent</CascadingValue>
+
+@code {
+    /// <summary>
+    /// Gets or sets the identifier; saved state is keyed by it, so keep it stable.
+    /// </summary>
+    [Parameter, EditorRequired] public string Id { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the heading, which people can rename in edit mode.
+    /// </summary>
+    [Parameter] public string? Title { get; set; }
+
+    /// <summary>
+    /// Gets or sets a built-in icon name or icon-font classes for the heading.
+    /// </summary>
+    [Parameter] public string? Icon { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the section starts collapsed.
+    /// </summary>
+    [Parameter] public bool Collapsed { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether people can collapse the section.
+    /// </summary>
+    [Parameter] public bool Collapsible { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets the section's <see cref="DashboardWidget"/> declarations.
+    /// </summary>
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    [CascadingParameter] private Dashboard? Dashboard { get; set; }
+
+    /// <inheritdoc/>
+    public void Dispose() => Dashboard?.Forget(this);
+
+    /// <inheritdoc/>
+    protected override void OnParametersSet() => Dashboard?.Declare(this);
+}

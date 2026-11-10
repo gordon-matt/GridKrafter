@@ -1,0 +1,46 @@
+@inherits WidgetComponentBase
+
+<div class="demo-clock">
+    <time class="demo-clock-time">@Now.ToString(TimeFormat, Culture)</time>
+    <span class="gk-muted">@Now.ToString("dddd, d MMMM yyyy", Culture)</span>
+</div>
+
+@code {
+    private static readonly CultureInfo Culture = CultureInfo.GetCultureInfo("en-GB");
+    private PeriodicTimer? timer;
+
+    private DateTimeOffset Now => Context?.LocalNow ?? DateTimeOffset.Now;
+
+    private string TimeFormat => (Option("hour12", false), Option("seconds", true)) switch
+    {
+        (true, true) => "h:mm:ss tt",
+        (true, false) => "h:mm tt",
+        (false, true) => "HH:mm:ss",
+        _ => "HH:mm",
+    };
+
+    protected override void OnInitialized()
+    {
+        timer = new PeriodicTimer(TimeSpan.FromSeconds(1));
+        _ = TickAsync(timer);
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            timer?.Dispose();
+            timer = null;
+        }
+
+        base.Dispose(disposing);
+    }
+
+    private async Task TickAsync(PeriodicTimer ticker)
+    {
+        while (await ticker.WaitForNextTickAsync())
+        {
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+}

@@ -1,0 +1,33 @@
+@* A catalog widget's settings in its edit panel; each change is saved with the board straight away. *@
+<div class="gk-options">
+    @foreach (var option in Definition.Options.Where(o => !string.IsNullOrEmpty(o.Key)))
+    {
+        <OptionField @key="option.Key" Option="option" Value="@ValueOf(option)" Text="Text"
+                     ValueChanged="@(value => OnChange.InvokeAsync((option.Key, value)))" />
+    }
+</div>
+
+@code {
+    /// <summary>
+    /// Gets or sets the definition whose options to show.
+    /// </summary>
+    [Parameter, EditorRequired] public WidgetDefinition Definition { get; set; } = default!;
+
+    /// <summary>
+    /// Gets or sets the item whose values to show.
+    /// </summary>
+    [Parameter, EditorRequired] public DashboardItem Item { get; set; } = default!;
+
+    /// <summary>
+    /// Gets or sets the strings to use.
+    /// </summary>
+    [Parameter] public GridKrafterText Text { get; set; } = GridKrafterText.English;
+
+    /// <summary>
+    /// Gets or sets the callback for a changed value.
+    /// </summary>
+    [Parameter] public EventCallback<(string Key, JsonNode? Value)> OnChange { get; set; }
+
+    private JsonNode? ValueOf(WidgetOption option) =>
+        Item.Options is { } options && options.TryGetPropertyValue(option.Key, out var value) ? value : option.Default;
+}

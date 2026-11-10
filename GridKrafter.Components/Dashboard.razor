@@ -1,0 +1,104 @@
+@implements IAsyncDisposable
+
+<CascadingValue Value="this" IsFixed="true">
+    <div @ref="root" @attributes="AdditionalAttributes" class="@RootClass" style="@RootStyle"
+         data-theme="@Theme" dir="@(text.IsRightToLeft ? "rtl" : "ltr")" lang="@text.Language"
+         role="region" aria-label="@text["dashboard.label"]">
+        @if (ShowToolbar)
+        {
+            <DashboardToolbar Owner="this" />
+        }
+        <div class="@(isReady ? "gk-sections" : "gk-sections gk-measuring")">
+            @foreach (var section in Sections)
+            {
+                var view = ViewOf(section);
+                <section @key="section.Id" class="@SectionClass(section)" data-gk-section="@section.Id" aria-label="@NullIfEmpty(section.Title)">
+                    @if (ShowsHeader(section))
+                    {
+                        <SectionHeader Owner="this" Section="section" Count="view.Items.Count" />
+                    }
+                    <div class="gk-grid" data-gk-grid="@section.Id" hidden="@section.Collapsed" style="@GridStyle(view.Rows)">
+                        @foreach (var item in view.Items)
+                        {
+                            var rect = view.Rects[item.Id];
+                            var definition = DefinitionFor(item.Kind);
+                            var declaration = declaredWidgets.GetValueOrDefault(item.Id);
+                            var widget = ContextFor(item, definition, rect);
+                            <div @key="item.Id" class="@ItemClass(item)" style="@CellStyle(rect)" data-gk-item="@item.Id"
+                                 data-gk-autoheight="@(MeasuresHeight(item, definition) ? "true" : null)">
+                                <div class="gk-item-inner">
+                                    <Widget ItemContext="widget" Revision="RevisionOf(item.Id)"
+                                            Title="@item.Title" TitleContent="@(TitleMatchesDeclaration(item, declaration) ? declaration!.TitleContent : null)"
+                                            Icon="@(item.Icon ?? definition?.Icon)" Color="@(item.Color ?? definition?.Color)"
+                                            Chrome="ChromeOf(item, definition)" Buttons="ButtonsOf(item, definition)" ButtonsOnHover="ButtonsOnHover"
+                                            Collapsed="item.Collapsed" CollapsedChanged="@(value => SetCollapsedAsync(item.Id, value))"
+                                            Fullscreen="@(fullscreenId == item.Id)" FullscreenChanged="@(value => SetFullscreen(item.Id, value))"
+                                            TitleChanged="@(value => SetTitleAsync(item.Id, value))" ColorChanged="@(value => SetColorAsync(item.Id, value))"
+                                            OnRefresh="@(() => RefreshItemAsync(item.Id))" RefreshInterval="@(item.Refresh ?? definition?.Refresh ?? 0)"
+                                            OnDelete="@(() => RemoveAsync(item.Id))" ConfirmDelete="ConfirmDelete" DeleteMessage="@DeleteMessageFor(item)"
+                                            NoPadding="@(item.NoPadding || definition?.NoPadding == true)" Movable="CanMove(item)">
+                                        <Toolbar>@declaration?.Toolbar</Toolbar>
+                                        <BodyToolbar>@declaration?.BodyToolbar</BodyToolbar>
+                                        <Footer>@declaration?.Footer</Footer>
+                                        <EditContent>
+                                            @if (declaration?.EditContent is { } declaredEdit)
+                                            {
+                                                @declaredEdit(widget)
+                                            }
+                                            @if (definition is { Options.Count: > 0 })
+                                            {
+                                                <WidgetOptionsForm Definition="definition" Item="item" Text="text" OnChange="@(change => SetOptionAsync(item.Id, change.Key, change.Value))" />
+                                            }
+                                        </EditContent>
+                                        <ChildContent>
+                                            @if (declaration?.ChildContent is { } declaredBody)
+                                            {
+                                                @declaredBody(widget)
+                                            }
+                                            else if (definition?.Component is not null)
+                                            {
+                                                @ComponentBody(definition)
+                                            }
+                                            else if ((item.Html ?? definition?.Html) is { Length: > 0 } html)
+                                            {
+                                                @((MarkupString)html)
+                                            }
+                                            else if (UrlOf(item, definition) is not null || TemplateOf(item, definition) is not null)
+                                            {
+                                                <div class="gk-mount" data-gk-mount="@item.Id" data-gk-kind="@item.Kind"
+                                                     data-gk-url="@UrlOf(item, definition)" data-gk-template="@TemplateOf(item, definition)"></div>
+                                            }
+                                            else if (ItemContent is not null)
+                                            {
+                                                @ItemContent(widget)
+                                            }
+                                            else
+                                            {
+                                                <div class="gk-mount" data-gk-mount="@item.Id" data-gk-kind="@item.Kind"></div>
+                                            }
+                                        </ChildContent>
+                                    </Widget>
+                                    @foreach (var edge in ResizeEdges(item, definition))
+                                    {
+                                        <span class="gk-resize gk-resize-@edge" data-gk-resize="@edge" aria-hidden="true"></span>
+                                    }
+                                </div>
+                            </div>
+                        }
+                        @if (view.Placeholder is { } placeholder)
+                        {
+                            <div class="gk-placeholder" style="@CellStyle(placeholder)" aria-hidden="true"></div>
+                        }
+                        else if (view.Items.Count == 0 && view.Rows > 0)
+                        {
+                            <p class="gk-grid-empty">@text["dashboard.dropHere"]</p>
+                        }
+                    </div>
+                </section>
+            }
+        </div>
+        <WidgetCatalog @ref="catalog" Owner="this" />
+        <ConfirmDialog @ref="confirm" Text="text" />
+        @ChildContent
+    </div>
+</CascadingValue>

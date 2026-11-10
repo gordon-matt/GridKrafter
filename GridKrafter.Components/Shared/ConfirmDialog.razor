@@ -1,0 +1,94 @@
+@* Driven from C#, so callers can await a decision instead of wiring callbacks. *@
+@if (isVisible)
+{
+    <div class="gk-backdrop" @onclick="() => Close(false)"></div>
+    <div class="gk-dialog gk-dialog-small" role="alertdialog" aria-modal="true" aria-labelledby="@titleId"
+         tabindex="-1" @ref="element" @onkeydown="OnKeyDown">
+        <div class="gk-dialog-body">
+            <h2 class="gk-dialog-title" id="@titleId">@title</h2>
+            <p>@message</p>
+            @if (!string.IsNullOrEmpty(detail))
+            {
+                <p class="gk-muted gk-small">@detail</p>
+            }
+        </div>
+        <div class="gk-dialog-actions">
+            <button type="button" class="gk-button" @ref="cancelButton" @onclick="() => Close(false)">@Text["dialog.cancel"]</button>
+            <button type="button" class="gk-button @(isDestructive ? "gk-button-danger" : "gk-button-primary")" @ref="confirmButton" @onclick="() => Close(true)">
+                @confirmLabel
+            </button>
+        </div>
+    </div>
+}
+
+@code {
+    private readonly string titleId = $"gk-confirm-{Guid.NewGuid():N}";
+    private ElementReference element;
+    private ElementReference cancelButton;
+    private ElementReference confirmButton;
+    private bool isVisible;
+    private bool focusPending;
+    private string title = string.Empty;
+    private string message = string.Empty;
+    private string? detail;
+    private string confirmLabel = "OK";
+    private bool isDestructive;
+    private TaskCompletionSource<bool>? completion;
+
+    /// <summary>
+    /// Gets or sets the strings.
+    /// </summary>
+    [Parameter] public GridKrafterText Text { get; set; } = GridKrafterText.English;
+
+    /// <summary>Shows the dialog and completes when the person answers.</summary>
+    /// <param name="title">The question.</param>
+    /// <param name="message">What happens.</param>
+    /// <param name="confirmLabel">The confirm button's text.</param>
+    /// <param name="isDestructive">Whether confirming destroys something; the dialog then starts on Cancel.</param>
+    /// <param name="detail">A smaller note under the message.</param>
+    /// <returns><see langword="true"/> when confirmed.</returns>
+    public Task<bool> ShowAsync(string title, string message, string confirmLabel = "OK", bool isDestructive = false, string? detail = null)
+    {
+        completion?.TrySetResult(false);
+
+        this.title = title;
+        this.message = message;
+        this.detail = detail;
+        this.confirmLabel = confirmLabel;
+        this.isDestructive = isDestructive;
+
+        isVisible = true;
+        focusPending = true;
+        completion = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        StateHasChanged();
+        return completion.Task;
+    }
+
+    /// <inheritdoc/>
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (focusPending && isVisible)
+        {
+            focusPending = false;
+            // Enter then answers through whichever button has focus. Destructive actions start on
+            // Cancel, so a reflexive Enter can't delete anything.
+            await (isDestructive ? cancelButton : confirmButton).FocusAsync();
+        }
+    }
+
+    private void OnKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Escape")
+        {
+            Close(false);
+        }
+    }
+
+    private void Close(bool confirmed)
+    {
+        isVisible = false;
+        completion?.TrySetResult(confirmed);
+        completion = null;
+    }
+}

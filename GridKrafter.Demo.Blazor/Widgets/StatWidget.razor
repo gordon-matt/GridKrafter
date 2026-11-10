@@ -1,0 +1,21 @@
+@inherits WidgetComponentBase
+
+<div class="demo-stat">
+    @if (Context?.Item.Icon is { Length: > 0 } icon)
+    {
+        <span class="demo-stat-icon"><Icon Name="@icon" /></span>
+    }
+    <div class="demo-stat-text">
+        <span class="demo-stat-label">@Option("label", "Revenue")</span>
+        <strong class="demo-stat-value">@Option("value", "$48,200")</strong>
+        <span class="demo-stat-change @(Change >= 0 ? "demo-up" : "demo-down")">
+            <Icon Name="@(Change >= 0 ? "trending-up" : "trending-down")" />
+            @Change.ToString("+0.##;-0.##;0", CultureInfo.InvariantCulture)%
+            <span class="gk-muted">vs last week</span>
+        </span>
+    </div>
+</div>
+
+@code {
+    private double Change => Option("change", 0d);
+}

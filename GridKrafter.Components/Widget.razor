@@ -1,0 +1,135 @@
+@implements IAsyncDisposable
+@implements IHandleEvent
+
+@if (!removed)
+{
+    RenderFragment controls =
+        @<div class="gk-widget-controls">
+            @if (Has(WidgetButtons.Refresh))
+            {
+                <button type="button" class="gk-widget-button" title="@text["widget.refresh"]" aria-label="@text["widget.refresh"]" disabled="@busy" @onclick="RefreshAsync">
+                    <Icon Name="refresh" Class="@(busy ? "gk-spin" : null)" />
+                </button>
+            }
+            @if (Has(WidgetButtons.Color) && !fullscreen)
+            {
+                <span class="gk-popover-anchor">
+                    <button type="button" class="gk-widget-button" title="@text["widget.color"]" aria-label="@text["widget.color"]"
+                            aria-haspopup="true" aria-expanded="@(paletteOpen ? "true" : "false")" @onclick="TogglePalette">
+                        <Icon Name="palette" />
+                    </button>
+                    @if (paletteOpen)
+                    {
+                        <div class="gk-menu-layer" data-gk-nodrag @onclick="ClosePalette"></div>
+                        <div class="gk-popover" data-gk-nodrag>
+                            <ColorPicker Value="@CurrentColor" ValueChanged="PickColorAsync" Text="text" />
+                        </div>
+                    }
+                </span>
+            }
+            @if (Has(WidgetButtons.Edit) && !fullscreen)
+            {
+                <button type="button" class="gk-widget-button" title="@text["widget.edit"]" aria-label="@text["widget.edit"]"
+                        aria-pressed="@(editing ? "true" : "false")" @onclick="ToggleEdit">
+                    <Icon Name="pencil" />
+                </button>
+            }
+            @if (Has(WidgetButtons.Fullscreen))
+            {
+                <button type="button" class="gk-widget-button" title="@(fullscreen ? text["widget.exitFullscreen"] : text["widget.fullscreen"])"
+                        aria-label="@(fullscreen ? text["widget.exitFullscreen"] : text["widget.fullscreen"])" @onclick="ToggleFullscreenAsync">
+                    <Icon Name="@(fullscreen ? "minimize" : "maximize")" />
+                </button>
+            }
+            @if (Has(WidgetButtons.Collapse) && !fullscreen && Chrome != WidgetChrome.Plain)
+            {
+                <button type="button" class="gk-widget-button" title="@(collapsed ? text["widget.expand"] : text["widget.collapse"])"
+                        aria-label="@(collapsed ? text["widget.expand"] : text["widget.collapse"])" aria-expanded="@(collapsed ? "false" : "true")"
+                        @onclick="ToggleCollapseAsync">
+                    <Icon Name="@(collapsed ? "chevron-down" : "chevron-up")" />
+                </button>
+            }
+            @if (Has(WidgetButtons.Delete) && !fullscreen)
+            {
+                <button type="button" class="gk-widget-button gk-widget-button-danger" title="@text["widget.delete"]" aria-label="@text["widget.delete"]" @onclick="DeleteAsync">
+                    <Icon Name="x" />
+                </button>
+            }
+        </div>;
+
+    RenderFragment grip =
+        @<button type="button" class="gk-grip" data-gk-grip="@context.Id" title="@text["widget.moveHint"]" aria-label="@text["widget.move"]">
+            <Icon Name="grip" />
+        </button>;
+
+    <CascadingValue Value="context" IsFixed="true">
+        <article @attributes="FrameAttributes" class="@FrameClass" style="@ToneStyle"
+                 data-theme="@(IsStandalone ? Theme : null)" dir="@(IsStandalone ? Direction : null)" lang="@(IsStandalone ? text.Language : null)"
+                 data-gk-handle="@(Chrome == WidgetChrome.Plain && Movable ? "true" : null)"
+                 aria-labelledby="@titleId">
+            @if (Chrome != WidgetChrome.Plain)
+            {
+                <header class="gk-widget-header" data-gk-handle="@(Movable ? "true" : null)">
+                    @if (Movable)
+                    {
+                        @grip
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Icon))
+                    {
+                        <span class="gk-widget-icon"><Icon Name="@Icon" /></span>
+                    }
+                    <h3 class="gk-widget-title" id="@titleId">@if (editedTitle is null && TitleContent is not null) { @TitleContent } else { @CurrentTitle }</h3>
+                    <div class="gk-widget-toolbar">@Toolbar<SectionOutlet SectionId="context.ToolbarSlot" /></div>
+                    @controls
+                </header>
+            }
+            else
+            {
+                <h3 class="gk-sr-only" id="@titleId">@CurrentTitle</h3>
+                @if (ShowFloatingControls)
+                {
+                    <div class="gk-widget-float">
+                        @if (Movable)
+                        {
+                            @grip
+                        }
+                        @controls
+                    </div>
+                }
+            }
+            @if (editing && !fullscreen)
+            {
+                <div class="gk-widget-editbox" data-gk-nodrag>
+                    <div class="gk-field">
+                        <label class="gk-field-label" for="@titleInputId">@text["widget.title"]</label>
+                        <input id="@titleInputId" class="gk-input" type="text" @bind:get="CurrentTitle" @bind:set="SetTitleAsync" @bind:event="oninput" />
+                        <small class="gk-field-hint">@text["widget.titleHint"]</small>
+                    </div>
+                    @EditContent
+                    <div class="gk-widget-editbox-actions">
+                        <button type="button" class="gk-button gk-button-small" @onclick="ToggleEdit">@text["widget.closeEdit"]</button>
+                    </div>
+                </div>
+            }
+            <div class="gk-widget-body">
+                <div class="gk-widget-flow">
+                    <div class="gk-widget-body-toolbar">@BodyToolbar<SectionOutlet SectionId="context.BodyToolbarSlot" /></div>
+                    <div class="gk-widget-content">@ChildContent</div>
+                    @if (ShowTimestamp && updatedAt is { } at)
+                    {
+                        <p class="gk-widget-timestamp">@text.Format("widget.updated", LocalTime(at))</p>
+                    }
+                </div>
+                @if (busy || Loading)
+                {
+                    <div class="gk-widget-loader" role="status">
+                        <span class="gk-spinner" aria-hidden="true"></span>
+                        <span class="gk-sr-only">@text["widget.loading"]</span>
+                    </div>
+                }
+            </div>
+            <footer class="gk-widget-footer">@Footer<SectionOutlet SectionId="context.FooterSlot" /></footer>
+            <ConfirmDialog @ref="confirm" Text="text" />
+        </article>
+    </CascadingValue>
+}

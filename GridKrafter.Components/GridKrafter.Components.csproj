@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<RootNamespace>GridKrafter.Components</RootNamespace>
+		<Description>GridKrafter dashboards and widgets for Blazor Server, Blazor WebAssembly and MVC, and as a custom element for React and plain HTML: a drag-and-drop, responsive widget grid with collapsible, full-screen, recolourable, renameable and refreshable widgets.</Description>
+		<PackageTags>dashboard;widgets;grid-layout;drag-and-drop;blazor;razor-components;aspnetcore-mvc;custom-elements;gridkrafter</PackageTags>
+		<IsTrimmable>true</IsTrimmable>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<SupportedPlatform Include="browser" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\GridKrafter.Core\GridKrafter.Core.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.14" />
+	</ItemGroup>
+
+</Project>

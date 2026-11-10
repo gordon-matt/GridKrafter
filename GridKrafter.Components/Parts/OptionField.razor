@@ -1,0 +1,125 @@
+@* One setting in a widget's edit panel. Text saves as you type; everything else when it changes. *@
+<div class="gk-field @(Option.Type == WidgetOptionType.Switch ? "gk-field-inline" : null)">
+    @switch (Option.Type)
+    {
+        case WidgetOptionType.Switch:
+            <label class="gk-switch">
+                <input type="checkbox" role="switch" checked="@BoolValue" @onchange="e => SetAsync(JsonValue.Create(e.Value is true))" />
+                <span class="gk-switch-track" aria-hidden="true"></span>
+                <span>@Label</span>
+            </label>
+            break;
+
+        case WidgetOptionType.TextArea:
+            <label class="gk-field-label" for="@fieldId">@Label</label>
+            <textarea id="@fieldId" class="gk-input" rows="4" placeholder="@Option.Placeholder"
+                      @bind:get="StringValue" @bind:set="SetStringAsync" @bind:event="oninput"></textarea>
+            break;
+
+        case WidgetOptionType.Number:
+            <label class="gk-field-label" for="@fieldId">@Label</label>
+            <input id="@fieldId" class="gk-input" type="number" min="@Number(Option.Min)" max="@Number(Option.Max)" step="@Number(Option.Step)"
+                   value="@Number(NumberValue)" @onchange="e => SetNumberAsync(e.Value)" />
+            break;
+
+        case WidgetOptionType.Range:
+            <label class="gk-field-label" for="@fieldId">@Label <output class="gk-muted">@Number(NumberValue)</output></label>
+            <input id="@fieldId" class="gk-range" type="range" min="@Number(Option.Min ?? 0)" max="@Number(Option.Max ?? 100)" step="@Number(Option.Step ?? 1)"
+                   value="@Number(NumberValue)" @oninput="e => SetNumberAsync(e.Value)" />
+            break;
+
+        case WidgetOptionType.Select:
+            <label class="gk-field-label" for="@fieldId">@Label</label>
+            <select id="@fieldId" class="gk-input" @onchange="e => SetStringAsync(e.Value?.ToString())">
+                @if (!Option.Choices.Exists(c => c.Value == StringValue))
+                {
+                    <option value="" selected>@Text["options.choose"]</option>
+                }
+                @foreach (var choice in Option.Choices)
+                {
+                    <option value="@choice.Value" selected="@(choice.Value == StringValue)">@choice.Label</option>
+                }
+            </select>
+            break;
+
+        case WidgetOptionType.Color:
+            <label class="gk-field-label" for="@fieldId">@Label</label>
+            <input id="@fieldId" class="gk-color-input" type="color" value="@StringValue" @onchange="e => SetStringAsync(e.Value?.ToString())" />
+            break;
+
+        default:
+            <label class="gk-field-label" for="@fieldId">@Label</label>
+            <input id="@fieldId" class="gk-input" type="text" placeholder="@Option.Placeholder"
+                   @bind:get="StringValue" @bind:set="SetStringAsync" @bind:event="oninput" />
+            break;
+    }
+    @if (!string.IsNullOrEmpty(Option.Description))
+    {
+        <small class="gk-field-hint">@Option.Description</small>
+    }
+</div>
+
+@code {
+    private readonly string fieldId = $"gk-option-{Guid.NewGuid():N}";
+
+    /// <summary>
+    /// Gets or sets the setting.
+    /// </summary>
+    [Parameter, EditorRequired] public WidgetOption Option { get; set; } = default!;
+
+    /// <summary>
+    /// Gets or sets the current value.
+    /// </summary>
+    [Parameter] public JsonNode? Value { get; set; }
+
+    /// <summary>
+    /// Gets or sets the callback for a new value.
+    /// </summary>
+    [Parameter] public EventCallback<JsonNode?> ValueChanged { get; set; }
+
+    /// <summary>
+    /// Gets or sets the strings.
+    /// </summary>
+    [Parameter] public GridKrafterText Text { get; set; } = GridKrafterText.English;
+
+    private string Label => Option.Label ?? Option.Key;
+
+    private JsonNode? Current => Value ?? Option.Default;
+
+    private string StringValue => Current switch
+    {
+        JsonValue value when value.GetValueKind() == JsonValueKind.String => value.GetValue<string>(),
+        null => string.Empty,
+        var node => node.ToJsonString(),
+    };
+
+    private bool BoolValue => Current is JsonValue value && value.GetValueKind() == JsonValueKind.True;
+
+    private double? NumberValue => Current is JsonValue value && value.TryGetValue(out double number) ? number : null;
+
+    private static string? Number(double? value) => value?.ToString(CultureInfo.InvariantCulture);
+
+    private Task SetAsync(JsonNode? value) => ValueChanged.InvokeAsync(value);
+
+    private Task SetStringAsync(string? value) => SetAsync(JsonValue.Create(value ?? string.Empty));
+
+    private Task SetNumberAsync(object? value)
+    {
+        if (!double.TryParse(value?.ToString(), NumberStyles.Float, CultureInfo.InvariantCulture, out double number))
+        {
+            return Task.CompletedTask;
+        }
+
+        if (Option.Min is { } min)
+        {
+            number = Math.Max(min, number);
+        }
+
+        if (Option.Max is { } max)
+        {
+            number = Math.Min(max, number);
+        }
+
+        return SetAsync(JsonValue.Create(number));
+    }
+}

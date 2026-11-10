@@ -1,0 +1,35 @@
+<label class="demo-theme">
+    <span>Theme</span>
+    <select value="@Theme" @onchange="e => ThemeChanged.InvokeAsync(e.Value?.ToString() ?? Constants.Themes.Auto)">
+        @foreach (var (value, label) in Choices)
+        {
+            <option value="@value">@label</option>
+        }
+    </select>
+</label>
+
+@code {
+    private static readonly (string Value, string Label)[] Defaults =
+    [
+        (Constants.Themes.Auto, "Auto"),
+        (Constants.Themes.Light, "Light"),
+        (Constants.Themes.Dark, "Dark"),
+    ];
+
+    /// <summary>
+    /// Gets or sets the selected theme.
+    /// </summary>
+    [Parameter] public string Theme { get; set; } = Constants.Themes.Auto;
+
+    /// <summary>
+    /// Gets or sets the callback for a new theme.
+    /// </summary>
+    [Parameter] public EventCallback<string> ThemeChanged { get; set; }
+
+    /// <summary>
+    /// Gets or sets the themes to offer, as value and label pairs.
+    /// </summary>
+    [Parameter] public (string Value, string Label)[]? Options { get; set; }
+
+    private (string Value, string Label)[] Choices => Options ?? Defaults;
+}

@@ -1,0 +1,399 @@
+@page "/widgets"
+@rendermode InteractiveServer
+
+<PageTitle>GridKrafter · Smart widgets</PageTitle>
+
+<div class="demo-page" data-theme="@theme">
+    <div class="demo-intro">
+        <div>
+            <h1>Smart widgets</h1>
+            <p>
+                The classic JarvisWidgets demo, rebuilt. Drag a header to reorder, just like the original, and every
+                widget's buttons, title, colour and collapsed state are saved in this browser. Each widget below shows off
+                one feature.
+            </p>
+        </div>
+        <div class="demo-intro-actions">
+            <label class="demo-theme">
+                <span>Frame</span>
+                <select @bind="chrome">
+                    <option value="@WidgetChrome.Panel">Panel</option>
+                    <option value="@WidgetChrome.Card">Card</option>
+                </select>
+            </label>
+            <label class="demo-check">
+                <input type="checkbox" @bind="hoverButtons" />
+                <span>Buttons on hover</span>
+            </label>
+            <ThemeSelect @bind-Theme="theme" />
+        </div>
+    </div>
+
+    <Dashboard Theme="@theme" StorageKey="blazor-widgets" ShowToolbar DefaultChrome="chrome" ButtonsOnHover="hoverButtons"
+               RowHeight="20" OnChanged="c => log?.Add(c)">
+        <DashboardWidget Id="live-feeds" Title="Live feeds" Icon="activity" W="6" AutoHeight Buttons="WidgetButtons.All" Refresh="20"
+                         OnRefresh="AddFeed">
+            <Toolbar>
+                <span class="gk-badge gk-color-green"><span class="demo-dot"></span>Live</span>
+            </Toolbar>
+            <ChildContent>
+                <p class="demo-lead">The default widget: every button, and a refresh that runs by itself every 20 seconds.</p>
+                <ul class="gk-list">
+                    @foreach (var feed in feeds)
+                    {
+                        <li>
+                            <span class="demo-feed-icon gk-color-@feed.Color"><Icon Name="@feed.Icon" /></span>
+                            <span class="demo-grow">@feed.Text</span>
+                            <span class="gk-muted gk-small">@Ago(feed.At)</span>
+                        </li>
+                    }
+                </ul>
+            </ChildContent>
+        </DashboardWidget>
+
+        <DashboardWidget Id="title-change" Title="Rename me" Icon="pencil" Color="blue" W="6" AutoHeight
+                         Buttons="WidgetButtons.Edit | WidgetButtons.Collapse">
+            <ChildContent>
+                <p>Press the pencil to edit this widget's title. It changes as you type and is saved with the board.</p>
+                @if (!string.IsNullOrWhiteSpace(subtitle))
+                {
+                    <p class="demo-result">@subtitle</p>
+                }
+                <p class="gk-muted">Widgets from a catalog list their own settings in the same panel; this one adds a field of its own.</p>
+            </ChildContent>
+            <EditContent>
+                <label class="gk-field">
+                    <span class="gk-field-label">Subtitle</span>
+                    <input class="gk-input" @bind="subtitle" @bind:event="oninput" />
+                    <small class="gk-field-hint">Content of your own, shown below.</small>
+                </label>
+            </EditContent>
+        </DashboardWidget>
+
+        <DashboardWidget Id="fullscreen" Title="Full screen" Icon="maximize" Color="green" W="6" AutoHeight
+                         Buttons="WidgetButtons.Fullscreen | WidgetButtons.Collapse">
+            <p>The fullscreen button fills the window with the widget. Press it again, or <kbd>Esc</kbd>, to put it back.</p>
+            <table class="gk-table">
+                <thead><tr><th>Region</th><th>Q1</th><th>Q2</th><th>Q3</th></tr></thead>
+                <tbody>
+                    <tr><td>North</td><td>$12.4k</td><td>$14.1k</td><td>$15.8k</td></tr>
+                    <tr><td>South</td><td>$9.2k</td><td>$10.7k</td><td>$11.3k</td></tr>
+                    <tr><td>West</td><td>$17.9k</td><td>$16.2k</td><td>$19.4k</td></tr>
+                </tbody>
+            </table>
+        </DashboardWidget>
+
+        <DashboardWidget Id="delete" Title="Delete widget" Icon="trash" Color="red" W="6" AutoHeight
+                         Buttons="WidgetButtons.Delete | WidgetButtons.Collapse">
+            <p>The cross removes the widget after asking first.</p>
+            <p class="gk-muted">Widgets that are part of the page are only hidden, so you can bring them back from <strong>Hidden</strong> in the toolbar. Ones added from a catalog are removed for good.</p>
+        </DashboardWidget>
+
+        <DashboardWidget Id="colors" Title="Widget colours" Icon="palette" Color="purple" W="6" AutoHeight
+                         Buttons="WidgetButtons.Color | WidgetButtons.Collapse">
+            <p>Pick a header colour from the palette button. There are sixteen, and hex, <code>rgb()</code> or <code>hsl()</code> colours work too.</p>
+            <div class="demo-swatches">
+                @foreach (var color in WidgetColors.Names)
+                {
+                    <span class="demo-swatch gk-color-@color" title="@color"></span>
+                }
+            </div>
+        </DashboardWidget>
+
+        <DashboardWidget Id="badges" Title="Labels & badges" Icon="bell" Color="pink" W="6" AutoHeight>
+            <Toolbar>
+                <span class="gk-badge">12</span>
+                <span class="gk-badge gk-color-amber">Beta</span>
+            </Toolbar>
+            <ChildContent>
+                <p>Anything can go in the header beside the title: badges, labels, counters.</p>
+                <div class="gk-inline">
+                    <span class="gk-badge">Default</span>
+                    <span class="gk-badge gk-color-blue">Info</span>
+                    <span class="gk-badge gk-color-green">Success</span>
+                    <span class="gk-badge gk-color-amber">Warning</span>
+                    <span class="gk-badge gk-color-red">Danger</span>
+                    <span class="gk-badge gk-color-violet"><Icon Name="star" />Featured</span>
+                </div>
+            </ChildContent>
+        </DashboardWidget>
+
+        <DashboardWidget Id="tabs" Title="Tabs" Icon="layers" W="6" AutoHeight>
+            <Toolbar>
+                <div class="gk-tabs" role="tablist" aria-label="Sections">
+                    @foreach (var name in TabNames)
+                    {
+                        <button type="button" role="tab" aria-selected="@(tab == name ? "true" : "false")" @onclick="() => tab = name">@name</button>
+                    }
+                </div>
+            </Toolbar>
+            <ChildContent>
+                @switch (tab)
+                {
+                    case "Overview":
+                        <p>Tabs in the header switch what the body shows. Their state belongs to the page, so it's ordinary Blazor.</p>
+                        break;
+                    case "Activity":
+                        <ul class="gk-list">
+                            <li><Icon Name="check" Class="demo-up" /> Invoice #4821 paid</li>
+                            <li><Icon Name="mail" Class="gk-muted" /> 3 new messages</li>
+                            <li><Icon Name="alert" Class="demo-down" /> Backup took longer than usual</li>
+                        </ul>
+                        break;
+                    default:
+                        <label class="gk-field">
+                            <span class="gk-field-label">Display name</span>
+                            <input class="gk-input" value="Ada Lovelace" />
+                        </label>
+                        break;
+                }
+            </ChildContent>
+        </DashboardWidget>
+
+        <DashboardWidget Id="refresh" Title="Refresh" Icon="refresh" Color="teal" W="6" AutoHeight
+                         Buttons="WidgetButtons.Refresh | WidgetButtons.Fullscreen | WidgetButtons.Collapse" OnRefresh="NextQuoteAsync">
+            <blockquote class="demo-quote">
+                <p>@Quotes[quote].Text</p>
+                <footer>— @Quotes[quote].Author</footer>
+            </blockquote>
+            <p class="gk-muted gk-small">The refresh button shows a spinner while your handler runs, then the time it last updated.</p>
+        </DashboardWidget>
+
+        <DashboardWidget Id="collapsed" Title="Collapsed" Icon="chevron-down" Color="slate" W="6" AutoHeight Collapsed>
+            <p>This one started collapsed. Its state is saved, so if you expand it, it stays expanded after a reload.</p>
+        </DashboardWidget>
+
+        <DashboardWidget Id="progress" Title="Progress bars" Icon="gauge" Color="orange" W="6" AutoHeight>
+            <Toolbar>
+                <div class="gk-progress demo-header-progress gk-color-orange" style="--gk-value: 64%" title="64%"><span></span></div>
+            </Toolbar>
+            <ChildContent>
+                <div class="gk-stack">
+                    @foreach (var (label, value, color) in Progress)
+                    {
+                        <div class="demo-meter">
+                            <div class="demo-meter-label"><span>@label</span><span class="gk-muted">@value%</span></div>
+                            <div class="gk-progress gk-color-@color" style="--gk-value: @(value)%"><span></span></div>
+                        </div>
+                    }
+                </div>
+            </ChildContent>
+        </DashboardWidget>
+
+        <DashboardWidget Id="buttons" Title="Header buttons" Icon="zap" W="6" AutoHeight>
+            <Toolbar>
+                <button type="button" class="gk-button gk-button-small" @onclick='() => action = "Saved"'><Icon Name="check" /> Save</button>
+                <button type="button" class="gk-button gk-button-small" @onclick='() => action = "Exported"'><Icon Name="file" /> Export</button>
+            </Toolbar>
+            <ChildContent>
+                <p>Your own buttons sit in the header alongside the widget's.</p>
+                <p class="demo-result">@(action ?? "Press a button above.")</p>
+            </ChildContent>
+        </DashboardWidget>
+
+        <DashboardWidget Id="paging" Title="With paging" Icon="list" Color="indigo" W="6" AutoHeight>
+            <ChildContent>
+                <ul class="gk-list">
+                    @foreach (var person in People.Skip(page * PAGE_SIZE).Take(PAGE_SIZE))
+                    {
+                        <li><span class="demo-avatar">@person[0]</span> @person</li>
+                    }
+                </ul>
+            </ChildContent>
+            <Footer>
+                <span class="gk-muted">Page @(page + 1) of @Pages</span>
+                <span class="demo-spacer"></span>
+                <button type="button" class="gk-button gk-button-small" disabled="@(page == 0)" @onclick="() => page--">Previous</button>
+                <button type="button" class="gk-button gk-button-small" disabled="@(page >= Pages - 1)" @onclick="() => page++">Next</button>
+            </Footer>
+        </DashboardWidget>
+
+        <DashboardWidget Id="dropdown" Title="Dropdown" Icon="more" W="6" AutoHeight>
+            <Toolbar>
+                <span class="gk-popover-anchor">
+                    <button type="button" class="gk-button gk-button-small" aria-haspopup="true" aria-expanded="@(menuOpen ? "true" : "false")" @onclick="() => menuOpen = !menuOpen">
+                        @period <Icon Name="chevron-down" />
+                    </button>
+                    @if (menuOpen)
+                    {
+                        <div class="gk-menu-layer" data-gk-nodrag @onclick="() => menuOpen = false"></div>
+                        <div class="gk-popover gk-menu" role="menu" data-gk-nodrag>
+                            @foreach (var choice in Periods)
+                            {
+                                <button type="button" class="gk-menu-item" role="menuitem" @onclick="() => { period = choice; menuOpen = false; }">
+                                    <Icon Name="@(choice == period ? "check" : "calendar")" />
+                                    <span>@choice</span>
+                                </button>
+                            }
+                        </div>
+                    }
+                </span>
+            </Toolbar>
+            <ChildContent>
+                <p>A menu in the header. Showing figures for <strong>@period.ToLowerInvariant()</strong>.</p>
+                <div class="demo-figures">
+                    <div><span class="gk-muted gk-small">Visits</span><strong>@(Periods.IndexOf(period) switch { 0 => "1,284", 1 => "5,930", _ => "18,402" })</strong></div>
+                    <div><span class="gk-muted gk-small">Sign-ups</span><strong>@(Periods.IndexOf(period) switch { 0 => "86", 1 => "412", _ => "1,377" })</strong></div>
+                </div>
+            </ChildContent>
+        </DashboardWidget>
+
+        <DashboardWidget Id="switch" Title="Switch" Icon="settings" W="6" AutoHeight>
+            <Toolbar>
+                <label class="gk-switch" title="Show details">
+                    <input type="checkbox" @bind="details" aria-label="Show details" />
+                    <span class="gk-switch-track"></span>
+                </label>
+            </Toolbar>
+            <ChildContent>
+                <p>A switch in the header toggles the details.</p>
+                @if (details)
+                {
+                    <ul class="gk-list">
+                        <li><span class="gk-muted">Server</span> <span class="demo-grow"></span> eu-west-2</li>
+                        <li><span class="gk-muted">Version</span> <span class="demo-grow"></span> 4.12.1</li>
+                        <li><span class="gk-muted">Started</span> <span class="demo-grow"></span> 3 days ago</li>
+                    </ul>
+                }
+            </ChildContent>
+        </DashboardWidget>
+
+        <DashboardWidget Id="locked" Title="Locked" Icon="lock" Color="amber" X="6" Y="0" W="6" AutoHeight Locked
+                         Buttons="WidgetButtons.Collapse">
+            <p>This one stays put: it can't be dragged or resized, and other widgets flow around it.</p>
+        </DashboardWidget>
+
+        <DashboardWidget Id="fixed-height" Title="Fixed height" Icon="table" W="6" H="9" MinH="4">
+            <p>Without automatic height, the body scrolls when the content is taller than the widget. Resize it in edit mode.</p>
+            @foreach (var line in Enumerable.Range(1, 12))
+            {
+                <p class="gk-muted">Line @line of a long story that keeps going so the body has something to scroll.</p>
+            }
+        </DashboardWidget>
+
+        <DashboardWidget Id="no-padding" Title="No padding" Icon="table" Color="sky" W="6" AutoHeight NoPadding>
+            <BodyToolbar>
+                <span class="gk-small gk-muted">Edge-to-edge content, with a toolbar under the header</span>
+            </BodyToolbar>
+            <ChildContent>
+                <table class="gk-table">
+                    <thead><tr><th>Name</th><th>Role</th><th>Status</th></tr></thead>
+                    <tbody>
+                        <tr><td>Ava Thompson</td><td>Designer</td><td><span class="gk-badge gk-color-green">Active</span></td></tr>
+                        <tr><td>Liam Chen</td><td>Developer</td><td><span class="gk-badge gk-color-green">Active</span></td></tr>
+                        <tr><td>Mia Rossi</td><td>Support</td><td><span class="gk-badge gk-color-amber">Away</span></td></tr>
+                    </tbody>
+                </table>
+            </ChildContent>
+        </DashboardWidget>
+    </Dashboard>
+
+    <section class="demo-section">
+        <h2>On their own</h2>
+        <p class="demo-muted">The <code>&lt;Widget&gt;</code> frame works without a dashboard, anywhere in a page.</p>
+        <div class="demo-standalone">
+            <Widget Title="Loading state" Icon="cloud" Theme="@theme" Buttons="WidgetButtons.Refresh | WidgetButtons.Collapse"
+                    OnRefresh="() => Task.Delay(1200)" Loading="loading">
+                <Toolbar>
+                    <button type="button" class="gk-button gk-button-small" @onclick="() => loading = !loading">@(loading ? "Stop" : "Load")</button>
+                </Toolbar>
+                <ChildContent>
+                    <p>Set <code>Loading</code> to cover the body with a spinner, or refresh to see the spinner while the handler runs.</p>
+                </ChildContent>
+            </Widget>
+            <Widget Icon="heart" Theme="@theme" Chrome="WidgetChrome.Card" Color="rose" @bind-Collapsed="standaloneCollapsed"
+                    Buttons="WidgetButtons.Collapse | WidgetButtons.Fullscreen">
+                <TitleContent>A card <span class="gk-badge gk-color-rose">with markup in the title</span></TitleContent>
+                <ChildContent>
+                    <p>The card frame, two-way bound: it's <strong>@(standaloneCollapsed ? "collapsed" : "expanded")</strong>.</p>
+                </ChildContent>
+            </Widget>
+            <Widget Title="Hover for buttons" Icon="eye" Theme="@theme" ButtonsOnHover @bind-Color="standaloneColor"
+                    Buttons="WidgetButtons.Color | WidgetButtons.Edit | WidgetButtons.Delete">
+                <p>Its buttons appear when you hover or tab into it. Colour: <code>@(standaloneColor ?? "none")</code>.</p>
+            </Widget>
+        </div>
+    </section>
+
+    <ChangeLog @ref="log" />
+</div>
+
+@code {
+    private const int PAGE_SIZE = 4;
+    private static readonly string[] TabNames = ["Overview", "Activity", "Settings"];
+    private static readonly List<string> Periods = ["Last 7 days", "Last 30 days", "Last 90 days"];
+    private static readonly (string Label, int Value, string Color)[] Progress =
+    [
+        ("Storage", 72, "blue"),
+        ("Bandwidth", 45, "green"),
+        ("Build minutes", 88, "red"),
+        ("Seats", 60, "violet"),
+    ];
+    private static readonly string[] People =
+    [
+        "Ava Thompson", "Liam Chen", "Noah Patel", "Mia Rossi", "Lucas Müller", "Emma Dubois", "Oliver Smith",
+        "Sofia García", "Ethan Kim", "Isla Murphy", "Leo Novak", "Zara Ahmed", "Hugo Larsen", "Nora Silva",
+    ];
+    private static readonly (string Text, string Author)[] Quotes =
+    [
+        ("Simplicity is prerequisite for reliability.", "Edsger W. Dijkstra"),
+        ("Make it work, make it right, make it fast.", "Kent Beck"),
+        ("The best way to predict the future is to invent it.", "Alan Kay"),
+        ("Programs must be written for people to read.", "Harold Abelson"),
+        ("Premature optimization is the root of all evil.", "Donald Knuth"),
+    ];
+    private static readonly (string Icon, string Color, string Text)[] FeedSamples =
+    [
+        ("cart", "green", "New order #10492 from Ava Thompson"),
+        ("users", "blue", "Liam Chen joined the team"),
+        ("alert", "red", "Disk usage passed 80% on db-02"),
+        ("message", "violet", "Mia commented on the release notes"),
+        ("cloud", "sky", "Nightly backup finished"),
+        ("star", "amber", "Your dashboard got 5 new stars"),
+    ];
+
+    private readonly Random random = new();
+    private readonly List<Feed> feeds = [.. FeedSamples.Take(4).Select((s, i) => new Feed(s.Icon, s.Color, s.Text, DateTime.UtcNow.AddMinutes(-(i * 7) - 2)))];
+
+    private ChangeLog? log;
+    private string theme = Constants.Themes.Auto;
+    private WidgetChrome chrome = WidgetChrome.Panel;
+    private bool hoverButtons;
+    private string subtitle = string.Empty;
+    private string tab = "Overview";
+    private int quote;
+    private string? action;
+    private int page;
+    private bool menuOpen;
+    private string period = Periods[0];
+    private bool details = true;
+    private bool loading;
+    private bool standaloneCollapsed;
+    private string? standaloneColor = "cyan";
+
+    private int Pages => (int)Math.Ceiling(People.Length / (double)PAGE_SIZE);
+
+    private void AddFeed()
+    {
+        var sample = FeedSamples[random.Next(FeedSamples.Length)];
+        feeds.Insert(0, new Feed(sample.Icon, sample.Color, sample.Text, DateTime.UtcNow));
+        if (feeds.Count > 5)
+        {
+            feeds.RemoveAt(feeds.Count - 1);
+        }
+    }
+
+    private async Task NextQuoteAsync()
+    {
+        await Task.Delay(600);
+        quote = (quote + 1) % Quotes.Length;
+    }
+
+    private static string Ago(DateTime at)
+    {
+        var age = DateTime.UtcNow - at;
+        return age.TotalMinutes < 1 ? "just now" : age.TotalHours < 1 ? $"{(int)age.TotalMinutes} min ago" : $"{(int)age.TotalHours} h ago";
+    }
+
+    private sealed record Feed(string Icon, string Color, string Text, DateTime At);
+}

@@ -1,0 +1,104 @@
+@inherits WidgetComponentBase
+
+<form class="demo-todo-add" @onsubmit="AddAsync">
+    <input class="gk-input" placeholder="Add a task" aria-label="New task" maxlength="200"
+           @bind="draft" @bind:event="oninput" />
+    <button type="submit" class="gk-button gk-button-primary" disabled="@string.IsNullOrWhiteSpace(draft)">Add</button>
+</form>
+
+@if (Visible.Count == 0)
+{
+    <p class="gk-muted demo-empty">@(tasks.Count == 0 ? "Nothing to do." : "Everything's done.")</p>
+}
+else
+{
+    <ul class="gk-list">
+        @foreach (var task in Visible)
+        {
+            <li class="@(task.Done ? "demo-done" : null)">
+                <label class="demo-check">
+                    <input type="checkbox" checked="@task.Done" @onchange="() => ToggleAsync(task)" />
+                    <span>@task.Text</span>
+                </label>
+                <button type="button" class="gk-icon-button gk-icon-button-danger" aria-label="Delete @task.Text" @onclick="() => DeleteAsync(task)">
+                    <Icon Name="trash" />
+                </button>
+            </li>
+        }
+    </ul>
+}
+
+<WidgetFooter>
+    <span class="gk-muted">@tasks.Count(t => !t.Done) left</span>
+    <span class="demo-spacer"></span>
+    <button type="button" class="gk-button gk-button-small gk-button-ghost" disabled="@(!tasks.Any(t => t.Done))" @onclick="ClearDoneAsync">Clear finished</button>
+</WidgetFooter>
+
+@code {
+    private static readonly TodoItem[] Starter =
+    [
+        new("Drag a widget by its header", true),
+        new("Resize one in edit mode", false),
+        new("Add a widget from the catalog", false),
+        new("Switch to dark mode", false),
+    ];
+
+    private List<TodoItem> tasks = [];
+    private string draft = string.Empty;
+
+    private List<TodoItem> Visible => Option("hideDone", false) ? [.. tasks.Where(t => !t.Done)] : tasks;
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        Load();
+    }
+
+    protected override void OnWidgetChanged() => Load();
+
+    private void Load()
+    {
+        tasks = Context?.OptionNode("items") is JsonArray saved
+            ? [.. saved.OfType<JsonObject>().Select(o => new TodoItem((string?)o["text"] ?? string.Empty, (bool?)o["done"] ?? false))]
+            : [.. Starter];
+    }
+
+    private async Task AddAsync()
+    {
+        if (string.IsNullOrWhiteSpace(draft))
+        {
+            return;
+        }
+
+        tasks.Add(new TodoItem(draft.Trim(), false));
+        draft = string.Empty;
+        await SaveAsync();
+    }
+
+    private Task ToggleAsync(TodoItem task)
+    {
+        int index = tasks.IndexOf(task);
+        tasks[index] = task with { Done = !task.Done };
+        return SaveAsync();
+    }
+
+    private Task DeleteAsync(TodoItem task)
+    {
+        tasks.Remove(task);
+        return SaveAsync();
+    }
+
+    private Task ClearDoneAsync()
+    {
+        tasks.RemoveAll(t => t.Done);
+        return SaveAsync();
+    }
+
+    private Task SaveAsync()
+    {
+        var items = new JsonArray([.. tasks.Select(t => (JsonNode)new JsonObject { ["text"] = t.Text, ["done"] = t.Done })]);
+        return Context?.SetOptionAsync("items", items) ?? Task.CompletedTask;
+    }
+
+    private sealed record TodoItem(string Text, bool Done);
+}

@@ -1,0 +1,53 @@
+@inherits WidgetComponentBase
+
+<WidgetToolbar>
+    <button type="button" class="gk-icon-button" aria-label="Previous month" @onclick="() => month = month.AddMonths(-1)">
+        <Icon Name="chevron-right" Class="demo-flip" />
+    </button>
+    <button type="button" class="gk-button gk-button-small gk-button-ghost" @onclick="() => month = FirstOfMonth(Today)">Today</button>
+    <button type="button" class="gk-icon-button" aria-label="Next month" @onclick="() => month = month.AddMonths(1)">
+        <Icon Name="chevron-right" />
+    </button>
+</WidgetToolbar>
+
+<div class="demo-calendar">
+    <strong class="demo-calendar-title">@month.ToString("MMMM yyyy", Culture)</strong>
+    <div class="demo-calendar-grid" role="grid" aria-label="@month.ToString("MMMM yyyy", Culture)">
+        @foreach (var day in WeekDays)
+        {
+            <span class="demo-calendar-head" role="columnheader">@Culture.DateTimeFormat.GetShortestDayName(day)</span>
+        }
+        @foreach (var date in Days)
+        {
+            <span role="gridcell"
+                  class="demo-calendar-day @(date.Month != month.Month ? "demo-other" : null) @(date == Today ? "demo-today" : null)"
+                  aria-current="@(date == Today ? "date" : null)">@date.Day</span>
+        }
+    </div>
+</div>
+
+@code {
+    private static readonly CultureInfo Culture = CultureInfo.GetCultureInfo("en-GB");
+    private DateOnly month;
+
+    private DateOnly Today => DateOnly.FromDateTime((Context?.LocalNow ?? DateTimeOffset.Now).DateTime);
+
+    private DayOfWeek FirstDay => Option("firstDay", "monday") == "sunday" ? DayOfWeek.Sunday : DayOfWeek.Monday;
+
+    private IEnumerable<DayOfWeek> WeekDays => Enumerable.Range(0, 7).Select(i => (DayOfWeek)(((int)FirstDay + i) % 7));
+
+    private IEnumerable<DateOnly> Days
+    {
+        get
+        {
+            int lead = ((int)month.DayOfWeek - (int)FirstDay + 7) % 7;
+            var start = month.AddDays(-lead);
+            int count = (int)Math.Ceiling((lead + DateTime.DaysInMonth(month.Year, month.Month)) / 7.0) * 7;
+            return Enumerable.Range(0, count).Select(start.AddDays);
+        }
+    }
+
+    protected override void OnInitialized() => month = FirstOfMonth(Today);
+
+    private static DateOnly FirstOfMonth(DateOnly date) => new(date.Year, date.Month, 1);
+}

@@ -1,0 +1,66 @@
+@page "/"
+@rendermode InteractiveServer
+
+<PageTitle>GridKrafter · Dashboard</PageTitle>
+
+<div class="demo-page" data-theme="@theme">
+    <div class="demo-intro">
+        <div>
+            <h1>Dashboard</h1>
+            <p>
+                Widgets in sections on a responsive grid, homarr style. Drag one by its header to move it, into another
+                section too. Switch on <strong>Edit</strong> to resize from the edges, add widgets from the catalog,
+                change their settings, add sections or reset. Everything you change is saved in this browser.
+            </p>
+        </div>
+        <ThemeSelect @bind-Theme="theme" />
+    </div>
+
+    <Dashboard Theme="@theme" StorageKey="blazor-home" ShowToolbar DefaultChrome="WidgetChrome.Card"
+               @bind-EditMode="editing" OnChanged="c => log?.Add(c)" OnLayoutChanged='l => log?.Add("Layout", $"{l.Id}, {l.Columns} columns")'>
+        <WidgetSection Id="overview" Title="Overview" Icon="home">
+            <DashboardWidget Id="revenue" Kind="stat" Title="Revenue" Icon="dollar" Color="green" Chrome="WidgetChrome.Plain"
+                             X="0" Y="0" W="3" H="2" Options='Stat("Revenue", "$48,200", 3.2)' />
+            <DashboardWidget Id="visitors" Kind="stat" Title="Visitors" Icon="users" Color="blue" Chrome="WidgetChrome.Plain"
+                             X="3" Y="0" W="3" H="2" Options='Stat("Visitors", "12,840", 8.1)' />
+            <DashboardWidget Id="orders-count" Kind="stat" Title="Orders" Icon="cart" Color="orange" Chrome="WidgetChrome.Plain"
+                             X="6" Y="0" W="3" H="2" Options='Stat("Orders", "1,204", -2.4)' />
+            <DashboardWidget Id="uptime" Kind="stat" Title="Uptime" Icon="activity" Color="violet" Chrome="WidgetChrome.Plain"
+                             X="9" Y="0" W="3" H="2" Options='Stat("Uptime", "99.98%", 0.02)' />
+            <DashboardWidget Id="sales" Kind="sales" Title="Sales" Icon="chart" X="0" Y="2" W="8" H="5" />
+            <DashboardWidget Id="clock" Kind="clock" Title="Local time" Icon="clock" X="8" Y="2" W="4" H="2" />
+            <DashboardWidget Id="calendar" Kind="calendar" Title="Calendar" Icon="calendar" X="8" Y="4" W="4" H="5" />
+        </WidgetSection>
+
+        <WidgetSection Id="operations" Title="Operations" Icon="server">
+            <DashboardWidget Id="orders" Kind="orders" Title="Recent orders" Icon="cart" X="0" Y="0" W="8" H="6" />
+            <DashboardWidget Id="load" Kind="server-load" Title="Server load" Icon="server" X="8" Y="0" W="4" H="4" />
+        </WidgetSection>
+
+        <WidgetSection Id="personal" Title="Personal" Icon="star">
+            <DashboardWidget Id="todo" Kind="todo" Title="To-do" Icon="list" X="0" Y="0" W="4" H="5" />
+            <DashboardWidget Id="notes" Kind="notes" Title="Notes" Icon="note" X="4" Y="0" W="4" H="5"
+                             Options='new JsonObject { ["text"] = "Widgets keep their own state in the board, so these notes come back after a reload." }' />
+            <DashboardWidget Id="about" Title="This widget" Icon="info" X="8" Y="0" W="4" H="3" AutoHeight>
+                <p>Declared right in the page, with a body that reads its <code>WidgetContext</code>:</p>
+                <ul class="gk-list">
+                    <li><span class="gk-muted">Position</span> column @(context.Rect.X + 1), row @(context.Rect.Y + 1)</li>
+                    <li><span class="gk-muted">Size</span> @context.Rect.W × @context.Rect.H of @context.Columns columns</li>
+                    <li><span class="gk-muted">Edit mode</span> @(context.IsEditing ? "on" : "off")</li>
+                </ul>
+            </DashboardWidget>
+            <DashboardWidget Id="links" Kind="links" Title="Bookmarks" Icon="link" X="8" Y="3" W="4" H="3" />
+        </WidgetSection>
+    </Dashboard>
+
+    <ChangeLog @ref="log" />
+</div>
+
+@code {
+    private ChangeLog? log;
+    private string theme = Constants.Themes.Auto;
+    private bool editing;
+
+    private static JsonObject Stat(string label, string value, double change) =>
+        new() { ["label"] = label, ["value"] = value, ["change"] = change };
+}

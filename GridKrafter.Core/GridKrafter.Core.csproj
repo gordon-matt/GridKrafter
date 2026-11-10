@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<RootNamespace>GridKrafter</RootNamespace>
+		<Description>The GridKrafter dashboard model, shared by the browser and the server: a pure grid layout engine (vertical compaction or free placement, collision handling, responsive projection), boards with per-breakpoint placements, JSON and the language catalogs.</Description>
+		<PackageTags>dashboard;widgets;grid-layout;layout-engine;responsive;gridkrafter</PackageTags>
+		<IsTrimmable>true</IsTrimmable>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Ardalis.Result" Version="10.1.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<EmbeddedResource Include="Locales\*.json" LogicalName="GridKrafter.Locales.%(Filename)%(Extension)" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<InternalsVisibleTo Include="GridKrafter.Components" />
+		<InternalsVisibleTo Include="GridKrafter.Tests" />
+	</ItemGroup>
+
+</Project>

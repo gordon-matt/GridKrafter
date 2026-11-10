@@ -1,0 +1,28 @@
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+<!DOCTYPE html>
+<html lang="en" data-theme="@(ViewData["Theme"] ?? Constants.Themes.Auto)">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    @* The page's script sends this with each save. *@
+    <meta name="request-verification-token" content="@Antiforgery.GetAndStoreTokens(Context).RequestToken" />
+    <title>GridKrafter · MVC demo</title>
+    <base href="~/" />
+    <link rel="icon" type="image/png" href="~/img/Icon.png" asp-append-version="true" />
+    <link rel="stylesheet" href="~/_content/GridKrafter.Components/gridkrafter.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/site.css" asp-append-version="true" />
+</head>
+<body>
+    <header class="demo-nav">
+        <a class="demo-brand" href="~/">
+            <img src="~/img/Logo.png" alt="GridKrafter" asp-append-version="true" />
+            <span>MVC demo</span>
+        </a>
+    </header>
+    <main class="demo-main">
+        @RenderBody()
+    </main>
+    <script src="~/_framework/blazor.server.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

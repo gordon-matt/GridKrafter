@@ -1,0 +1,110 @@
+@inherits WidgetComponentBase
+
+<WidgetBodyToolbar>
+    <div class="demo-pills" role="group" aria-label="Status">
+        @foreach (var status in Filters)
+        {
+            <button type="button" aria-pressed="@(filter == status ? "true" : "false")" @onclick="() => SetFilter(status)">@status</button>
+        }
+    </div>
+    <input class="gk-input demo-search" type="search" placeholder="Search customers" aria-label="Search customers"
+           @bind="search" @bind:event="oninput" @bind:after="() => page = 0" />
+</WidgetBodyToolbar>
+
+@if (Matches.Count == 0)
+{
+    <p class="gk-muted demo-empty">No orders match.</p>
+}
+else
+{
+    <table class="gk-table">
+        <thead>
+            <tr>
+                <th>Order</th>
+                <th>Customer</th>
+                <th class="demo-wide-only">Date</th>
+                <th>Status</th>
+                <th class="demo-number">Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in Matches.Skip(page * PageSize).Take(PageSize))
+            {
+                <tr>
+                    <td class="demo-mono">#@order.Id</td>
+                    <td>@order.Customer</td>
+                    <td class="demo-wide-only">@order.Date.ToString("MMM d", Culture)</td>
+                    <td><span class="gk-badge @ToneOf(order.Status)">@order.Status</span></td>
+                    <td class="demo-number">@order.Total.ToString("C2", Culture)</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<WidgetFooter>
+    <span class="gk-muted">@Summary</span>
+    <span class="demo-spacer"></span>
+    <button type="button" class="gk-button gk-button-small" disabled="@(page == 0)" @onclick="() => page--">Previous</button>
+    <span class="gk-small">@(page + 1) / @Pages</span>
+    <button type="button" class="gk-button gk-button-small" disabled="@(page >= Pages - 1)" @onclick="() => page++">Next</button>
+</WidgetFooter>
+
+@code {
+    private static readonly CultureInfo Culture = CultureInfo.GetCultureInfo("en-US");
+    private static readonly string[] Filters = ["All", "Pending", "Shipped", "Delivered", "Refunded"];
+    private static readonly Order[] Orders = CreateOrders();
+
+    private string filter = "All";
+    private string search = string.Empty;
+    private int page;
+
+    private int PageSize => Math.Clamp(Option("pageSize", 5), 1, 50);
+
+    private List<Order> Matches => [.. Orders
+        .Where(o => filter == "All" || o.Status == filter)
+        .Where(o => o.Customer.Contains(search.Trim(), StringComparison.OrdinalIgnoreCase))];
+
+    private int Pages => Math.Max(1, (int)Math.Ceiling(Matches.Count / (double)PageSize));
+
+    private string Summary
+    {
+        get
+        {
+            int count = Matches.Count;
+            return count == 0 ? "No orders" : $"{(page * PageSize) + 1}–{Math.Min(count, (page + 1) * PageSize)} of {count}";
+        }
+    }
+
+    protected override void OnWidgetChanged() => page = Math.Min(page, Pages - 1);
+
+    private void SetFilter(string status)
+    {
+        filter = status;
+        page = 0;
+    }
+
+    private static string ToneOf(string status) => status switch
+    {
+        "Pending" => "gk-color-amber",
+        "Shipped" => "gk-color-blue",
+        "Delivered" => "gk-color-green",
+        _ => "gk-color-red",
+    };
+
+    private static Order[] CreateOrders()
+    {
+        string[] customers = ["Ava Thompson", "Liam Chen", "Noah Patel", "Mia Rossi", "Lucas Müller", "Emma Dubois", "Oliver Smith", "Sofia García", "Ethan Kim", "Isla Murphy", "Leo Novak", "Zara Ahmed"];
+        string[] statuses = ["Pending", "Shipped", "Delivered", "Delivered", "Shipped", "Refunded"];
+        var random = new Random(7);
+        var today = DateTime.Today;
+        return [.. Enumerable.Range(0, 28).Select(i => new Order(
+            10480 - i,
+            customers[random.Next(customers.Length)],
+            today.AddDays(-i / 2),
+            statuses[random.Next(statuses.Length)],
+            Math.Round(20 + random.NextDouble() * 480, 2)))];
+    }
+
+    private sealed record Order(int Id, string Customer, DateTime Date, string Status, double Total);
+}

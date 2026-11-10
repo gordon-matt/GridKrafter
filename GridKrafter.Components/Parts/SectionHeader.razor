@@ -1,0 +1,71 @@
+@* A section's heading: collapse, title (renamable in edit mode), widget count, and in edit mode add, reorder and delete. *@
+<header class="gk-section-header">
+    @if (Section.Collapsible)
+    {
+        <button type="button" class="gk-icon-button gk-section-toggle" aria-expanded="@(Section.Collapsed ? "false" : "true")"
+                title="@(Section.Collapsed ? Text["section.expand"] : Text["section.collapse"])"
+                aria-label="@(Section.Collapsed ? Text["section.expand"] : Text["section.collapse"])"
+                @onclick="() => Owner.ToggleSectionAsync(Section.Id)">
+            <Icon Name="chevron-down" Class="gk-section-chevron" />
+        </button>
+    }
+    @if (!string.IsNullOrWhiteSpace(Section.Icon))
+    {
+        <span class="gk-section-icon"><Icon Name="@Section.Icon" /></span>
+    }
+    @if (Editing)
+    {
+        <input class="gk-input gk-section-title-input" type="text" value="@Section.Title" placeholder="@Text["section.untitled"]"
+               aria-label="@Text["section.title"]" @onchange="RenameAsync" />
+    }
+    else
+    {
+        <h2 class="gk-section-title">@(string.IsNullOrWhiteSpace(Section.Title) ? Text["section.untitled"] : Section.Title)</h2>
+    }
+    <span class="gk-section-count">@(Count == 1 ? Text["section.countOne"] : Text.Format("section.count", Count))</span>
+    @if (Editing)
+    {
+        <div class="gk-section-actions">
+            @if (Owner.Definitions.Count > 0)
+            {
+                <button type="button" class="gk-icon-button" title="@Text["dashboard.addWidget"]" aria-label="@Text["dashboard.addWidget"]" @onclick="() => Owner.OpenCatalog(Section.Id)">
+                    <Icon Name="plus" />
+                </button>
+            }
+            <button type="button" class="gk-icon-button" title="@Text["section.moveUp"]" aria-label="@Text["section.moveUp"]" disabled="@(Index == 0)" @onclick="() => Owner.MoveSectionAsync(Section.Id, -1)">
+                <Icon Name="arrow-up" />
+            </button>
+            <button type="button" class="gk-icon-button" title="@Text["section.moveDown"]" aria-label="@Text["section.moveDown"]" disabled="@(Index == Owner.Sections.Count - 1)" @onclick="() => Owner.MoveSectionAsync(Section.Id, 1)">
+                <Icon Name="arrow-down" />
+            </button>
+            <button type="button" class="gk-icon-button gk-icon-button-danger" title="@Text["section.delete"]" aria-label="@Text["section.delete"]" disabled="@(Owner.Sections.Count < 2)" @onclick="() => Owner.RemoveSectionAsync(Section.Id)">
+                <Icon Name="trash" />
+            </button>
+        </div>
+    }
+</header>
+
+@code {
+    /// <summary>
+    /// Gets or sets the dashboard the section belongs to.
+    /// </summary>
+    [Parameter, EditorRequired] public Dashboard Owner { get; set; } = default!;
+
+    /// <summary>
+    /// Gets or sets the section.
+    /// </summary>
+    [Parameter, EditorRequired] public DashboardSection Section { get; set; } = default!;
+
+    /// <summary>
+    /// Gets or sets the number of visible widgets in it.
+    /// </summary>
+    [Parameter] public int Count { get; set; }
+
+    private GridKrafterText Text => Owner.Text;
+
+    private bool Editing => Owner.IsEditing && Owner.CanEdit;
+
+    private int Index => Owner.Sections.ToList().FindIndex(s => string.Equals(s.Id, Section.Id, StringComparison.Ordinal));
+
+    private Task RenameAsync(ChangeEventArgs e) => Owner.RenameSectionAsync(Section.Id, e.Value?.ToString());
+}

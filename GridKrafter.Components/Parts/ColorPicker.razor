@@ -1,0 +1,41 @@
+@* The palette as swatches, plus one to go back to the theme's own colour. *@
+<div class="gk-swatches" role="group" aria-label="@Text["widget.color"]">
+    <button type="button" class="gk-swatch gk-swatch-default @(IsSelected(null) ? "gk-swatch-selected" : null)"
+            title="@Text["widget.defaultColor"]" aria-label="@Text["widget.defaultColor"]"
+            aria-pressed="@(IsSelected(null) ? "true" : "false")" @onclick="() => PickAsync(null)">
+        <Icon Name="x" />
+    </button>
+    @foreach (string name in WidgetColors.Names)
+    {
+        <button type="button" class="gk-swatch gk-color-@name @(IsSelected(name) ? "gk-swatch-selected" : null)"
+                title="@Text.ColorName(name)" aria-label="@Text.ColorName(name)"
+                aria-pressed="@(IsSelected(name) ? "true" : "false")" @onclick="() => PickAsync(name)">
+            @if (IsSelected(name))
+            {
+                <Icon Name="check" />
+            }
+        </button>
+    }
+</div>
+
+@code {
+    /// <summary>
+    /// Gets or sets the current colour: a palette name, a CSS colour, or <see langword="null"/> for the default.
+    /// </summary>
+    [Parameter] public string? Value { get; set; }
+
+    /// <summary>
+    /// Gets or sets the callback for a new colour.
+    /// </summary>
+    [Parameter] public EventCallback<string?> ValueChanged { get; set; }
+
+    /// <summary>
+    /// Gets or sets the strings.
+    /// </summary>
+    [Parameter] public GridKrafterText Text { get; set; } = GridKrafterText.English;
+
+    private bool IsSelected(string? name) =>
+        name is null ? string.IsNullOrEmpty(Value) : string.Equals(name, Value, StringComparison.OrdinalIgnoreCase);
+
+    private Task PickAsync(string? name) => ValueChanged.InvokeAsync(name);
+}

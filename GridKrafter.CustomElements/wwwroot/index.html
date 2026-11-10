@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GridKrafter custom element</title>
+    <base href="/" />
+    <link rel="stylesheet" href="_content/GridKrafter.Components/gridkrafter.css" />
+    <style>
+        body { margin: 0; background: #f3f4f7; color: #171a21; font: 15px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+        body.dark { background: #0d1117; color: #e6edf3; }
+        .site-nav { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 28px; background: #fff; border-bottom: 1px solid #e1e4ea; }
+        body.dark .site-nav { background: #161b22; border-color: #30363d; }
+        .site-nav strong span { margin-left: 6px; font-weight: 500; color: #687182; font-size: 13px; }
+        .site-nav label { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; }
+        .site-main { max-width: 1320px; margin: 0 auto; padding: 24px 28px; display: grid; gap: 20px; }
+        pre { margin: 0; max-height: 220px; padding: 12px 14px; background: #fff; border: 1px solid #e1e4ea; border-radius: 10px; overflow: auto; font-size: 12px; }
+        body.dark pre { background: #161b22; border-color: #30363d; }
+        h2 { margin: 0 0 8px; font-size: 13px; color: #687182; font-weight: 600; }
+        .stat { display: flex; flex-direction: column; gap: 2px; }
+        .stat b { font-size: 26px; line-height: 1.1; }
+    </style>
+</head>
+<body>
+    <header class="site-nav">
+        <strong>GridKrafter <span>plain HTML, custom element</span></strong>
+        <label>
+            Theme
+            <select id="theme">
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+                <option value="auto">Auto</option>
+            </select>
+        </label>
+    </header>
+
+    <main class="site-main">
+        <gk-dashboard id="dashboard" storage-key="custom-element-demo" show-toolbar="true" chrome="card"></gk-dashboard>
+        <section>
+            <h2>Last event</h2>
+            <pre id="log">-</pre>
+        </section>
+    </main>
+
+    <!-- Widgets whose kind is a template: the catalog clones them into new widgets. -->
+    <template id="tpl-note">
+        <p>Templates are cloned into the widget, so plain HTML pages can offer widgets without any framework.</p>
+    </template>
+    <template id="tpl-links">
+        <ul class="gk-list">
+            <li><a href="https://github.com/gordon-matt/GridKrafter">GridKrafter on GitHub</a></li>
+            <li><a href="https://developer.mozilla.org/docs/Web/API/Web_components">Web components</a></li>
+        </ul>
+    </template>
+
+    <script>
+        const board = {
+            sections: [
+                { id: 'overview', title: 'Overview', icon: 'home' },
+                { id: 'details', title: 'Details', icon: 'layers' }
+            ],
+            items: [
+                { id: 'visitors', section: 'overview', title: 'Visitors', icon: 'users', color: 'blue', x: 0, y: 0, w: 3, h: 2, html: '<div class="stat"><b>12,480</b><span class="gk-muted">+8% this week</span></div>' },
+                { id: 'revenue', section: 'overview', title: 'Revenue', icon: 'dollar', color: 'green', x: 3, y: 0, w: 3, h: 2, html: '<div class="stat"><b>$48,200</b><span class="gk-muted">+3% this week</span></div>' },
+                { id: 'orders', section: 'overview', title: 'Orders', icon: 'cart', color: 'violet', x: 6, y: 0, w: 3, h: 2, html: '<div class="stat"><b>1,204</b><span class="gk-muted">-2% this week</span></div>' },
+                { id: 'uptime', section: 'overview', title: 'Uptime', icon: 'activity', color: 'teal', x: 9, y: 0, w: 3, h: 2, html: '<div class="stat"><b>99.98%</b><span class="gk-muted">Last 30 days</span></div>' },
+                { id: 'about', section: 'details', title: 'About this page', icon: 'info', w: 6, h: 3, autoHeight: true, html: '<p>This dashboard is a <code>&lt;gk-dashboard&gt;</code> custom element running on Blazor WebAssembly. Drag widgets by their header, turn on edit mode to resize them, and add more from the catalog. Everything is saved in local storage.</p>' },
+                { id: 'links', section: 'details', title: 'Links', icon: 'link', w: 6, h: 3, template: '#tpl-links' }
+            ]
+        };
+
+        const catalog = [
+            { kind: 'note', name: 'Note', description: 'A short note from a template.', icon: 'note', color: 'amber', w: 4, h: 2, template: '#tpl-note' },
+            { kind: 'links', name: 'Links', description: 'A list of useful links.', icon: 'link', color: 'sky', w: 4, h: 3, template: '#tpl-links' },
+            { kind: 'clock', name: 'Clock', description: 'The time in the browser.', icon: 'clock', color: 'indigo', w: 3, h: 2, html: '<div class="stat"><b data-clock>--:--</b><span class="gk-muted">Local time</span></div>' }
+        ];
+
+        const dashboard = document.getElementById('dashboard');
+        dashboard.setAttribute('board', JSON.stringify(board));
+        dashboard.setAttribute('catalog', JSON.stringify(catalog));
+
+        const theme = document.getElementById('theme');
+        theme.addEventListener('change', () => {
+            dashboard.setAttribute('theme', theme.value);
+            document.body.classList.toggle('dark', theme.value === 'dark');
+        });
+
+        for (const name of ['gk-ready', 'gk-changed', 'gk-layout', 'gk-edit-mode', 'gk-mounts']) {
+            dashboard.addEventListener(name, e => {
+                const { board, ...rest } = e.detail ?? {};
+                document.getElementById('log').textContent = `${name}\n${JSON.stringify(rest, null, 2)}`;
+            });
+        }
+
+        setInterval(() => {
+            for (const clock of document.querySelectorAll('[data-clock]')) {
+                clock.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            }
+        }, 1000);
+    </script>
+    <script src="_framework/blazor.webassembly.js"></script>
+</body>
+</html>

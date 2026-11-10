@@ -1,0 +1,25 @@
+@model IReadOnlyList<Order>
+
+<table class="gk-table">
+    <thead>
+        <tr>
+            <th>Order</th>
+            <th>Customer</th>
+            <th class="demo-wide-only">Placed</th>
+            <th>Status</th>
+            <th class="demo-number">Total</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var order in Model)
+        {
+            <tr>
+                <td class="demo-mono">#@order.Number</td>
+                <td>@order.Customer</td>
+                <td class="demo-wide-only gk-muted">@DemoData.Ago(order.Placed)</td>
+                <td><span class="gk-badge @DemoData.ToneOf(order.Status)">@order.Status</span></td>
+                <td class="demo-number">@order.Total.ToString("C2", DemoData.Culture)</td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,18 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="Directory.Build.props" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/Demos/">
+    <Project Path="GridKrafter.Demo.Blazor/GridKrafter.Demo.Blazor.csproj" />
+    <Project Path="GridKrafter.Demo.Mvc/GridKrafter.Demo.Mvc.csproj" />
+    <Project Path="gridkrafter.demo.react/gridkrafter.demo.react.esproj">
+      <Build />
+      <Deploy />
+    </Project>
+  </Folder>
+  <Project Path="GridKrafter.Core/GridKrafter.Core.csproj" />
+  <Project Path="GridKrafter.Components/GridKrafter.Components.csproj" />
+  <Project Path="GridKrafter.CustomElements/GridKrafter.CustomElements.csproj" />
+  <Project Path="GridKrafter.Tests/GridKrafter.Tests.csproj" />
+</Solution>

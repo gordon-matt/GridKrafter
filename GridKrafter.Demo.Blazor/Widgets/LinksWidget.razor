@@ -1,0 +1,38 @@
+@inherits WidgetComponentBase
+
+@if (Links.Count == 0)
+{
+    <p class="gk-muted demo-empty">Add links in the edit panel.</p>
+}
+else
+{
+    <ul class="gk-list">
+        @foreach (var (title, address) in Links)
+        {
+            <li>
+                <Icon Name="globe" Class="gk-muted" />
+                <a class="demo-link" href="@address" target="_blank" rel="noopener noreferrer">@title</a>
+                <Icon Name="external" Class="gk-muted demo-link-icon" />
+            </li>
+        }
+    </ul>
+}
+
+@code {
+    private List<(string Title, Uri Address)> Links => [.. (Option("links", string.Empty) ?? string.Empty)
+        .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+        .Select(Parse)
+        .OfType<(string, Uri)>()];
+
+    private static (string, Uri)? Parse(string line)
+    {
+        var parts = line.Split('|', 2, StringSplitOptions.TrimEntries);
+        string address = parts[^1];
+        if (!Uri.TryCreate(address, UriKind.Absolute, out var uri) || (uri.Scheme != Uri.UriSchemeHttps && uri.Scheme != Uri.UriSchemeHttp))
+        {
+            return null;
+        }
+
+        return (parts.Length == 2 && parts[0].Length > 0 ? parts[0] : uri.Host, uri);
+    }
+}

@@ -1,0 +1,14 @@
+@* A bar across the bottom of the widget, for totals, links and pagers. Use it anywhere inside a widget's body. *@
+@if (Context is not null)
+{
+    <SectionContent SectionId="Context.FooterSlot">@ChildContent</SectionContent>
+}
+
+@code {
+    /// <summary>
+    /// Gets or sets what to show in the footer.
+    /// </summary>
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    [CascadingParameter] private WidgetContext? Context { get; set; }
+}

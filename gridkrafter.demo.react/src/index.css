@@ -1,0 +1,144 @@
+/* The demo site's own look. GridKrafter styles itself from gridkrafter.css; the widgets below build on its --gk-* variables. */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+:root {
+    --demo-bg: #f3f4f7;
+    --demo-text: #171a21;
+    --demo-muted: #5f6878;
+    --demo-nav: rgba(255, 255, 255, 0.85);
+    --demo-line: #e1e4ea;
+    --demo-panel: #ffffff;
+    --demo-link: #2563eb;
+}
+
+:root[data-theme="dark"] {
+    --demo-bg: #0d1117;
+    --demo-text: #e6edf3;
+    --demo-muted: #8d96a0;
+    --demo-nav: rgba(13, 17, 23, 0.85);
+    --demo-line: #262c36;
+    --demo-panel: #161b22;
+    --demo-link: #4493f8;
+    color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root[data-theme="auto"] {
+        --demo-bg: #0d1117;
+        --demo-text: #e6edf3;
+        --demo-muted: #8d96a0;
+        --demo-nav: rgba(13, 17, 23, 0.85);
+        --demo-line: #262c36;
+        --demo-panel: #161b22;
+        --demo-link: #4493f8;
+        color-scheme: dark;
+    }
+}
+
+html, body {
+    margin: 0;
+    min-height: 100%;
+    background: var(--demo-bg);
+    color: var(--demo-text);
+    font: 15px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+a { color: var(--demo-link); }
+
+.demo-nav {
+    position: sticky; top: 0; z-index: 10;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    padding: 12px 28px; background: var(--demo-nav); backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--demo-line);
+}
+
+.demo-brand {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-weight: 700; color: inherit; text-decoration: none; font-size: 16px;
+}
+.demo-brand img { height: 34px; width: auto; display: block; }
+.demo-brand span { font-weight: 500; color: var(--demo-muted); font-size: 13px; }
+
+.demo-theme { display: inline-flex; align-items: center; gap: 8px; color: var(--demo-muted); font-size: 14px; white-space: nowrap; }
+.demo-theme select {
+    font: inherit; font-size: 14px; padding: 4px 10px; border-radius: 6px;
+    border: 1px solid var(--demo-line); background: var(--demo-panel); color: var(--demo-text);
+}
+
+.demo-main { max-width: 1440px; margin: 0 auto; padding: 20px 28px 48px; }
+
+.demo-intro { margin-bottom: 16px; }
+.demo-intro h1 { margin: 0 0 4px; font-size: 24px; letter-spacing: -0.01em; }
+.demo-intro p { max-width: 760px; margin: 0; color: var(--demo-muted); }
+
+.demo-muted { margin: 0; color: var(--demo-muted); font-size: 14px; }
+
+.demo-log { margin-top: 36px; padding: 16px 20px; border: 1px solid var(--demo-line); border-radius: 10px; background: var(--demo-panel); }
+.demo-log h2 { margin: 0 0 4px; font-size: 18px; }
+.demo-log ol { margin: 8px 0 0; padding: 0; list-style: none; font-size: 13px; }
+.demo-log li { padding: 3px 0; color: var(--demo-muted); }
+.demo-log time { font-variant-numeric: tabular-nums; }
+.demo-log code { color: var(--demo-text); font-weight: 600; }
+
+@media (max-width: 720px) {
+    .demo-nav { padding: 10px 16px; }
+    .demo-brand img { height: 30px; }
+    .demo-main { padding: 16px; }
+}
+
+/* ------------------------------------------------------------------ widget content */
+
+.gk-root p { margin: 0 0 10px; }
+.gk-root p:last-child { margin-bottom: 0; }
+.gk-root code { font-family: var(--gk-mono); font-size: 0.92em; }
+
+/* The element the wrapper portals each React widget into. It fills the body, so a chart can grow with the widget. */
+.gk-mount:has(> .demo-react-host) { display: flex; flex-direction: column; }
+.demo-react-host { display: flex; flex: 1 1 auto; flex-direction: column; min-width: 0; min-height: 0; }
+
+.demo-up { color: var(--gk-success); }
+.demo-down { color: var(--gk-danger); }
+.demo-number { margin-inline-start: auto; font-variant-numeric: tabular-nums; }
+.demo-empty { margin: 8px 0; text-align: center; }
+.demo-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; }
+
+.demo-stat {
+    display: grid; flex: 1 1 auto; align-content: center; gap: 2px; padding: 14px 18px;
+    border: 1px solid var(--gk-border); border-inline-start: 4px solid var(--gk-tone);
+    border-radius: calc(var(--gk-radius) + 4px); background: var(--gk-surface); box-shadow: var(--gk-shadow);
+}
+.demo-stat-label { color: var(--gk-muted); font-size: 13px; }
+.demo-stat-value { font-size: 24px; font-weight: 650; line-height: 1.2; letter-spacing: -0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.demo-stat-change { font-size: 12.5px; font-weight: 550; white-space: nowrap; }
+.demo-stat-change .gk-muted { font-weight: 400; }
+
+.demo-chart { display: flex; flex: 1 1 auto; flex-direction: column; gap: 10px; min-height: 0; }
+.demo-chart-totals { display: flex; gap: 28px; }
+.demo-chart-totals div { display: grid; }
+.demo-chart-totals span { font-size: 12.5px; }
+.demo-chart-totals strong { font-size: 20px; font-weight: 650; }
+.demo-chart-plot { position: relative; flex: 1 1 auto; min-height: 60px; }
+.demo-chart-plot svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.demo-chart-plot rect { fill: var(--gk-tone); opacity: 0.85; transition: opacity 0.15s; }
+.demo-chart-plot rect:hover { opacity: 1; }
+.demo-chart-line { stroke: var(--gk-text); stroke-width: 2; opacity: 0.55; }
+.demo-chart-axis { display: grid; grid-template-columns: repeat(var(--demo-bars), 1fr); color: var(--gk-muted); font-size: 11.5px; text-align: center; }
+.demo-chart-axis span { overflow: hidden; white-space: nowrap; text-overflow: clip; }
+
+.demo-tasks { display: grid; gap: 6px; }
+.demo-todo-add { display: flex; gap: 8px; }
+.demo-todo-add .gk-button { flex: none; }
+.demo-check { display: inline-flex; flex: 1 1 auto; align-items: center; gap: 8px; min-width: 0; cursor: pointer; }
+.demo-check input { flex: none; width: 16px; height: 16px; accent-color: var(--gk-accent); }
+.demo-done .demo-check span { color: var(--gk-muted); text-decoration: line-through; }
+.gk-list > li > .gk-icon-button { margin-block: -6px; }
+.gk-list > li > .gk-icon-button:hover { color: var(--gk-danger); }
+
+.demo-clock { display: grid; flex: 1 1 auto; place-content: center; text-align: center; }
+.demo-clock-time { font-size: clamp(26px, 9cqi, 44px); font-weight: 650; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; line-height: 1.1; }
+
+.demo-stopwatch { display: grid; justify-items: center; gap: 12px; }
+.demo-stopwatch-buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.demo-laps { justify-self: stretch; font-size: 13px; }
+.demo-laps > li { padding: 5px 0; }

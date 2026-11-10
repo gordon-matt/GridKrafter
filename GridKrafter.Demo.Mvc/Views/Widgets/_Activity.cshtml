@@ -1,0 +1,27 @@
+@model IReadOnlyList<ActivityEntry>
+
+<div>
+    <ul class="gk-list">
+        @foreach (var entry in Model)
+        {
+            <li>
+                <span class="demo-feed-icon gk-color-@entry.Color">
+                    <component type="typeof(Icon)" render-mode="Static" param-Name="@entry.Icon" />
+                </span>
+                <span class="demo-grow">@entry.Text</span>
+                <time class="gk-muted" datetime="@entry.At.ToString("O")" data-relative>@DemoData.Ago(entry.At)</time>
+            </li>
+        }
+    </ul>
+    @* GridKrafter runs scripts in the markup it loads, so a partial view can carry its own behaviour. *@
+    <script>
+        (() => {
+            const format = new Intl.RelativeTimeFormat(undefined, { numeric: 'auto' });
+            for (const time of document.currentScript.parentElement.querySelectorAll('time[data-relative]')) {
+                const minutes = Math.round((Date.parse(time.dateTime) - Date.now()) / 60000);
+                time.textContent = Math.abs(minutes) < 60 ? format.format(minutes, 'minute') : format.format(Math.round(minutes / 60), 'hour');
+                time.title = new Date(time.dateTime).toLocaleString();
+            }
+        })();
+    </script>
+</div>

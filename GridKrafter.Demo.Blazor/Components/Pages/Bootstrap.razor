@@ -1,0 +1,137 @@
+@page "/bootstrap"
+@rendermode InteractiveServer
+
+<PageTitle>GridKrafter · Bootstrap</PageTitle>
+
+<HeadContent>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
+</HeadContent>
+
+<div class="demo-page demo-bootstrap" data-bs-theme="@bootstrapTheme">
+    <div class="demo-intro">
+        <div>
+            <h1>With Bootstrap</h1>
+            <p>
+                With <code>Theme="bootstrap"</code> the dashboard takes its colours, font and corners from Bootstrap 5.3's CSS
+                variables, and follows <code>data-bs-theme</code> into dark mode. Widget content can use Bootstrap's own
+                components. None of this needs Bootstrap: the other pages don't load it.
+            </p>
+        </div>
+        <div class="btn-group" role="group" aria-label="Bootstrap theme">
+            <button type="button" class="btn btn-outline-secondary @(bootstrapTheme == "light" ? "active" : null)" @onclick='() => bootstrapTheme = "light"'>
+                <Icon Name="sun" /> Light
+            </button>
+            <button type="button" class="btn btn-outline-secondary @(bootstrapTheme == "dark" ? "active" : null)" @onclick='() => bootstrapTheme = "dark"'>
+                <Icon Name="moon" /> Dark
+            </button>
+        </div>
+    </div>
+
+    <Dashboard Theme="@Constants.Themes.Bootstrap" StorageKey="blazor-bootstrap" ShowToolbar DefaultChrome="WidgetChrome.Panel">
+        <WidgetSection Id="team" Title="Team" Icon="users">
+            <DashboardWidget Id="members" Title="Members" Icon="users" X="0" Y="0" W="8" H="5" NoPadding>
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr><th>Name</th><th>Role</th><th>Status</th><th class="text-end">Projects</th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var member in Members)
+                        {
+                            <tr>
+                                <td>@member.Name</td>
+                                <td class="text-body-secondary">@member.Role</td>
+                                <td><span class="badge rounded-pill @member.Badge">@member.Status</span></td>
+                                <td class="text-end">@member.Projects</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </DashboardWidget>
+
+            <DashboardWidget Id="goals" Title="Goals" Icon="gauge" Color="green" X="8" Y="0" W="4" H="3" AutoHeight>
+                @foreach (var (label, value, style) in Goals)
+                {
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between small mb-1"><span>@label</span><span class="text-body-secondary">@value%</span></div>
+                        <div class="progress" role="progressbar" aria-label="@label" aria-valuenow="@value" aria-valuemin="0" aria-valuemax="100">
+                            <div class="progress-bar @style" style="width: @(value)%"></div>
+                        </div>
+                    </div>
+                }
+            </DashboardWidget>
+
+            <DashboardWidget Id="invite" Title="Invite someone" Icon="mail" Color="blue" X="8" Y="3" W="4" H="4" AutoHeight>
+                @if (invited is not null)
+                {
+                    <div class="alert alert-success py-2 mb-3" role="status">Invitation sent to @invited.</div>
+                }
+                <form @onsubmit="Invite">
+                    <div class="mb-2">
+                        <label class="form-label small" for="invite-email">Email</label>
+                        <input id="invite-email" class="form-control form-control-sm" type="email" placeholder="name@example.com" @bind="email" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small" for="invite-role">Role</label>
+                        <select id="invite-role" class="form-select form-select-sm" @bind="role">
+                            <option>Viewer</option>
+                            <option>Editor</option>
+                            <option>Admin</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-sm" disabled="@string.IsNullOrWhiteSpace(email)">Send invite</button>
+                </form>
+            </DashboardWidget>
+
+            <DashboardWidget Id="tasks" Title="This week" Icon="list" X="0" Y="5" W="8" H="3" AutoHeight NoPadding>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">Ship the new onboarding <span class="badge text-bg-primary rounded-pill">Today</span></li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">Review pull requests <span class="badge text-bg-secondary rounded-pill">4</span></li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">Quarterly planning <span class="badge text-bg-warning rounded-pill">Fri</span></li>
+                </ul>
+            </DashboardWidget>
+        </WidgetSection>
+
+        <WidgetSection Id="reports" Title="Reports" Icon="chart">
+            <DashboardWidget Id="bs-sales" Kind="sales" Title="Sales" Icon="chart" X="0" Y="0" W="8" H="5" />
+            <DashboardWidget Id="bs-load" Kind="server-load" Title="Server load" Icon="server" X="8" Y="0" W="4" H="4" />
+        </WidgetSection>
+    </Dashboard>
+</div>
+
+@code {
+    private static readonly Member[] Members =
+    [
+        new("Ava Thompson", "Design lead", "Active", "text-bg-success", 6),
+        new("Liam Chen", "Developer", "Active", "text-bg-success", 9),
+        new("Mia Rossi", "Support", "Away", "text-bg-warning", 3),
+        new("Noah Patel", "Developer", "Offline", "text-bg-secondary", 4),
+        new("Sofia García", "Product", "Active", "text-bg-success", 5),
+    ];
+
+    private static readonly (string Label, int Value, string Style)[] Goals =
+    [
+        ("Revenue", 78, "bg-success"),
+        ("New customers", 54, "bg-info"),
+        ("Churn below 2%", 91, "bg-primary"),
+        ("Support tickets", 32, "bg-danger"),
+    ];
+
+    private string bootstrapTheme = "light";
+    private string email = string.Empty;
+    private string role = "Viewer";
+    private string? invited;
+
+    private void Invite()
+    {
+        if (string.IsNullOrWhiteSpace(email))
+        {
+            return;
+        }
+
+        invited = $"{email.Trim()} ({role.ToLowerInvariant()})";
+        email = string.Empty;
+    }
+
+    private sealed record Member(string Name, string Role, string Status, string Badge, int Projects);
+}

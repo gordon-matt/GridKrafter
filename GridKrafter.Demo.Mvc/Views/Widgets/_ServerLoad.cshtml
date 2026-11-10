@@ -1,0 +1,20 @@
+@model IReadOnlyList<Meter>
+
+<ul class="gk-list">
+    @foreach (var meter in Model)
+    {
+        <li>
+            <component type="typeof(Icon)" render-mode="Static" param-Name="@meter.Icon" param-Class='"gk-muted"' />
+            <div class="demo-meter">
+                <div class="demo-meter-label">
+                    <span>@meter.Name</span>
+                    <span class="gk-muted">@meter.Value%</span>
+                </div>
+                <div class="gk-progress @DemoData.ToneOf(meter.Value)" style="--gk-value: @(meter.Value)%"
+                     role="progressbar" aria-label="@meter.Name" aria-valuenow="@meter.Value" aria-valuemin="0" aria-valuemax="100">
+                    <span></span>
+                </div>
+            </div>
+        </li>
+    }
+</ul>

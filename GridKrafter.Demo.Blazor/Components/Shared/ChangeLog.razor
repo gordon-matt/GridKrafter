@@ -1,0 +1,42 @@
+<section class="demo-log" aria-live="polite">
+    <h2>Events</h2>
+    @if (entries.Count == 0)
+    {
+        <p class="demo-muted">Move, resize, collapse or edit a widget and it shows up here.</p>
+    }
+    else
+    {
+        <ol>
+            @foreach (var entry in entries)
+            {
+                <li><time>@entry.At.ToString("HH:mm:ss", CultureInfo.InvariantCulture)</time> <code>@entry.Kind</code> @entry.Detail</li>
+            }
+        </ol>
+    }
+</section>
+
+@code {
+    private const int MAX_ENTRIES = 8;
+    private readonly List<Entry> entries = [];
+
+    /// <summary>Adds an entry at the top.</summary>
+    /// <param name="kind">What happened.</param>
+    /// <param name="detail">What it happened to.</param>
+    public void Add(string kind, string? detail)
+    {
+        entries.Insert(0, new Entry(DateTime.Now, kind, detail));
+        if (entries.Count > MAX_ENTRIES)
+        {
+            entries.RemoveAt(entries.Count - 1);
+        }
+
+        StateHasChanged();
+    }
+
+    /// <summary>Adds a dashboard change.</summary>
+    /// <param name="change">The change.</param>
+    public void Add(DashboardChange change) =>
+        Add(change.Kind.ToString(), string.Join(" · ", new[] { change.ItemId, change.SectionId, change.Layout }.Where(s => !string.IsNullOrEmpty(s))));
+
+    private sealed record Entry(DateTime At, string Kind, string? Detail);
+}

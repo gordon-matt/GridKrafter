@@ -1,0 +1,117 @@
+@inherits WidgetComponentBase
+
+<WidgetToolbar>
+    <div class="gk-tabs" role="tablist" aria-label="Range">
+        @foreach (var (value, label) in Ranges)
+        {
+            <button type="button" role="tab" aria-selected="@(Range == value ? "true" : "false")" @onclick="() => SetRangeAsync(value)">@label</button>
+        }
+    </div>
+</WidgetToolbar>
+
+<div class="demo-chart">
+    <div class="demo-chart-totals">
+        <div>
+            <span class="gk-muted gk-small">Revenue</span>
+            <strong>@Points.Sum(p => p.Revenue).ToString("C0", Culture)</strong>
+        </div>
+        @if (ShowOrders)
+        {
+            <div>
+                <span class="gk-muted gk-small">Orders</span>
+                <strong>@Points.Sum(p => p.Orders).ToString("N0", Culture)</strong>
+            </div>
+        }
+    </div>
+    <div class="demo-chart-plot">
+        <svg viewBox="0 0 @Number(Points.Length * 10) 100" preserveAspectRatio="none" role="img" aria-label="Revenue by @Range">
+            @for (int i = 0; i < Points.Length; i++)
+            {
+                var point = Points[i];
+                double height = point.Revenue / MaxRevenue * 90;
+                <rect x="@Number(i * 10 + 1.5)" y="@Number(100 - height)" width="7" height="@Number(height)" rx="0.8" fill="@Accent">
+                    <title>@point.Label: @point.Revenue.ToString("C0", Culture)</title>
+                </rect>
+            }
+            @if (ShowOrders)
+            {
+                <polyline class="demo-chart-line" points="@OrdersLine" fill="none" vector-effect="non-scaling-stroke" />
+            }
+        </svg>
+    </div>
+    <div class="demo-chart-axis" style="--demo-bars: @Points.Length">
+        @foreach (var point in Points)
+        {
+            <span>@point.Label</span>
+        }
+    </div>
+</div>
+
+@code {
+    private static readonly CultureInfo Culture = CultureInfo.GetCultureInfo("en-US");
+    private static readonly (string Value, string Label)[] Ranges = [("week", "Week"), ("month", "Month"), ("year", "Year")];
+
+    private int seed = Environment.TickCount;
+    private (string Range, int Seed) cachedFor;
+    private ChartPoint[] points = [];
+
+    private string Range => Option("range", "week") ?? "week";
+
+    private bool ShowOrders => Option("orders", true);
+
+    private string Accent => Option("accent", "#3b82f6") ?? "#3b82f6";
+
+    private double MaxRevenue => Math.Max(1, Points.Max(p => p.Revenue));
+
+    private ChartPoint[] Points
+    {
+        get
+        {
+            if (cachedFor != (Range, seed))
+            {
+                cachedFor = (Range, seed);
+                points = Generate(Range, seed);
+            }
+
+            return points;
+        }
+    }
+
+    private string OrdersLine
+    {
+        get
+        {
+            int max = Math.Max(1, Points.Max(p => p.Orders));
+            return string.Join(' ', Points.Select((p, i) => $"{Number(i * 10 + 5)},{Number(100 - (p.Orders / (double)max * 80) - 6)}"));
+        }
+    }
+
+    protected override Task OnRefreshAsync()
+    {
+        seed++;
+        return Task.CompletedTask;
+    }
+
+    private Task SetRangeAsync(string range) => Context?.SetOptionAsync("range", range) ?? Task.CompletedTask;
+
+    private static string Number(double value) => value.ToString("0.##", CultureInfo.InvariantCulture);
+
+    private static ChartPoint[] Generate(string range, int seed)
+    {
+        var random = new Random(HashCode.Combine(range, seed));
+        string[] labels = range switch
+        {
+            "year" => ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+            "month" => ["Wk 1", "Wk 2", "Wk 3", "Wk 4"],
+            _ => ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+        };
+        double scale = range switch { "year" => 120_000, "month" => 32_000, _ => 6_000 };
+        return [.. labels.Select(label =>
+        {
+            double revenue = Math.Round(scale * (0.45 + random.NextDouble() * 0.55));
+            return new ChartPoint(label, revenue, (int)(revenue / (55 + random.Next(30))));
+        })];
+    }
+
+    private sealed record ChartPoint(string Label, double Revenue, int Orders);
+}

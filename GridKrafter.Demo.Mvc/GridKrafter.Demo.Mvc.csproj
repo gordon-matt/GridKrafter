@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<IsPackable>false</IsPackable>
+		<!-- Ships _framework/blazor.server.js, which .NET 10 only includes in apps with their own .razor files. -->
+		<RequiresAspNetWebAssets>true</RequiresAspNetWebAssets>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\GridKrafter.Components\GridKrafter.Components.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Content Remove="App_Data\**" />
+		<None Remove="App_Data\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Using Include="GridKrafter" />
+		<Using Include="GridKrafter.Components" />
+		<Using Include="GridKrafter.Demo.Mvc.Models" />
+		<Using Include="GridKrafter.Demo.Mvc.Services" />
+		<Using Include="GridKrafter.Models" />
+		<Using Include="GridKrafter.Serialization" />
+	</ItemGroup>
+
+</Project>
