@@ -532,10 +532,22 @@ public sealed partial class Widget : IAsyncDisposable
 
     private void ClosePalette() => paletteOpen = false;
 
-    private void ToggleEdit()
+    private async Task ToggleEdit()
     {
         editing = !editing;
         paletteOpen = false;
+        // Collapsed widgets hide the edit panel, so editing one has to open it first.
+        if (editing && collapsed && !fullscreen)
+        {
+            collapsed = false;
+            if (IsStandalone)
+            {
+                context.Item.Collapsed = false;
+                context.NotifyChanged();
+            }
+
+            await CollapsedChanged.InvokeAsync(false);
+        }
     }
 
     private async Task PickColorAsync(string? color)

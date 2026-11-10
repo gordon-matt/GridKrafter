@@ -1,6 +1,6 @@
-@* A section's heading: collapse, title (renamable in edit mode), widget count, and in edit mode add, reorder and delete. *@
+@* A section's heading: collapse, title (renamable in edit mode), widget count, collapse or expand its widgets, and in edit mode add, reorder and delete. *@
 <header class="gk-section-header">
-    @if (Section.Collapsible)
+    @if (ShowTitle && !Owner.UsesTabs && Section.Collapsible)
     {
         <button type="button" class="gk-icon-button gk-section-toggle" aria-expanded="@(Section.Collapsed ? "false" : "true")"
                 title="@(Section.Collapsed ? Text["section.expand"] : Text["section.collapse"])"
@@ -9,23 +9,39 @@
             <Icon Name="chevron-down" Class="gk-section-chevron" />
         </button>
     }
-    @if (!string.IsNullOrWhiteSpace(Section.Icon))
+    @if (ShowTitle && !Owner.UsesTabs && !string.IsNullOrWhiteSpace(Section.Icon))
     {
         <span class="gk-section-icon"><Icon Name="@Section.Icon" /></span>
     }
-    @if (Editing)
+    @if (ShowTitle && (Editing || !Owner.UsesTabs))
     {
-        <input class="gk-input gk-section-title-input" type="text" value="@Section.Title" placeholder="@Text["section.untitled"]"
-               aria-label="@Text["section.title"]" @onchange="RenameAsync" />
+        @if (Editing)
+        {
+            <input class="gk-input gk-section-title-input" type="text" value="@Section.Title" placeholder="@Text["section.untitled"]"
+                   aria-label="@Text["section.title"]" @onchange="RenameAsync" />
+        }
+        else
+        {
+            <h2 class="gk-section-title">@(string.IsNullOrWhiteSpace(Section.Title) ? Text["section.untitled"] : Section.Title)</h2>
+        }
     }
-    else
+    @if (ShowTitle && !Owner.UsesTabs)
     {
-        <h2 class="gk-section-title">@(string.IsNullOrWhiteSpace(Section.Title) ? Text["section.untitled"] : Section.Title)</h2>
+        <span class="gk-section-count">@(Count == 1 ? Text["section.countOne"] : Text.Format("section.count", Count))</span>
     }
-    <span class="gk-section-count">@(Count == 1 ? Text["section.countOne"] : Text.Format("section.count", Count))</span>
-    @if (Editing)
-    {
-        <div class="gk-section-actions">
+    <div class="gk-section-actions">
+        <button type="button" class="gk-button gk-button-small gk-button-ghost" disabled="@(!Owner.CanCollapseWidgets(Section.Id))"
+                @onclick="() => Owner.SetWidgetsCollapsedAsync(Section.Id, true)">
+            <Icon Name="chevrons-up" />
+            <span>@Text["section.collapseAll"]</span>
+        </button>
+        <button type="button" class="gk-button gk-button-small gk-button-ghost" disabled="@(!Owner.CanExpandWidgets(Section.Id))"
+                @onclick="() => Owner.SetWidgetsCollapsedAsync(Section.Id, false)">
+            <Icon Name="chevrons-down" />
+            <span>@Text["section.expandAll"]</span>
+        </button>
+        @if (Editing)
+        {
             @if (Owner.Definitions.Count > 0)
             {
                 <button type="button" class="gk-icon-button" title="@Text["dashboard.addWidget"]" aria-label="@Text["dashboard.addWidget"]" @onclick="() => Owner.OpenCatalog(Section.Id)">
@@ -41,8 +57,8 @@
             <button type="button" class="gk-icon-button gk-icon-button-danger" title="@Text["section.delete"]" aria-label="@Text["section.delete"]" disabled="@(Owner.Sections.Count < 2)" @onclick="() => Owner.RemoveSectionAsync(Section.Id)">
                 <Icon Name="trash" />
             </button>
-        </div>
-    }
+        }
+    </div>
 </header>
 
 @code {
@@ -60,6 +76,11 @@
     /// Gets or sets the number of visible widgets in it.
     /// </summary>
     [Parameter] public int Count { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether to show the title. Tabs already show it, so a section can be just its buttons.
+    /// </summary>
+    [Parameter] public bool ShowTitle { get; set; } = true;
 
     private GridKrafterText Text => Owner.Text;
 

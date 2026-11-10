@@ -191,6 +191,41 @@ public sealed partial class Dashboard
         }
     }
 
+    internal void SelectSection(string id)
+    {
+        if (Sections.Any(s => string.Equals(s.Id, id, StringComparison.Ordinal)) && !string.Equals(activeSectionId, id, StringComparison.Ordinal))
+        {
+            activeSectionId = id;
+            Render();
+        }
+    }
+
+    /// <summary>Collapses or expands every widget in a section that has a collapse button.</summary>
+    internal async Task SetWidgetsCollapsedAsync(string sectionId, bool collapsed)
+    {
+        List<DashboardItem> items = [.. CollapsibleWidgets(sectionId).Where(i => i.Collapsed != collapsed)];
+        if (items.Count == 0)
+        {
+            return;
+        }
+
+        foreach (var item in items)
+        {
+            item.Collapsed = collapsed;
+            Touch(item.Id);
+            if (collapsed && string.Equals(fullscreenId, item.Id, StringComparison.Ordinal))
+            {
+                fullscreenId = null;
+            }
+        }
+
+        await CommitAsync(collapsed ? DashboardChangeKind.Collapsed : DashboardChangeKind.Expanded, sectionId: sectionId);
+    }
+
+    internal bool CanCollapseWidgets(string sectionId) => CollapsibleWidgets(sectionId).Any(i => !i.Collapsed);
+
+    internal bool CanExpandWidgets(string sectionId) => CollapsibleWidgets(sectionId).Any(i => i.Collapsed);
+
     internal async Task ToggleSectionAsync(string id)
     {
         if (board.FindSection(id) is { Collapsible: true } section)
@@ -257,6 +292,13 @@ public sealed partial class Dashboard
             board.Sections.Add(implicitSection);
         }
     }
+
+    private IEnumerable<DashboardItem> CollapsibleWidgets(string sectionId) =>
+        VisibleItems(sectionId).Where(item =>
+        {
+            var definition = DefinitionFor(item.Kind);
+            return ChromeOf(item, definition) != WidgetChrome.Plain && ButtonsOf(item, definition).HasFlag(WidgetButtons.Collapse);
+        });
 
     private async Task SetCollapsedAsync(string id, bool collapsed)
     {

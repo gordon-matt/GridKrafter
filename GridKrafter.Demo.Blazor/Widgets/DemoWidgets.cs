@@ -111,7 +111,7 @@ public static class DemoWidgets
             d.W = 4;
             d.H = 5;
             d.MinW = 3;
-            d.AutoHeight = true;
+            d.MinH = 4;
             d.Options = [WidgetOption.Select("firstDay", "Weeks start on", "monday", ("monday", "Monday"), ("sunday", "Sunday"))];
         })
         .Add<LinksWidget>("links", d =>

@@ -1,6 +1,6 @@
 <img src="https://github.com/gordon-matt/GridKrafter/raw/master/_Misc/Logo.png" alt="Logo" width="450" />
 
-Dashboards for .NET. Widgets in the style of SmartAdmin's JarvisWidgets sit on a responsive, sectioned grid like [homarr](https://homarr.dev/)'s. People drag them, resize them, collapse them, rename them, recolour them, make them full screen, add more from a catalog and delete them. Every change gives you the whole board as JSON, ready to save.
+Dashboards for .NET. Widgets on a responsive, sectioned grid like. Drag them, resize them, collapse them, rename them, recolour them, make them full screen, add more from a catalog and delete them. Every change gives you the whole board as JSON, ready to save.
 
 ## Screenshots
 <img src="https://github.com/gordon-matt/GridKrafter/raw/master/_Misc/Screenshots/Light.png" alt="Light mode" width="49%" /> <img src="https://github.com/gordon-matt/GridKrafter/raw/master/_Misc/Screenshots/Dark.png" alt="Dark mode" width="49%" />
@@ -52,6 +52,8 @@ Declare the board in markup. Widgets with a `Kind` come from the registry; the o
 
 Or pass a `DashboardBoard` to `Board`, built in code or parsed with `DashboardJson.TryParse`.
 
+`DisplayMode` is `Tabs` by default: one section shows at a time, and dragging a widget onto another tab moves it there. `Accordion` is the stacked layout, where each section collapses on its own. Every section has buttons to collapse or expand all of its widgets.
+
 A registered widget inherits `WidgetComponentBase`. `Option(key, fallback)` reads its settings, `Context.SetOptionAsync` saves one with the board, and `OnRefreshAsync` runs when it's refreshed:
 
 ```razor
@@ -102,7 +104,7 @@ Publish `GridKrafter.CustomElements` and serve its `wwwroot`. The page needs the
 </script>
 ```
 
-Attributes are kebab-case: `board`, `saved`, `catalog`, `layouts`, `theme`, `language`, `storage-key`, `show-toolbar`, `edit-mode`, `read-only`, `float`, `row-height`, `gap`, `chrome` (`panel`, `card`, `plain`), `buttons`, `buttons-on-hover`, `confirm-delete`, `move-without-edit-mode`, `name`.
+Attributes are kebab-case: `board`, `saved`, `catalog`, `layouts`, `theme`, `language`, `storage-key`, `show-toolbar`, `display-mode` (`tabs`, `accordion`), `edit-mode`, `read-only`, `float`, `row-height`, `gap`, `chrome` (`panel`, `card`, `plain`), `buttons`, `buttons-on-hover`, `confirm-delete`, `move-without-edit-mode`, `name`.
 
 | Event | `detail` |
 | --- | --- |
@@ -141,7 +143,7 @@ English, German, Spanish, French, Brazilian Portuguese, Simplified Chinese and A
 
 ## Credit
 
-A new take on the JarvisWidgets in [SmartAdmin](https://wrapbootstrap.com/theme/smartadmin-responsive-webapp-WB0573SK0), with ideas from [homarr](https://github.com/homarr-labs/homarr), [gridstack.js](https://github.com/gridstack/gridstack.js) and [React-Grid-Layout](https://github.com/react-grid-layout/react-grid-layout).
+Inspired by the discontinued JarvisWidgets from a legacy version of [SmartAdmin](https://wrapbootstrap.com/theme/smartadmin-responsive-webapp-WB0573SK0), with ideas from projects like [homarr](https://github.com/homarr-labs/homarr), [gridstack.js](https://github.com/gridstack/gridstack.js) and [React-Grid-Layout](https://github.com/react-grid-layout/react-grid-layout).
 
 ## Support
 

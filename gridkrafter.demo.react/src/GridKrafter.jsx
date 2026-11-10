@@ -26,6 +26,7 @@ export function GridKrafter({
   editMode = false,
   readOnly = false,
   showToolbar = true,
+  displayMode = 'tabs',
   onReady,
   onChanged,
   onLayout,
@@ -94,6 +95,7 @@ export function GridKrafter({
         edit-mode={String(editMode)}
         read-only={String(readOnly)}
         show-toolbar={String(showToolbar)}
+        display-mode={displayMode}
       />
       {mounts.map(({ id, kind, host }) => {
         const Widget = widgets[kind]

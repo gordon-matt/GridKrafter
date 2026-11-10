@@ -45,7 +45,9 @@ public sealed partial class Dashboard
 
     internal void MoveTo(string section, int x, int y)
     {
-        if (interaction is not { IsResize: false } active || Sections.FirstOrDefault(s => string.Equals(s.Id, section, StringComparison.Ordinal)) is not { Collapsed: false })
+        if (interaction is not { IsResize: false } active
+            || Sections.FirstOrDefault(s => string.Equals(s.Id, section, StringComparison.Ordinal)) is not DashboardSection destination
+            || (!UsesTabs && destination.Collapsed))
         {
             return;
         }
@@ -80,6 +82,11 @@ public sealed partial class Dashboard
             active.TargetSection = section;
             active.Preview = Engine.Insert(target, node);
             active.SourcePreview ??= Engine.Normalize(active.Snapshot.Where(n => !string.Equals(n.Id, active.ItemId, StringComparison.Ordinal)));
+        }
+
+        if (UsesTabs)
+        {
+            activeSectionId = active.TargetSection;
         }
 
         Render();
@@ -118,9 +125,20 @@ public sealed partial class Dashboard
         bool crossed = !string.Equals(active.TargetSection, active.SourceSection, StringComparison.Ordinal);
         if (!commit || board.Find(active.ItemId) is not { } item || (!crossed && ReferenceEquals(active.Preview, active.Snapshot)))
         {
+            // The tab followed the pointer; cancelling puts it back on the section the widget never left.
+            if (UsesTabs)
+            {
+                activeSectionId = active.SourceSection;
+            }
+
             FlushMeasurements();
             Render();
             return;
+        }
+
+        if (UsesTabs && crossed)
+        {
+            activeSectionId = active.TargetSection;
         }
 
         if (crossed)

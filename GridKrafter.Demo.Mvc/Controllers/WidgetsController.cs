@@ -3,8 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace GridKrafter.Demo.Mvc.Controllers;
 
 /// <summary>
-/// The partial views URL widgets fetch into their body, as JarvisWidgets' <c>data-widget-load</c>
-/// did. Refreshing a widget fetches its URL again.
+/// The partial views URL widgets fetch into their body. Refreshing a widget fetches its URL again.
 /// </summary>
 [Route("widgets")]
 [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]

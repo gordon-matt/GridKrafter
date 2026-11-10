@@ -495,6 +495,57 @@ textarea.gk-input {
     margin-top: 22px;
 }
 
+.gk-sections-tabs > .gk-section {
+    margin-top: 0;
+}
+
+.gk-section-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 2px;
+    margin-bottom: 14px;
+    border-bottom: 1px solid var(--gk-border);
+}
+
+.gk-section-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: -1px;
+    padding: 8px 14px;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    background: none;
+    color: var(--gk-muted);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 650;
+    cursor: pointer;
+}
+
+.gk-section-tab:hover {
+    color: var(--gk-text);
+}
+
+.gk-section-tab[aria-selected="true"] {
+    border-bottom-color: var(--gk-accent);
+    color: var(--gk-text);
+}
+
+.gk-section-tab .gk-icon {
+    width: 16px;
+    height: 16px;
+}
+
+.gk-section-tab .gk-section-count {
+    padding: 0 6px;
+    border-radius: 999px;
+    background: var(--gk-surface-2);
+    font-size: 11.5px;
+    font-weight: 600;
+    line-height: 18px;
+}
+
 .gk-section-header {
     display: flex;
     align-items: center;
@@ -545,6 +596,7 @@ textarea.gk-input {
 
 .gk-section-actions {
     display: flex;
+    flex-wrap: wrap;
     gap: 2px;
     margin-inline-start: auto;
 }
@@ -672,6 +724,7 @@ textarea.gk-input {
     transition: opacity 0.15s;
 }
 
+.gk-editing .gk-resize::after,
 .gk-item:hover .gk-resize::after,
 .gk-item-resizing .gk-resize::after,
 .gk-resize-se::after,
@@ -790,8 +843,10 @@ textarea.gk-input {
 .gk-widget-header {
     display: flex;
     flex: none;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 8px;
+    gap: 8px 8px;
+    row-gap: 2px;
     min-height: var(--gk-header-height);
     padding-inline: 12px 6px;
     border-bottom: 1px solid var(--gk-border);
@@ -860,9 +915,12 @@ textarea.gk-input {
 
 .gk-widget-toolbar {
     display: flex;
-    flex: none;
+    flex: 1 0 auto;
+    flex-wrap: wrap;
     align-items: center;
+    justify-content: flex-end;
     gap: 6px;
+    margin-inline-start: auto;
 }
 
 .gk-widget-toolbar:empty,

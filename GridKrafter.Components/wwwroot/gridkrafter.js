@@ -585,7 +585,13 @@ function update(state) {
 
     if (drag.mode === 'move') {
         drag.inner.style.transform = `translate(${dx + scrollDX}px, ${dy + scrollDY}px)`;
-        const grid = gridAt(state, drag.clientY) ?? drag.grid;
+        // The lifted widget sits under the pointer, so hit-testing can't see the tab beneath it.
+        const tabId = tabAt(state, drag.clientX, drag.clientY);
+        if (tabId) {
+            revealSection(state, tabId);
+        }
+
+        const grid = (tabId && gridById(state, tabId)) || gridAt(state, drag.clientY) || drag.grid;
         if (!grid) {
             return;
         }
@@ -637,6 +643,36 @@ function update(state) {
     const h = Math.max(1, Math.round((height + gap) / rowPitch));
     const x = edge.includes('w') ? Math.max(0, drag.cell.x + drag.cell.w - w) : drag.cell.x;
     send(state, 'OnResizeMove', x, drag.cell.y, edge.includes('w') ? drag.cell.x + drag.cell.w - x : w, h);
+}
+
+function tabAt(state, x, y) {
+    for (const tab of state.root.querySelectorAll('[data-gk-section-tab]')) {
+        const bounds = tab.getBoundingClientRect();
+        if (x >= bounds.left && x <= bounds.right && y >= bounds.top && y <= bounds.bottom) {
+            return tab.dataset.gkSectionTab;
+        }
+    }
+
+    return null;
+}
+
+function gridById(state, sectionId) {
+    const grid = state.root.querySelector(`[data-gk-grid="${CSS.escape(sectionId)}"]`);
+    return grid && ownerOf(grid) === state.root ? grid : null;
+}
+
+// A tab's grid is hidden until .NET shows it. Unhide it now so this pointer move can land in it.
+function revealSection(state, sectionId) {
+    const grid = gridById(state, sectionId);
+    const section = grid?.closest('[data-gk-section]');
+    if (!section) {
+        return;
+    }
+
+    section.hidden = false;
+    if (grid) {
+        grid.hidden = false;
+    }
 }
 
 function gridAt(state, clientY) {

@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace GridKrafter.Components;
 
 /// <summary>
-/// A board of widgets in collapsible sections that people drag, resize, collapse, recolour,
+/// A board of widgets in sections, shown as tabs or an accordion, that people drag, resize, collapse, recolour,
 /// rename, add and remove, with a layout for each screen size. Declare widgets inside it with
 /// <see cref="DashboardWidget"/>, offer more through a catalog, or pass a whole <see cref="Board"/>.
 /// </summary>
@@ -40,6 +40,7 @@ public sealed partial class Dashboard : IAsyncDisposable
     private Dictionary<string, IReadOnlyList<GridNode>>? arrangement;
     private Interaction? interaction;
     private string? fullscreenId;
+    private string? activeSectionId;
     private bool editMode;
     private bool? appliedEditMode;
     private bool isAttached;
@@ -158,6 +159,12 @@ public sealed partial class Dashboard : IAsyncDisposable
     /// Gets or sets a key to save the board in the browser's local storage under, and load it from next time.
     /// </summary>
     [Parameter] public string? StorageKey { get; set; }
+
+    /// <summary>
+    /// Gets or sets how sections are shown. <see cref="DisplayMode.Tabs"/> shows one at a time;
+    /// <see cref="DisplayMode.Accordion"/> stacks them, each collapsible.
+    /// </summary>
+    [Parameter] public DisplayMode DisplayMode { get; set; } = global::GridKrafter.Models.DisplayMode.Tabs;
 
     /// <summary>
     /// Gets or sets a value indicating whether to show the bar with edit mode, the catalog, hidden widgets, the layout and reset.
@@ -856,9 +863,38 @@ public sealed partial class Dashboard : IAsyncDisposable
     private string SectionClass(DashboardSection section) => string.Join(' ', new[]
     {
         "gk-section",
-        section.Collapsed ? "gk-section-collapsed" : null,
+        !UsesTabs && section.Collapsed ? "gk-section-collapsed" : null,
         interaction is { } active && string.Equals(active.TargetSection, section.Id, StringComparison.Ordinal) ? "gk-section-target" : null,
     }.Where(c => c is not null));
+
+    /// <summary>Tabs only earn their strip once there's more than one section to choose.</summary>
+    internal bool UsesTabs => DisplayMode == global::GridKrafter.Models.DisplayMode.Tabs && Sections.Count > 1;
+
+    private string ActiveSectionId =>
+        Sections.Any(s => string.Equals(s.Id, activeSectionId, StringComparison.Ordinal)) ? activeSectionId! : Sections[0].Id;
+
+    /// <summary>The section on screen. While a widget is dragged onto another tab, both stay open so the widget doesn't vanish.</summary>
+    private bool IsSectionOpen(DashboardSection section)
+    {
+        if (!UsesTabs)
+        {
+            return true;
+        }
+
+        if (interaction is { IsResize: false } drag
+            && (string.Equals(drag.SourceSection, section.Id, StringComparison.Ordinal) || string.Equals(drag.TargetSection, section.Id, StringComparison.Ordinal)))
+        {
+            return true;
+        }
+
+        return string.Equals(section.Id, ActiveSectionId, StringComparison.Ordinal);
+    }
+
+    private bool IsGridHidden(DashboardSection section) => UsesTabs ? !IsSectionOpen(section) : section.Collapsed;
+
+    private string TabId(DashboardSection section) => "gk-tab-" + section.Id;
+
+    private string PanelId(DashboardSection section) => "gk-panel-" + section.Id;
 
     private string SectionLabel(DashboardSection section) =>
         string.IsNullOrWhiteSpace(section.Title) ? text["section.untitled"] : section.Title;

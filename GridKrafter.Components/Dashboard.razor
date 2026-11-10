@@ -8,16 +8,38 @@
         {
             <DashboardToolbar Owner="this" />
         }
-        <div class="@(isReady ? "gk-sections" : "gk-sections gk-measuring")">
+        <div class="@(isReady ? null : "gk-measuring") @(UsesTabs ? "gk-sections gk-sections-tabs" : "gk-sections")">
+            @if (UsesTabs)
+            {
+                <div class="gk-section-tabs" role="tablist" aria-label="@text["section.tabs"]">
+                    @foreach (var section in Sections)
+                    {
+                        bool selected = string.Equals(section.Id, ActiveSectionId, StringComparison.Ordinal);
+                        <button type="button" role="tab" id="@TabId(section)" class="gk-section-tab" data-gk-section-tab="@section.Id"
+                                aria-selected="@(selected ? "true" : "false")" aria-controls="@PanelId(section)" tabindex="@(selected ? 0 : -1)"
+                                @onclick="() => SelectSection(section.Id)">
+                            @if (!string.IsNullOrWhiteSpace(section.Icon))
+                            {
+                                <Icon Name="@section.Icon" />
+                            }
+                            <span>@SectionLabel(section)</span>
+                            <span class="gk-section-count">@ViewOf(section).Items.Count</span>
+                        </button>
+                    }
+                </div>
+            }
             @foreach (var section in Sections)
             {
                 var view = ViewOf(section);
-                <section @key="section.Id" class="@SectionClass(section)" data-gk-section="@section.Id" aria-label="@NullIfEmpty(section.Title)">
-                    @if (ShowsHeader(section))
+                bool open = IsSectionOpen(section);
+                <section @key="section.Id" id="@PanelId(section)" class="@SectionClass(section)" data-gk-section="@section.Id"
+                         role="@(UsesTabs ? "tabpanel" : null)" aria-labelledby="@(UsesTabs ? TabId(section) : null)"
+                         aria-label="@NullIfEmpty(section.Title)" hidden="@(!open)">
+                    @if (ShowsHeader(section) || !UsesTabs)
                     {
-                        <SectionHeader Owner="this" Section="section" Count="view.Items.Count" />
+                        <SectionHeader Owner="this" Section="section" Count="view.Items.Count" ShowTitle="ShowsHeader(section)" />
                     }
-                    <div class="gk-grid" data-gk-grid="@section.Id" hidden="@section.Collapsed" style="@GridStyle(view.Rows)">
+                    <div class="gk-grid" data-gk-grid="@section.Id" hidden="@IsGridHidden(section)" style="@GridStyle(view.Rows)">
                         @foreach (var item in view.Items)
                         {
                             var rect = view.Rects[item.Id];

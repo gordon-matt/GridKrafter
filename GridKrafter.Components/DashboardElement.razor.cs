@@ -25,6 +25,7 @@ public sealed partial class DashboardElement : IAsyncDisposable
     private string? appliedLayouts;
     private WidgetButtons defaultButtons = WidgetButtons.Default;
     private WidgetChrome defaultChrome = WidgetChrome.Panel;
+    private GridKrafter.Models.DisplayMode displayMode = GridKrafter.Models.DisplayMode.Tabs;
     private string boardJson = string.Empty;
 
     /// <summary>
@@ -92,6 +93,11 @@ public sealed partial class DashboardElement : IAsyncDisposable
     /// Gets or sets a key to keep the board in the browser's local storage under.
     /// </summary>
     [Parameter] public string? StorageKey { get; set; }
+
+    /// <summary>
+    /// Gets or sets how sections are shown: <c>tabs</c> (one at a time; the default) or <c>accordion</c> (stacked, each collapsible).
+    /// </summary>
+    [Parameter] public string? DisplayMode { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether to show the toolbar.
@@ -205,6 +211,7 @@ public sealed partial class DashboardElement : IAsyncDisposable
 
         defaultButtons = Enum.TryParse(Buttons, ignoreCase: true, out WidgetButtons buttons) ? buttons : WidgetButtons.Default;
         defaultChrome = Enum.TryParse(Chrome, ignoreCase: true, out WidgetChrome chrome) ? chrome : WidgetChrome.Panel;
+        displayMode = Enum.TryParse(DisplayMode, ignoreCase: true, out GridKrafter.Models.DisplayMode mode) ? mode : GridKrafter.Models.DisplayMode.Tabs;
         error = errors.Count > 0 ? string.Join(' ', errors) : null;
     }
 
