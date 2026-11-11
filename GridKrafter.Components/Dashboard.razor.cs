@@ -15,6 +15,8 @@ public sealed partial class Dashboard : IAsyncDisposable
     private readonly Dictionary<string, ContextState> notified = new(StringComparer.Ordinal);
     private readonly Dictionary<string, long> revisions = new(StringComparer.Ordinal);
     private readonly Dictionary<string, int> measuredRows = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, int> editRows = new(StringComparer.Ordinal);
+    private readonly HashSet<string> editingItems = new(StringComparer.Ordinal);
     private readonly Dictionary<string, int> storedHeights = new(StringComparer.Ordinal);
     private readonly Dictionary<string, DashboardWidget> declaredWidgets = new(StringComparer.Ordinal);
     private readonly List<WidgetSection> declaredSections = [];
@@ -729,7 +731,7 @@ public sealed partial class Dashboard : IAsyncDisposable
         };
     }
 
-    /// <summary>Collapsed widgets shrink to their header and auto-height ones to their content; neither changes the stored height.</summary>
+    /// <summary>Collapsed widgets shrink to their header, auto-height ones grow to their content, and an open edit panel adds its own rows. None of that changes the stored height.</summary>
     private IReadOnlyList<GridNode> ToDisplay(IReadOnlyList<GridNode> nodes)
     {
         bool changed = false;
@@ -763,10 +765,30 @@ public sealed partial class Dashboard : IAsyncDisposable
             return CollapsedRows;
         }
 
-        return MeasuresHeight(item, DefinitionFor(item.Kind)) && measuredRows.TryGetValue(item.Id, out int rows) && rows > 0 ? rows : null;
+        if (MeasuresHeight(item, DefinitionFor(item.Kind)) && measuredRows.TryGetValue(item.Id, out int measured) && measured > 0)
+        {
+            return measured;
+        }
+
+        // The edit panel is in the flow, so the cell has to grow by its height or the panel scrolls inside the widget.
+        if (GrowsForEdit(item) && editRows.TryGetValue(item.Id, out int extra) && extra > 0)
+        {
+            int basis = storedHeights.GetValueOrDefault(item.Id);
+            return basis > 0 ? basis + extra : null;
+        }
+
+        return null;
     }
 
-    private bool HasDisplayHeight(DashboardItem item) => item.Collapsed || MeasuresHeight(item, DefinitionFor(item.Kind));
+    /// <summary>Fixed-height widgets grow while their edit panel is open. Auto-height ones already measure the panel as part of their content.</summary>
+    private bool GrowsForEdit(DashboardItem item) =>
+        editingItems.Contains(item.Id)
+        && !item.Collapsed
+        && !string.Equals(fullscreenId, item.Id, StringComparison.Ordinal)
+        && !MeasuresHeight(item, DefinitionFor(item.Kind));
+
+    private bool HasDisplayHeight(DashboardItem item) =>
+        item.Collapsed || MeasuresHeight(item, DefinitionFor(item.Kind)) || (GrowsForEdit(item) && editRows.GetValueOrDefault(item.Id) > 0);
 
     private bool MeasuresHeight(DashboardItem item, WidgetDefinition? definition) =>
         !item.Collapsed && (item.AutoHeight || definition?.AutoHeight == true);
@@ -948,7 +970,7 @@ public sealed partial class Dashboard : IAsyncDisposable
             return [];
         }
 
-        return item.Collapsed || MeasuresHeight(item, definition) ? ["e", "w"] : ["e", "w", "s", "se", "sw"];
+        return item.Collapsed || MeasuresHeight(item, definition) || GrowsForEdit(item) ? ["e", "w"] : ["e", "w", "s", "se", "sw"];
     }
 
     private sealed record SectionView(List<DashboardItem> Items, Dictionary<string, GridRect> Rects, GridRect? Placeholder, int Rows);

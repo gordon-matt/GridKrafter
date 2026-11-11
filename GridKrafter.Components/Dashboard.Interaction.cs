@@ -217,6 +217,53 @@ public sealed partial class Dashboard
         Render();
     }
 
+    /// <summary>Extra rows a fixed-height widget needs while its edit panel is open. Zero clears the extra.</summary>
+    internal void SetEditGrown(string json)
+    {
+        JsonObject? rows;
+        try
+        {
+            rows = JsonNode.Parse(json) as JsonObject;
+        }
+        catch (JsonException)
+        {
+            return;
+        }
+
+        bool changed = false;
+        foreach (var (id, value) in rows ?? [])
+        {
+            if (value is not JsonValue number || !number.TryGetValue(out int extra) || extra < 0)
+            {
+                continue;
+            }
+
+            if (extra == 0)
+            {
+                changed |= editRows.Remove(id);
+            }
+            else if (editRows.GetValueOrDefault(id) != extra)
+            {
+                editRows[id] = extra;
+                changed = true;
+            }
+        }
+
+        if (!changed)
+        {
+            return;
+        }
+
+        if (interaction is not null)
+        {
+            measuredWhileBusy = true;
+            return;
+        }
+
+        Invalidate();
+        Render();
+    }
+
     private void FlushMeasurements()
     {
         if (measuredWhileBusy)

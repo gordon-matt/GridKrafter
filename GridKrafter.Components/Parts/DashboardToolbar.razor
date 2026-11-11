@@ -1,4 +1,4 @@
-@* The bar above a dashboard: edit mode, the catalog, new sections, hidden widgets, the layout showing, and reset. *@
+@* The bar above a dashboard: edit mode, the catalog, new sections, hidden widgets and reset. *@
 <div class="gk-toolbar" role="toolbar" aria-label="@Text["dashboard.label"]">
     <div class="gk-toolbar-group">
         @if (Owner.CanEdit)
@@ -53,19 +53,15 @@
             }
         }
     </div>
-    <div class="gk-toolbar-group gk-toolbar-end">
-        <span class="gk-badge" title="@LayoutLabel">
-            <Icon Name="@(Owner.ActiveLayout.Columns == 1 ? "monitor" : "layout")" />
-            <span>@LayoutLabel</span>
-        </span>
-        @if (Owner.CanEdit && Owner.IsEditing)
-        {
+    @if (Owner.CanEdit && Owner.IsEditing)
+    {
+        <div class="gk-toolbar-group gk-toolbar-end">
             <button type="button" class="gk-button gk-button-ghost" @onclick="ResetAsync">
                 <Icon Name="reset" />
                 <span>@Text["dashboard.reset"]</span>
             </button>
-        }
-    </div>
+        </div>
+    }
 </div>
 
 @code {
@@ -77,10 +73,6 @@
     [Parameter, EditorRequired] public Dashboard Owner { get; set; } = default!;
 
     private GridKrafterText Text => Owner.Text;
-
-    private string LayoutLabel => Owner.ActiveLayout.Columns == 1
-        ? Text.Format("dashboard.layoutOne", Text.LayoutName(Owner.ActiveLayout))
-        : Text.Format("dashboard.layout", Text.LayoutName(Owner.ActiveLayout), Owner.ActiveLayout.Columns);
 
     private Task ToggleEditAsync() => Owner.SetEditModeAsync(!Owner.IsEditing);
 

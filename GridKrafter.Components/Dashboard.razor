@@ -47,7 +47,8 @@
                             var declaration = declaredWidgets.GetValueOrDefault(item.Id);
                             var widget = ContextFor(item, definition, rect);
                             <div @key="item.Id" class="@ItemClass(item)" style="@CellStyle(rect)" data-gk-item="@item.Id"
-                                 data-gk-autoheight="@(MeasuresHeight(item, definition) ? "true" : null)">
+                                 data-gk-autoheight="@(MeasuresHeight(item, definition) ? "true" : null)"
+                                 data-gk-editgrow="@(GrowsForEdit(item) ? "true" : null)">
                                 <div class="gk-item-inner">
                                     <Widget ItemContext="widget" Revision="RevisionOf(item.Id)"
                                             Title="@item.Title" TitleContent="@(TitleMatchesDeclaration(item, declaration) ? declaration!.TitleContent : null)"
@@ -56,6 +57,7 @@
                                             Collapsed="item.Collapsed" CollapsedChanged="@(value => SetCollapsedAsync(item.Id, value))"
                                             Fullscreen="@(fullscreenId == item.Id)" FullscreenChanged="@(value => SetFullscreen(item.Id, value))"
                                             TitleChanged="@(value => SetTitleAsync(item.Id, value))" ColorChanged="@(value => SetColorAsync(item.Id, value))"
+                                            EditingChanged="@(value => SetEditingAsync(item.Id, value))"
                                             OnRefresh="@(() => RefreshItemAsync(item.Id))" RefreshInterval="@(item.Refresh ?? definition?.Refresh ?? 0)"
                                             OnDelete="@(() => RemoveAsync(item.Id))" ConfirmDelete="ConfirmDelete" DeleteMessage="@DeleteMessageFor(item)"
                                             NoPadding="@(item.NoPadding || definition?.NoPadding == true)" Movable="CanMove(item)">

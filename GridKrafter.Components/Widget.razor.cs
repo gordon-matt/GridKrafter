@@ -32,6 +32,7 @@ public sealed partial class Widget : IAsyncDisposable
 
     private bool editing;
     private bool paletteOpen;
+    private ElementReference frame;
     private bool busy;
     private bool removed;
     private bool scrollLocked;
@@ -71,6 +72,12 @@ public sealed partial class Widget : IAsyncDisposable
     /// Gets or sets the callback for a new title typed in the edit panel.
     /// </summary>
     [Parameter] public EventCallback<string?> TitleChanged { get; set; }
+
+    /// <summary>
+    /// Gets or sets the callback for the edit panel opening or closing. A dashboard uses it to grow the
+    /// widget, because the panel has no scrollbar of its own.
+    /// </summary>
+    [Parameter] public EventCallback<bool> EditingChanged { get; set; }
 
     /// <summary>
     /// Gets or sets how the widget is framed.
@@ -388,6 +395,11 @@ public sealed partial class Widget : IAsyncDisposable
                 scrollLocked = fullscreen;
                 await Interop.LockScrollAsync(fullscreen);
             }
+
+            if (!removed)
+            {
+                await Interop.FitHeaderAsync(frame);
+            }
         }
         catch (Exception ex) when (ex is JSDisconnectedException or InvalidOperationException or TaskCanceledException)
         {
@@ -548,6 +560,8 @@ public sealed partial class Widget : IAsyncDisposable
 
             await CollapsedChanged.InvokeAsync(false);
         }
+
+        await EditingChanged.InvokeAsync(editing);
     }
 
     private async Task PickColorAsync(string? color)
@@ -615,6 +629,7 @@ public sealed partial class Widget : IAsyncDisposable
         else if (editing)
         {
             editing = false;
+            await EditingChanged.InvokeAsync(false);
         }
         else if (fullscreen)
         {

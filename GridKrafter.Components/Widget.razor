@@ -55,6 +55,13 @@
                     <Icon Name="x" />
                 </button>
             }
+            @* Shown by script only once the header is too narrow for every button to stay on one line. *@
+            <span class="gk-control-more" data-gk-nodrag>
+                <button type="button" class="gk-widget-button" data-gk-more aria-haspopup="menu" title="@text["widget.more"]" aria-label="@text["widget.more"]">
+                    <Icon Name="more-vertical" />
+                </button>
+                <div class="gk-control-menu" data-gk-nodrag></div>
+            </span>
         </div>;
 
     RenderFragment grip =
@@ -63,7 +70,7 @@
         </button>;
 
     <CascadingValue Value="context" IsFixed="true">
-        <article @attributes="FrameAttributes" class="@FrameClass" style="@ToneStyle"
+        <article @ref="frame" @attributes="FrameAttributes" class="@FrameClass" style="@ToneStyle"
                  data-theme="@(IsStandalone ? Theme : null)" dir="@(IsStandalone ? Direction : null)" lang="@(IsStandalone ? text.Language : null)"
                  data-gk-handle="@(Chrome == WidgetChrome.Plain && Movable ? "true" : null)"
                  aria-labelledby="@titleId">

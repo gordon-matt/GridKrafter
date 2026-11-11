@@ -314,7 +314,31 @@ public sealed partial class Dashboard
     {
         fullscreenId = fullscreen ? id : null;
         revision++;
+        if (editingItems.Contains(id))
+        {
+            Invalidate();
+        }
+
         Render();
+    }
+
+    /// <summary>Tracks which widget has its edit panel open so the grid can make room for it.</summary>
+    private Task SetEditingAsync(string id, bool editing)
+    {
+        bool changed = editing ? editingItems.Add(id) : editingItems.Remove(id);
+        if (!editing && editRows.Remove(id))
+        {
+            changed = true;
+        }
+
+        if (!changed)
+        {
+            return Task.CompletedTask;
+        }
+
+        Invalidate();
+        Render();
+        return Task.CompletedTask;
     }
 
     private async Task SetTitleAsync(string id, string? title)

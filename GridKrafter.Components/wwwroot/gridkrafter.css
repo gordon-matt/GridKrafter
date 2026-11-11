@@ -841,12 +841,12 @@ textarea.gk-input {
 }
 
 .gk-widget-header {
+    position: relative;
     display: flex;
     flex: none;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     align-items: center;
-    gap: 8px 8px;
-    row-gap: 2px;
+    gap: 8px;
     min-height: var(--gk-header-height);
     padding-inline: 12px 6px;
     border-bottom: 1px solid var(--gk-border);
@@ -915,8 +915,8 @@ textarea.gk-input {
 
 .gk-widget-toolbar {
     display: flex;
-    flex: 1 0 auto;
-    flex-wrap: wrap;
+    flex: none;
+    flex-wrap: nowrap;
     align-items: center;
     justify-content: flex-end;
     gap: 6px;
@@ -934,6 +934,33 @@ textarea.gk-input {
     flex: none;
     align-items: center;
     gap: 1px;
+}
+
+/* The more button stays out of the header until script decides something no longer fits on the line. */
+.gk-control-more {
+    position: relative;
+    display: inline-flex;
+    flex: none;
+}
+
+.gk-control-more:not([data-gk-show]) {
+    display: none;
+}
+
+.gk-control-menu {
+    position: fixed;
+    z-index: 40;
+    box-sizing: border-box;
+    padding: 4px;
+    border: 1px solid var(--gk-border);
+    border-radius: var(--gk-radius);
+    background: var(--gk-raised);
+    box-shadow: var(--gk-shadow-lifted);
+    pointer-events: none;
+}
+
+.gk-control-menu:not([data-gk-show]) {
+    display: none;
 }
 
 .gk-widget-button {
@@ -968,7 +995,8 @@ textarea.gk-input {
 
 .gk-widget-hover-buttons:hover .gk-widget-controls,
 .gk-widget-hover-buttons:focus-within .gk-widget-controls,
-.gk-widget-hover-buttons.gk-widget-fullscreen .gk-widget-controls {
+.gk-widget-hover-buttons.gk-widget-fullscreen .gk-widget-controls,
+.gk-widget-hover-buttons:has([aria-expanded="true"]) .gk-widget-controls {
     opacity: 1;
 }
 
@@ -982,9 +1010,7 @@ textarea.gk-input {
     display: grid;
     flex: none;
     gap: 12px;
-    max-height: 65%;
     padding: 12px 14px;
-    overflow: auto;
     border-bottom: 1px solid var(--gk-border);
     background: var(--gk-surface-2);
 }
@@ -1134,6 +1160,22 @@ textarea.gk-input {
 .gk-widget-panel.gk-colored > .gk-widget-header .gk-grip:hover {
     background: rgba(255, 255, 255, 0.18);
     color: #ffffff;
+}
+
+/* Overflowed buttons are drawn on the menu surface, which is not the coloured header. */
+.gk-widget-panel.gk-colored > .gk-widget-header [data-gk-overflow="open"].gk-widget-button,
+.gk-widget-panel.gk-colored > .gk-widget-header [data-gk-overflow="open"] .gk-widget-button,
+.gk-widget-panel.gk-colored > .gk-widget-header [data-gk-overflow="open"].gk-icon-button,
+.gk-widget-panel.gk-colored > .gk-widget-header [data-gk-overflow="open"] .gk-icon-button,
+.gk-widget-panel.gk-colored > .gk-widget-header [data-gk-overflow="open"].gk-button,
+.gk-widget-panel.gk-colored > .gk-widget-header [data-gk-overflow="open"] .gk-button {
+    color: var(--gk-text);
+}
+
+.gk-widget-panel.gk-colored > .gk-widget-header [data-gk-overflow="open"] .gk-widget-button:hover:not(:disabled),
+.gk-widget-panel.gk-colored > .gk-widget-header [data-gk-overflow="open"].gk-widget-button:hover:not(:disabled) {
+    background: var(--gk-hover);
+    color: var(--gk-text);
 }
 
 .gk-widget-panel.gk-colored > .gk-widget-header .gk-badge {
@@ -1668,6 +1710,15 @@ textarea.gk-input {
 
 .gk-colored.gk-widget-panel > .gk-widget-header .gk-tabs > button {
     color: rgba(255, 255, 255, 0.78);
+}
+
+.gk-colored.gk-widget-panel > .gk-widget-header [data-gk-overflow="open"] .gk-tabs > button {
+    color: var(--gk-muted);
+}
+
+.gk-colored.gk-widget-panel > .gk-widget-header [data-gk-overflow="open"] .gk-tabs > button[aria-selected="true"] {
+    border-bottom-color: var(--gk-accent);
+    color: var(--gk-text);
 }
 
 .gk-colored.gk-widget-panel > .gk-widget-header .gk-tabs > button[aria-selected="true"] {

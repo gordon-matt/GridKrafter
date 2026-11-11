@@ -50,6 +50,10 @@ internal sealed class GridKrafterInterop(IJSRuntime js) : IAsyncDisposable
     public async ValueTask FocusAsync(ElementReference element) =>
         await (await Module).InvokeVoidAsync("focus", element);
 
+    /// <summary>Collapses header buttons that no longer fit on one line into the widget's overflow menu.</summary>
+    public async ValueTask FitHeaderAsync(ElementReference root) =>
+        await (await Module).InvokeVoidAsync("fitHeader", root);
+
     public async ValueTask DispatchAsync(ElementReference element, string eventName, string detailJson) =>
         await (await Module).InvokeVoidAsync("dispatch", element, eventName, detailJson);
 

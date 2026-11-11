@@ -34,5 +34,8 @@ internal sealed class DashboardScriptHandler(Dashboard owner)
     public void OnMeasured(string json) => owner.SetMeasured(json);
 
     [JSInvokable]
+    public void OnEditGrown(string json) => owner.SetEditGrown(json);
+
+    [JSInvokable]
     public Task OnOption(string id, string key, string valueJson) => owner.SetScriptOptionAsync(id, key, valueJson);
 }

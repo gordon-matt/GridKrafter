@@ -24,8 +24,11 @@ export function attach(root, dotnet, optionsJson) {
         pending: null,
         inflight: null,
         observed: new Map(),
+        editObserved: new Map(),
         sentRows: new Map(),
+        sentEditRows: new Map(),
         rowsToSend: null,
+        editRowsToSend: null,
         cleanup: [],
     };
     states.set(root, state);
@@ -54,6 +57,7 @@ export function attach(root, dotnet, optionsJson) {
     state.layoutId = layoutFor(state, width);
     hydrate(state);
     observeHeights(state);
+    observeEdits(state);
     return JSON.stringify({ width, offset: -new Date().getTimezoneOffset() });
 }
 
@@ -70,6 +74,8 @@ export function afterRender(root, optionsJson) {
 
     hydrate(state);
     observeHeights(state);
+    observeEdits(state);
+    fitHeaders(state.root);
 }
 
 export function detach(root) {
@@ -359,14 +365,26 @@ function observeHeights(state) {
 
 function measured(state, entries) {
     const items = new Set();
+    const edits = new Set();
     for (const entry of entries) {
         const item = state.observed.get(entry.target);
         if (item) {
             items.add(item);
         }
+
+        const editing = state.editObserved.get(entry.target);
+        if (editing) {
+            edits.add(editing);
+        }
     }
 
-    measure(state, items);
+    if (items.size > 0) {
+        measure(state, items);
+    }
+
+    if (edits.size > 0) {
+        measureEdits(state, edits);
+    }
 }
 
 function measure(state, items) {
@@ -407,6 +425,73 @@ function measure(state, items) {
             }
         });
     }
+}
+
+// A fixed-height widget can't scroll its edit panel. The panel's own height, in rows, is added to the
+// cell until the panel closes. Auto-height widgets already count the panel with the rest of their chrome.
+function observeEdits(state) {
+    const current = new Map();
+    const gone = [];
+    for (const item of state.root.querySelectorAll('[data-gk-item][data-gk-editgrow]')) {
+        if (ownerOf(item) !== state.root) {
+            continue;
+        }
+
+        const box = widgetOf(item)?.querySelector(':scope > .gk-widget-editbox');
+        if (!box) {
+            continue;
+        }
+
+        current.set(box, item);
+        if (!state.editObserved.has(box)) {
+            state.heights.observe(box, { box: 'border-box' });
+        }
+    }
+
+    for (const [box, item] of state.editObserved) {
+        if (!current.has(box)) {
+            state.heights.unobserve(box);
+            gone.push(item);
+        }
+    }
+
+    state.editObserved = current;
+    for (const item of gone) {
+        queueEditRows(state, item.dataset.gkItem, 0);
+    }
+
+    measureEdits(state, new Set(current.values()));
+}
+
+function measureEdits(state, items) {
+    const pitch = state.options.row + state.options.gap;
+    for (const item of items) {
+        const box = widgetOf(item)?.querySelector(':scope > .gk-widget-editbox');
+        const height = box ? Math.max(box.offsetHeight, box.scrollHeight) : 0;
+        const extra = height > 0 ? Math.ceil(height / pitch) : 0;
+        queueEditRows(state, item.dataset.gkItem, extra);
+    }
+
+    if (state.editRowsToSend && !state.editScheduled) {
+        state.editScheduled = true;
+        requestAnimationFrame(() => {
+            state.editScheduled = false;
+            const rows = state.editRowsToSend;
+            state.editRowsToSend = null;
+            if (rows) {
+                state.dotnet.invokeMethodAsync('OnEditGrown', JSON.stringify(rows)).catch(() => { });
+            }
+        });
+    }
+}
+
+function queueEditRows(state, id, extra) {
+    if (!id || state.sentEditRows.get(id) === extra) {
+        return;
+    }
+
+    state.sentEditRows.set(id, extra);
+    (state.editRowsToSend ??= {})[id] = extra;
 }
 
 // ---------------------------------------------------------------- pointer
@@ -455,6 +540,10 @@ function begin(state, event, item, mode, edge) {
     const inner = item.querySelector(':scope > .gk-item-inner');
     if (!inner) {
         return;
+    }
+
+    if (openHeaders.size > 0) {
+        closeMenus();
     }
 
     const drag = {
@@ -890,4 +979,360 @@ function keyDown(state, event) {
     state.dotnet.invokeMethodAsync('OnNudge', grip.dataset.gkGrip, dx, step[1], event.shiftKey)
         .then(() => grip.isConnected && grip.closest('[data-gk-item]')?.scrollIntoView({ block: 'nearest' }))
         .catch(() => { });
+}
+
+// ---------------------------------------------------------------- header overflow
+
+// Buttons stay on one line. Once the title has shrunk as far as it can and the header still overflows,
+// the ones that don't fit move into the more menu. Wrapping them onto a second line is what this avoids.
+const openHeaders = new Set();
+const watchedHeaders = new WeakMap();
+let menusReady = false;
+
+export function fitHeader(root) {
+    ensureMenus();
+    if (!root || typeof root.querySelectorAll !== 'function') {
+        return;
+    }
+
+    const headers = root.matches?.('.gk-widget-header, .gk-widget-float')
+        ? [root]
+        : [...root.querySelectorAll(':scope > .gk-widget-header, :scope > .gk-widget-float')];
+    for (const header of headers) {
+        watchHeader(header);
+        layoutHeader(header);
+    }
+}
+
+function fitHeaders(root) {
+    ensureMenus();
+    if (!root?.querySelectorAll) {
+        return;
+    }
+
+    for (const header of root.querySelectorAll('.gk-widget-header, .gk-widget-float')) {
+        if (ownerOf(header) !== root) {
+            continue;
+        }
+
+        watchHeader(header);
+        layoutHeader(header);
+    }
+}
+
+function ensureMenus() {
+    if (menusReady) {
+        return;
+    }
+
+    menusReady = true;
+    document.addEventListener('click', event => {
+        const more = event.target.closest?.('[data-gk-more]');
+        if (more) {
+            event.stopPropagation();
+            toggleMenu(more.closest('.gk-widget-header, .gk-widget-float'));
+            return;
+        }
+
+        if (openHeaders.size === 0) {
+            return;
+        }
+
+        // The colour palette is anchored to its button, so the menu has to stay open behind it.
+        const item = event.target.closest?.('[data-gk-overflow="open"]');
+        if (item && event.target.closest('[aria-haspopup="true"], .gk-popover')) {
+            return;
+        }
+
+        closeMenus();
+    });
+    document.addEventListener('keydown', event => {
+        if (event.key === 'Escape' && openHeaders.size > 0) {
+            event.preventDefault();
+            event.stopPropagation();
+            closeMenus();
+        }
+    }, true);
+    window.addEventListener('scroll', () => {
+        for (const header of openHeaders) {
+            placeMenu(header);
+        }
+    }, true);
+    window.addEventListener('resize', () => {
+        for (const header of document.querySelectorAll('.gk-widget-header, .gk-widget-float')) {
+            layoutHeader(header);
+        }
+    });
+}
+
+function watchHeader(header) {
+    if (watchedHeaders.has(header)) {
+        return;
+    }
+
+    const observer = new ResizeObserver(() => layoutHeader(header));
+    // The floating bar's own width changes as buttons are parked, so watch the widget instead or it loops.
+    const target = header.classList.contains('gk-widget-float') ? header.parentElement : header;
+    if (target) {
+        observer.observe(target);
+    }
+
+    watchedHeaders.set(header, observer);
+}
+
+function headerItems(header) {
+    const toolbar = header.querySelector(':scope > .gk-widget-toolbar');
+    const controls = header.querySelector(':scope > .gk-widget-controls');
+    const toolbarItems = toolbar && getComputedStyle(toolbar).display !== 'none' ? [...toolbar.children] : [];
+    const controlItems = [...(controls?.children ?? [])].filter(el => !el.classList.contains('gk-control-more'));
+    return [...toolbarItems, ...controlItems];
+}
+
+function headerOverflows(header) {
+    if (header.classList.contains('gk-widget-float')) {
+        const widget = header.parentElement;
+        return !!widget && header.getBoundingClientRect().width > widget.clientWidth - 12;
+    }
+
+    return header.scrollWidth > header.clientWidth + 1;
+}
+
+function layoutHeader(header) {
+    if (!header?.isConnected || header.dataset.gkFitting === '1') {
+        return;
+    }
+
+    header.dataset.gkFitting = '1';
+    try {
+        const items = headerItems(header);
+        for (const item of items) {
+            resetItem(item);
+        }
+
+        const more = header.querySelector('.gk-control-more');
+        if (more) {
+            delete more.dataset.gkShow;
+        }
+
+        let overflow = false;
+        if (items.length > 0 && headerOverflows(header)) {
+            if (more) {
+                more.dataset.gkShow = 'true';
+            }
+
+            for (let i = items.length - 1; i >= 0 && headerOverflows(header); i--) {
+                parkItem(items[i]);
+            }
+
+            overflow = items.some(item => item.dataset.gkOverflow === '1');
+            if (!overflow) {
+                openHeaders.delete(header);
+                if (more) {
+                    delete more.dataset.gkShow;
+                }
+            }
+        } else {
+            openHeaders.delete(header);
+        }
+
+        if (openHeaders.has(header) && overflow) {
+            placeMenu(header);
+        } else {
+            openHeaders.delete(header);
+            clearMenuChrome(header);
+        }
+    } finally {
+        delete header.dataset.gkFitting;
+    }
+}
+
+function resetItem(item) {
+    delete item.dataset.gkOverflow;
+    item.inert = false;
+    const style = item.style;
+    style.position = '';
+    style.visibility = '';
+    style.pointerEvents = '';
+    style.clipPath = '';
+    style.width = '';
+    style.height = '';
+    style.overflow = '';
+    style.inset = '';
+    style.top = '';
+    style.left = '';
+    style.right = '';
+    style.zIndex = '';
+    style.minWidth = '';
+    style.display = '';
+    style.alignItems = '';
+    style.justifyContent = '';
+    style.boxSizing = '';
+    style.margin = '';
+}
+
+function parkItem(item) {
+    item.dataset.gkOverflow = '1';
+    item.inert = true;
+    const style = item.style;
+    style.position = 'absolute';
+    style.insetInlineStart = '0';
+    style.top = '0';
+    style.clipPath = 'inset(50%)';
+    style.width = '1px';
+    style.height = '1px';
+    style.overflow = 'hidden';
+    style.pointerEvents = 'none';
+    style.margin = '0';
+}
+
+function placeMenu(header) {
+    const more = header.querySelector('.gk-control-more');
+    const button = header.querySelector('[data-gk-more]');
+    const menu = header.querySelector('.gk-control-menu');
+    const items = headerItems(header).filter(item => item.dataset.gkOverflow === '1' || item.dataset.gkOverflow === 'open');
+    if (!more || !button || !menu || items.length === 0) {
+        openHeaders.delete(header);
+        clearMenuChrome(header);
+        return;
+    }
+
+    const anchor = button.getBoundingClientRect();
+    const rtl = getComputedStyle(header).direction === 'rtl';
+    const entries = items.map(item => {
+        item.inert = false;
+        item.dataset.gkOverflow = 'open';
+        const style = item.style;
+        style.position = 'fixed';
+        style.visibility = 'hidden';
+        style.pointerEvents = 'none';
+        style.clipPath = 'none';
+        style.overflow = 'visible';
+        style.inset = 'auto';
+        style.zIndex = '41';
+        style.width = 'auto';
+        style.height = 'auto';
+        style.margin = '0';
+        style.boxSizing = 'border-box';
+        if (item.matches('button')) {
+            style.display = 'flex';
+            style.alignItems = 'center';
+            style.justifyContent = 'center';
+        }
+
+        return { item, width: item.offsetWidth, height: Math.max(item.offsetHeight, 28) };
+    });
+    const width = Math.max(36, ...entries.map(entry => entry.width));
+    const height = 8 + entries.reduce((sum, entry) => sum + entry.height, 0);
+    let top = anchor.bottom;
+    if (top + height > window.innerHeight - 8 && anchor.top - height >= 8) {
+        top = anchor.top - height;
+    }
+
+    const side = rtl ? anchor.left : window.innerWidth - anchor.right;
+    menu.dataset.gkShow = 'true';
+    menu.style.top = `${top}px`;
+    menu.style.width = `${width}px`;
+    menu.style.height = `${height}px`;
+    menu.style.left = rtl ? `${side}px` : 'auto';
+    menu.style.right = rtl ? 'auto' : `${side}px`;
+    let y = top + 4;
+    for (const entry of entries) {
+        const style = entry.item.style;
+        style.top = `${y}px`;
+        style.minWidth = `${width}px`;
+        style.height = `${entry.height}px`;
+        style.visibility = 'visible';
+        style.pointerEvents = 'auto';
+        style.left = rtl ? `${side}px` : 'auto';
+        style.right = rtl ? 'auto' : `${side}px`;
+        y += entry.height;
+    }
+
+    more.dataset.gkShow = 'true';
+    button.setAttribute('aria-expanded', 'true');
+    const widget = header.closest('.gk-widget');
+    const host = header.closest('.gk-item') ?? widget;
+    // The shade has to sit under this widget and over everything else, including while one is full screen.
+    const level = widget?.classList.contains('gk-widget-fullscreen') ? 2000 : 40;
+    if (host) {
+        host.dataset.gkRaised = '1';
+        host.style.zIndex = String(level);
+    }
+
+    const shade = ensureLayer();
+    shade.style.zIndex = String(level - 1);
+    shade.hidden = false;
+}
+
+function clearMenuChrome(header) {
+    const more = header.querySelector('.gk-control-more');
+    const button = header.querySelector('[data-gk-more]');
+    const menu = header.querySelector('.gk-control-menu');
+    if (menu) {
+        delete menu.dataset.gkShow;
+    }
+
+    if (button) {
+        button.setAttribute('aria-expanded', 'false');
+    }
+
+    const host = header.closest('.gk-item') ?? header.closest('.gk-widget');
+    if (host?.dataset.gkRaised === '1') {
+        delete host.dataset.gkRaised;
+        host.style.zIndex = '';
+    }
+
+    if (openHeaders.size === 0) {
+        const shade = document.getElementById('gk-control-layer');
+        if (shade) {
+            shade.hidden = true;
+        }
+    }
+}
+
+function toggleMenu(header) {
+    if (!header) {
+        return;
+    }
+
+    const willOpen = !openHeaders.has(header);
+    closeMenus();
+    if (!willOpen) {
+        return;
+    }
+
+    openHeaders.add(header);
+    layoutHeader(header);
+}
+
+function closeMenus() {
+    const headers = [...openHeaders];
+    openHeaders.clear();
+    for (const header of headers) {
+        layoutHeader(header);
+    }
+
+    const shade = document.getElementById('gk-control-layer');
+    if (shade) {
+        shade.hidden = true;
+    }
+}
+
+function ensureLayer() {
+    let shade = document.getElementById('gk-control-layer');
+    if (!shade) {
+        shade = document.createElement('div');
+        shade.id = 'gk-control-layer';
+        shade.className = 'gk-menu-layer';
+        shade.hidden = true;
+        shade.style.zIndex = '30';
+        document.body.appendChild(shade);
+        shade.addEventListener('pointerdown', event => {
+            event.preventDefault();
+            event.stopPropagation();
+            closeMenus();
+        });
+    }
+
+    return shade;
 }
