@@ -1,0 +1,272 @@
+{
+	"name": "GridBoard.mixin",
+
+	// drawn as the GridKrafter demos draw a dashboard. Surfaces, text, borders and the accent are the
+	// theme's own colours (window, windowText, windowFrame, grayText, highlight, highlightText, buttonFace)
+	// so the board follows every theme; a widget's colour is the theme's palette colour of that name
+	// (blue, green, orange, violet, amber, sky, red, pink) and, in a theme without one, the fallback below.
+	"colors": {
+		"grid-board-placeholder": "rgba(128,128,128,0.14)",
+		"grid-board-grid": "rgba(128,128,128,0.35)",
+		"grid-board-shadow": "rgba(0,0,0,0.22)",
+		"grid-board-blue-accent": "#2f6bff",
+		"grid-board-green-accent": "#1fb57a",
+		"grid-board-orange-accent": "#ff7a1a",
+		"grid-board-violet-accent": "#6d4dff",
+		"grid-board-amber-accent": "#f2a516",
+		"grid-board-sky-accent": "#0ea5e9",
+		"grid-board-red-accent": "#e5484d",
+		"grid-board-pink-accent": "#e84393"
+	},
+
+	"appearances": {
+
+		"grid-board": {
+			"inherit": "widget",
+			"states": {
+				"default": {
+					"properties": {
+						"font": "default",
+						"textColor": "windowText",
+						"backgroundColor": "transparent",
+						"opacity": 1,
+						"themeAccentColor": "highlight",
+						"themePlaceholderColor": "grid-board-placeholder",
+						"themeGridColor": "grid-board-grid",
+						"themePlaceholderRadius": 8,
+						"themeBadgeColor": "windowFrame",
+						"themeBadgeTextColor": "grayText"
+					},
+					"styles": { "width": 0 }
+				},
+				"disabled": { "properties": { "opacity": 0.55 } }
+			},
+			"components": {
+
+				"pane": {
+					"inherit": "scrollarea",
+					"states": { "default": { "properties": { "margin": [10, 16, 16, 16] } } }
+				},
+
+				"toolbar": {
+					"states": { "default": { "properties": { "padding": [12, 16, 0, 16], "backgroundColor": "transparent" } } }
+				},
+
+				"actions": {
+					"states": { "default": { "properties": { "height": 30, "backgroundColor": "transparent" } } }
+				},
+
+				"tabs": {
+					"states": {
+						"default": {
+							"properties": { "padding": 0, "backgroundColor": "transparent" },
+							"styles": { "width": 0, "widthBottom": 1, "styleBottom": "solid", "colorBottom": "windowFrame", "radius": 0 }
+						}
+					}
+				},
+
+				"tab": {
+					"inherit": "widget",
+					"states": {
+						"default": {
+							"properties": { "padding": [8, 14, 7, 14], "font": "default", "textColor": "grayText", "backgroundColor": "transparent", "cursor": "pointer" },
+							"styles": { "width": 0, "widthBottom": 2, "styleBottom": "solid", "colorBottom": "transparent", "radius": 0 }
+						},
+						"hovered": { "properties": { "textColor": "windowText" } },
+						"focused": { "properties": { "textColor": "windowText" } },
+						"plus": { "properties": { "padding": [8, 10, 7, 10], "font": "defaultBold" } },
+						"selected": {
+							"properties": { "textColor": "windowText" },
+							"styles": { "colorBottom": "highlight" }
+						},
+						"disabled": { "properties": { "opacity": 0.55 } }
+					}
+				},
+
+				"links": {
+					"states": { "default": { "properties": { "height": 22, "padding": [0, 8, 0, 0], "backgroundColor": "transparent" } } }
+				},
+
+				"collapse-link": {
+					"inherit": "widget",
+					"states": {
+						"default": {
+							"properties": { "padding": [2, 0], "font": "default", "textColor": "windowText", "backgroundColor": "transparent", "cursor": "pointer", "opacity": 1 },
+							"styles": { "width": 0 }
+						},
+						"hovered": { "properties": { "textColor": "highlight" } },
+						"focused": { "properties": { "textColor": "highlight" } },
+						"disabled": { "properties": { "textColor": "grayText", "cursor": "default" } }
+					}
+				},
+
+				"expand-link": {
+					"inherit": "widget",
+					"states": {
+						"default": {
+							"properties": { "padding": [2, 0], "font": "default", "textColor": "windowText", "backgroundColor": "transparent", "cursor": "pointer", "opacity": 1 },
+							"styles": { "width": 0 }
+						},
+						"hovered": { "properties": { "textColor": "highlight" } },
+						"focused": { "properties": { "textColor": "highlight" } },
+						"disabled": { "properties": { "textColor": "grayText", "cursor": "default" } }
+					}
+				},
+
+				"edit-button": {
+					"inherit": "widget",
+					"states": {
+						"default": {
+							"properties": { "padding": [0, 10], "height": 28, "font": "default", "textColor": "windowText", "backgroundColor": "window", "cursor": "pointer" },
+							"styles": { "width": 1, "style": "solid", "color": "windowFrame", "radius": 6 }
+						},
+						"hovered": { "styles": { "color": "highlight" } },
+						"focused": { "styles": { "color": "highlight" } },
+						"checked": {
+							"properties": { "textColor": "highlight" },
+							"styles": { "color": "highlight" }
+						},
+						"disabled": { "properties": { "opacity": 0.55 } }
+					}
+				},
+
+				"add-button": {
+					"inherit": "widget",
+					"states": {
+						"default": {
+							"properties": { "padding": [0, 10], "height": 28, "font": "default", "textColor": "highlightText", "backgroundColor": "highlight", "cursor": "pointer", "opacity": 1 },
+							"styles": { "width": 0, "radius": 6 }
+						},
+						"hovered": { "properties": { "opacity": 0.9 } },
+						"pressed": { "properties": { "opacity": 0.82 } },
+						"focused": { "styles": { "shadowColor": "highlight", "shadowSpreadRadius": 2 } },
+						"disabled": { "properties": { "opacity": 0.55 } }
+					}
+				},
+
+				"catalog": {
+					"inherit": "popup",
+					"states": {
+						"default": {
+							"properties": { "padding": 4, "minWidth": 280, "backgroundColor": "window", "textColor": "windowText" },
+							"styles": { "width": 1, "style": "solid", "color": "windowFrame", "radius": 8, "shadowColor": "grid-board-shadow", "shadowBlurRadius": 24, "shadowLength": 8 }
+						}
+					}
+				},
+
+				"catalog-item": {
+					"states": {
+						"default": {
+							"properties": { "padding": [8, 10], "backgroundColor": "transparent", "cursor": "pointer" },
+							"styles": { "radius": 6 }
+						},
+						"hovered": { "properties": { "backgroundColor": "buttonFace" } }
+					}
+				},
+
+				"catalog-name": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "defaultBold", "textColor": "windowText" } } }
+				},
+
+				"catalog-description": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "default", "textColor": "grayText" } } }
+				}
+			}
+		},
+
+		"grid-board-widget": {
+			"inherit": "widget",
+			"states": {
+				"default": {
+					"properties": {
+						"font": "default",
+						"textColor": "windowText",
+						"backgroundColor": "window",
+						"opacity": 1,
+						"themeSurfaceColor": "window",
+						"themeBorderColor": "windowFrame",
+						"themeMutedColor": "grayText",
+						"themeAccentColor": "highlight",
+						"themeShadowColor": "grid-board-shadow",
+						"themeRadius": 8
+					},
+					"styles": { "width": 1, "style": "solid", "color": "windowFrame", "radius": 8 }
+				},
+				"selected": { "styles": { "color": "highlight" } },
+				"dragging": {
+					"properties": { "opacity": 0.9 },
+					"styles": { "shadowColor": "grid-board-shadow", "shadowBlurRadius": 30, "shadowLength": 10 }
+				},
+				"disabled": { "properties": { "opacity": 0.55 } }
+			},
+			"components": {
+
+				"pane": {
+					"inherit": "scrollarea",
+					"states": { "default": { "properties": { "backgroundColor": "transparent" } } }
+				},
+
+				"header": {
+					"states": {
+						"default": {
+							"properties": { "padding": [3, 8, 0, 12], "backgroundColor": "transparent" },
+							"styles": { "width": 0 }
+						}
+					}
+				},
+
+				"icon": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "padding": 0, "backgroundColor": "transparent" } } }
+				},
+
+				"title": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "default", "textColor": "windowText" } } }
+				},
+
+				"footer": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "padding": [0, 12, 6, 12], "font": "default", "textColor": "grayText", "backgroundColor": "transparent" } } }
+				},
+
+				"button": {
+					"inherit": "widget",
+					"states": {
+						"default": {
+							"properties": { "width": 22, "height": 22, "padding": 3, "textColor": "grayText", "backgroundColor": "transparent", "cursor": "pointer" },
+							"styles": { "width": 0, "radius": 5 }
+						},
+						"hovered": { "properties": { "textColor": "highlight", "backgroundColor": "buttonFace" } },
+						"focused": { "properties": { "textColor": "highlight" } },
+						"pressed": { "properties": { "textColor": "highlight", "backgroundColor": "buttonFace" } }
+					}
+				},
+
+				"palette": {
+					"inherit": "popup",
+					"states": {
+						"default": {
+							"properties": { "padding": 6, "backgroundColor": "window" },
+							"styles": { "width": 1, "style": "solid", "color": "windowFrame", "radius": 6, "shadowColor": "grid-board-shadow", "shadowBlurRadius": 12, "shadowLength": 4 }
+						}
+					}
+				},
+
+				"swatch": {
+					"inherit": "widget",
+					"states": {
+						"default": {
+							"properties": { "width": 16, "height": 16, "padding": 0, "cursor": "pointer" },
+							"styles": { "width": 0, "radius": 8 }
+						},
+						"hovered": { "styles": { "width": 2, "style": "solid", "color": "window" } },
+						"selected": { "styles": { "width": 2, "style": "solid", "color": "highlight" } }
+					}
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,19 @@
+{
+  "families": [
+    {
+      "name": "GridKrafter",
+      "variants": [
+        {
+          "name": "Light",
+          "scheme": "light",
+          "path": "Themes/GridKrafter-Light.theme"
+        },
+        {
+          "name": "Dark",
+          "scheme": "dark",
+          "path": "Themes/GridKrafter-Dark.theme"
+        }
+      ]
+    }
+  ]
+}

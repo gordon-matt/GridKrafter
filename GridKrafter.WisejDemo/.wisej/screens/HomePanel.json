@@ -1,0 +1,50 @@
+{
+  "form": "Panels/HomePanel.cs",
+  "reference": "The Project Studio preview of the GridKrafter dashboard (a port of GridKrafter.Demo.Mvc)",
+  "saved": "2026-11-12T10:22:03.1624269Z",
+  "regions": [
+    {
+      "name": "Board",
+      "describes": "The GridKrafter board: section tabs (Overview, Sales, +), Edit layout and Add widget buttons, and a 12-column grid of draggable, resizable, collapsible, recolourable widgets with headers (icon, title, refresh/fullscreen/collapse/delete buttons), saved after each change",
+      "build": "new-component",
+      "why": "KanbanBoard moves records between status lanes; this is a free 2-D grid layout of resizable widgets (x, y, w, h on 12 columns, collision and compaction from GridKrafter.Core) hosting arbitrary Wisej controls, with sections, collapse, fullscreen and recolour, which KanbanBoard cannot show",
+      "component": "GridBoard",
+      "exists": false
+    },
+    {
+      "name": "Stat tiles",
+      "describes": "Revenue, Visitors, Orders, Uptime: label, big value, trend vs last week, sparkline, coloured accent stripe",
+      "build": "control",
+      "count": 4,
+      "control": "KpiPanel",
+      "type": "Wisej.Web.KpiPanel"
+    },
+    {
+      "name": "Activity widget body",
+      "describes": "Newest-first feed: coloured icon, text, relative time",
+      "build": "control",
+      "control": "Timeline",
+      "type": "Wisej.Web.Timeline"
+    },
+    {
+      "name": "Server load widget body",
+      "describes": "CPU, Memory, Disk, Network: name, percentage and a coloured bar",
+      "build": "control",
+      "count": 4,
+      "control": "MeterBar",
+      "type": "Wisej.Web.MeterBar"
+    },
+    {
+      "name": "Recent orders widget body",
+      "describes": "Order #, Customer, Placed, Status badge, Total",
+      "build": "control",
+      "control": "DataGridView",
+      "type": "Wisej.Web.DataGridView"
+    },
+    {
+      "name": "Text widgets",
+      "describes": "How this page works, Note, Links: short text and links",
+      "build": "layout"
+    }
+  ]
+}

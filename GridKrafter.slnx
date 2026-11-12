@@ -14,5 +14,6 @@
   <Project Path="GridKrafter.Core/GridKrafter.Core.csproj" />
   <Project Path="GridKrafter.Components/GridKrafter.Components.csproj" />
   <Project Path="GridKrafter.CustomElements/GridKrafter.CustomElements.csproj" />
+  <Project Path="GridKrafter.WisejDemo/GridKrafter.WisejDemo.csproj" />
   <Project Path="GridKrafter.Tests/GridKrafter.Tests.csproj" />
 </Solution>

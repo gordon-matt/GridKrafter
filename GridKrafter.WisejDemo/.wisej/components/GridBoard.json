@@ -1,0 +1,416 @@
+{
+  "name": "GridBoard",
+  "namespace": "GridKrafter.WisejDemo.Controls",
+  "fullName": "GridKrafter.WisejDemo.Controls.GridBoard",
+  "language": "csharp",
+  "files": [
+    "Controls/GridBoard/GridBoard.cs",
+    "Controls/GridBoard/gridkrafter.wisejdemo.GridBoard.js",
+    "Controls/GridBoard/GridBoard.mixin.theme",
+    "Controls/GridBoard/GridBoard.bmp",
+    "Controls/GridBoard/GridBoardSection.cs",
+    "Controls/GridBoard/GridBoardSectionCollection.cs",
+    "Controls/GridBoard/GridWidgetKind.cs",
+    "Controls/GridBoard/GridWidgetKindCollection.cs"
+  ],
+  "saved": "2026-11-12T12:01:06.5656467Z",
+  "sketch": {
+    "schema": "wisej-component-sketch/1",
+    "name": "GridBoard",
+    "namespace": "GridKrafter.WisejDemo.Controls",
+    "description": "A dashboard board: section tabs, an edit toggle and a widget catalog over a 12-column grid whose widgets host real Wisej controls and can be dragged, resized, collapsed, recoloured and removed.",
+    "size": [
+      1000,
+      600
+    ],
+    "html": "<div class=\"gb\">\n  <div class=\"toolbar\">\n    <div class=\"row1\">\n      <button class=\"tbtn edit\"><svg viewBox=\"0 0 24 24\"><path d=\"M4 20h4L19 9l-4-4L4 16z\"/></svg><span>Edit</span></button>\n      <span class=\"sp\"></span>\n      <div class=\"addwrap\">\n        <button class=\"tbtn add\"><svg viewBox=\"0 0 24 24\"><path d=\"M12 5v14M5 12h14\"/></svg>Add widget</button>\n        <div class=\"catalog\"></div>\n      </div>\n    </div>\n    <div class=\"tabs\"></div>\n    <div class=\"links\">\n      <a class=\"link collapseall\"><svg viewBox=\"0 0 24 24\"><path d=\"M7 11l5-5 5 5M7 18l5-5 5 5\"/></svg>Collapse all</a>\n      <a class=\"link expandall\"><svg viewBox=\"0 0 24 24\"><path d=\"M7 6l5 5 5-5M7 13l5 5 5-5\"/></svg>Expand all</a>\n    </div>\n  </div>\n  <div class=\"board\"></div>\n</div>",
+    "css": ".gb{box-sizing:border-box;width:100%;height:100%;display:flex;flex-direction:column;background:var(--background);color:var(--text);font:14px/1.45 \"Segoe UI\",system-ui,sans-serif;overflow:hidden}\n.gb *{box-sizing:border-box}\n.gb svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}\n.toolbar{display:flex;flex-direction:column;gap:8px;padding:12px 16px 0}\n.toolbar.hidden{display:none}\n.row1{display:flex;align-items:center;gap:8px}\n.sp{flex:1}\n.tbtn{display:flex;align-items:center;gap:6px;height:28px;padding:0 10px;border-radius:6px;border:1px solid var(--border);background:var(--window);color:var(--text);font:inherit;font-size:13px;cursor:pointer}\n.tbtn svg{width:14px;height:14px}\n.tbtn:hover{border-color:var(--accent)}\n.tbtn.on{border-color:var(--accent);color:var(--accent)}\n.tbtn.add{display:none}\n.editing-on .tbtn.add{display:flex}\n.tabs{display:flex;gap:2px;border-bottom:1px solid var(--border)}\n.tab{display:flex;align-items:center;gap:8px;margin-bottom:-1px;padding:8px 14px;border-bottom:2px solid transparent;color:var(--muted);font-size:13.5px;cursor:pointer}\n.tab svg{width:16px;height:16px}\n.tab:hover{color:var(--text)}\n.tab.selected{border-bottom-color:var(--accent);color:var(--text)}\n.tab .count{padding:0 6px;border-radius:999px;background:var(--badge);font-size:11.5px;line-height:18px;color:var(--muted)}\n.tab.plus{display:none;padding:8px 10px}\n.editing-on .tab.plus{display:flex}\n.links{display:flex;justify-content:flex-end;gap:16px;padding:2px 8px 0}\n.link{display:flex;align-items:center;gap:5px;font-size:12.5px;color:var(--text);cursor:pointer}\n.link svg{width:13px;height:13px}\n.link.off{color:var(--muted);cursor:default}\n.addwrap{position:relative}\n.catalog{display:none;position:absolute;right:0;top:32px;width:280px;background:var(--window);border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.18);padding:4px;z-index:20}\n.catalog.open{display:block}\n.kind{display:flex;gap:10px;align-items:center;padding:8px 10px;border-radius:6px;cursor:pointer}\n.kind:hover{background:var(--hover)}\n.kind .ki{color:var(--c)}\n.kind .ki svg{width:16px;height:16px}\n.kind b{display:block;font-weight:600;font-size:13px}\n.kind small{color:var(--muted)}\n.board{position:relative;flex:1;margin:10px 16px 16px;overflow:auto}\n.board.editing{background-image:radial-gradient(circle,color-mix(in srgb,var(--accent) 22%,transparent) 1.2px,transparent 1.4px)}\n.widget{position:absolute;background:var(--window);border:1px solid var(--border);border-radius:8px;overflow:hidden;display:flex;flex-direction:column}\n.widget.card{box-shadow:inset 0 3px 0 var(--c)}\n.widget.plain{box-shadow:inset 3px 0 0 var(--c)}\n.editing .widget.selected{outline:2px solid var(--accent);outline-offset:-1px}\n.widget.dragging{opacity:.85;z-index:10;box-shadow:0 10px 30px rgba(0,0,0,.25)}\n.widget.fullscreen{z-index:15}\n.header{flex:none;height:34px;display:flex;align-items:center;gap:8px;padding:3px 8px 0 12px}\n.editing .header,.editing .widget.plain{cursor:move}\n.wicon{color:var(--c);display:flex}\n.wicon svg{width:16px;height:16px}\n.title{font-size:13px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text)}\n.buttons{display:flex;gap:2px;color:var(--muted)}\n.wbtn{width:22px;height:22px;padding:3px;border-radius:5px;cursor:pointer}\n.wbtn:hover{color:var(--accent);background:var(--hover)}\n.body{flex:1;padding:4px 12px 10px;overflow:hidden;color:var(--muted);font-size:13px}\n.footer{flex:none;height:24px;padding:0 12px 6px;text-align:right;font-size:11.5px;color:var(--muted)}\n.widget.collapsed .body,.widget.collapsed .footer{display:none}\n.plain .body{padding:16px 16px 0 18px;color:var(--text)}\n.sl{color:var(--muted);font-size:12px}\n.sv{font-size:22px;font-weight:700;line-height:1.3}\n.st{font-size:11.5px;color:var(--muted)}\n.st b{font-weight:400;color:var(--green)}\n.popup{display:none;position:absolute;top:6px;right:6px;gap:5px;align-items:center;background:var(--window);padding:4px 6px;border:1px solid var(--border);border-radius:6px;z-index:3}\n.editing .widget.plain:hover .popup{display:flex}\n.swatch{width:13px;height:13px;border-radius:50%;background:var(--c);cursor:pointer}\n.swatch.on{box-shadow:0 0 0 2px var(--window),0 0 0 3.5px var(--accent)}\n.del{font-size:11px;color:var(--muted);margin-left:3px;cursor:pointer}\n.palette{display:none;position:absolute;top:34px;right:8px;gap:5px;background:var(--window);padding:6px;border:1px solid var(--border);border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,.18);z-index:4}\n.palette.open{display:flex}\n.grip{display:none;position:absolute;right:4px;bottom:4px;width:10px;height:10px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);opacity:.5;border-radius:0 0 3px 0;cursor:se-resize;z-index:4}\n.editing .grip{display:block}\n.placeholder{position:absolute;border-radius:8px;background:color-mix(in srgb,var(--accent) 12%,transparent);border:2px dashed var(--accent);pointer-events:none}",
+    "js": "function render(root, props, fire) {\n  const ICONS = {\n    home: '<path d=\"M3 11l9-7 9 7v9H3z\"/>',\n    cart: '<circle cx=\"9\" cy=\"20\" r=\"1.5\"/><circle cx=\"18\" cy=\"20\" r=\"1.5\"/><path d=\"M2 3h3l3 12h11l2-8H6\"/>',\n    activity: '<path d=\"M3 12h4l3-8 4 16 3-8h4\"/>',\n    server: '<rect x=\"3\" y=\"4\" width=\"18\" height=\"7\" rx=\"1.5\"/><rect x=\"3\" y=\"13\" width=\"18\" height=\"7\" rx=\"1.5\"/>',\n    chart: '<path d=\"M4 20V10M10 20V4M16 20v-7M22 20H2\"/>',\n    table: '<rect x=\"3\" y=\"4\" width=\"18\" height=\"16\" rx=\"2\"/><path d=\"M3 10h18M9 4v16\"/>',\n    refresh: '<path d=\"M20 11a8 8 0 1 0-2 6M20 5v6h-6\"/>',\n    fullscreen: '<path d=\"M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5\"/>',\n    collapse: '<path d=\"M6 15l6-6 6 6\"/>',\n    expand: '<path d=\"M6 9l6 6 6-6\"/>',\n    delete: '<path d=\"M6 6l12 12M18 6L6 18\"/>',\n    edit: '<path d=\"M4 20h4L19 9l-4-4L4 16z\"/>',\n    color: '<path d=\"M12 3a9 9 0 1 0 0 18c1.1 0 2-.9 2-2 0-.5-.2-1-.5-1.3-.3-.4-.5-.8-.5-1.3 0-1.1.9-2 2-2h2.4A4.6 4.6 0 0 0 21 9.8C21 6 17 3 12 3z\"/><circle cx=\"7.5\" cy=\"11\" r=\"1\"/><circle cx=\"10.5\" cy=\"7.5\" r=\"1\"/><circle cx=\"15\" cy=\"7.5\" r=\"1\"/>'\n  };\n  const PALETTE = ['blue','green','orange','violet','amber','sky','red','pink'];\n  const ORDER = ['refresh','color','edit','fullscreen','collapse','delete'];\n  const svg = n => '<svg viewBox=\"0 0 24 24\">' + (ICONS[n] || ICONS.chart) + '</svg>';\n  const col = c => 'var(--' + (PALETTE.indexOf(c) >= 0 ? c : 'accent') + ')';\n  const cols = props.columns || 12, rowH = props.rowHeight || 62, gap = props.gap == null ? 12 : props.gap;\n  const sections = props.sections || [];\n  const sel = props.selectedSection || (sections[0] && sections[0].id);\n  const all = props.widgets || [];\n  const inSec = (w, id) => (w.section || (sections[0] && sections[0].id)) === id;\n  const widgets = all.filter(w => inSec(w, sel));\n  const gb = root.querySelector('.gb');\n  gb.classList.toggle('editing-on', !!props.editMode);\n\n  // toolbar\n  root.querySelector('.toolbar').classList.toggle('hidden', props.showToolbar === false);\n  const tabs = root.querySelector('.tabs');\n  tabs.innerHTML = sections.map(s => '<a class=\"tab' + (s.id === sel ? ' selected' : '') + '\" data-id=\"' + s.id + '\">' + svg(s.icon) + s.title +\n    '<span class=\"count\">' + all.filter(w => inSec(w, s.id)).length + '</span></a>').join('') + '<a class=\"tab plus\">+</a>';\n  tabs.querySelectorAll('.tab[data-id]').forEach(t => t.onclick = () => fire('changed', { kind: 'section-selected', sectionId: t.dataset.id, selectedSection: t.dataset.id }));\n  tabs.querySelector('.plus').onclick = () => fire('sectionAdding', { title: 'New section' });\n  const edit = root.querySelector('.edit');\n  edit.classList.toggle('on', !!props.editMode);\n  edit.onclick = () => fire('changed', { kind: 'edit-mode', editMode: !props.editMode });\n  const cards = widgets.filter(w => w.chrome !== 'plain');\n  const ca = root.querySelector('.collapseall'), ea = root.querySelector('.expandall');\n  ca.classList.toggle('off', !cards.some(w => !w.collapsed));\n  ea.classList.toggle('off', !cards.some(w => w.collapsed));\n  ca.onclick = () => fire('changed', { kind: 'collapsed-all', sectionId: sel });\n  ea.onclick = () => fire('changed', { kind: 'expanded-all', sectionId: sel });\n  const cat = root.querySelector('.catalog');\n  cat.innerHTML = (props.catalog || []).map(k => '<div class=\"kind\" data-kind=\"' + k.kind + '\"><span class=\"ki\" style=\"--c:' + col(k.color) + '\">' + svg(k.icon) + '</span><div><b>' + k.name + '</b><small>' + k.description + '</small></div></div>').join('');\n  root.querySelector('.add').onclick = e => { e.stopPropagation(); cat.classList.toggle('open'); };\n  cat.querySelectorAll('.kind').forEach(k => k.onclick = () => { cat.classList.remove('open'); fire('addWidgetRequested', { kind: k.dataset.kind }); });\n\n  // board\n  const board = root.querySelector('.board');\n  board.classList.toggle('editing', !!props.editMode);\n  board.innerHTML = '';\n  const cw = () => (board.clientWidth - gap * (cols - 1)) / cols;\n  board.style.backgroundSize = 'calc((100% + ' + gap + 'px)/' + cols + ') ' + (rowH + gap) + 'px';\n  const place = (el, x, y, w, h) => {\n    const c = cw();\n    el.style.left = x * (c + gap) + 'px'; el.style.top = y * (rowH + gap) + 'px';\n    el.style.width = (w * c + (w - 1) * gap) + 'px'; el.style.height = (h * rowH + (h - 1) * gap) + 'px';\n  };\n  const fs = widgets.find(w => w.fullscreen);\n  widgets.forEach(w => {\n    if (fs && fs !== w) return;\n    const el = document.createElement('div');\n    const b = ORDER.filter(n => (w.buttons || []).indexOf(n) >= 0);\n    el.className = 'widget ' + (w.chrome === 'plain' ? 'plain' : 'card') + (w.collapsed ? ' collapsed' : '') + (w.id === props.selected ? ' selected' : '') + (fs ? ' fullscreen' : '');\n    el.style.setProperty('--c', col(w.color));\n    if (w.chrome === 'plain') {\n      el.innerHTML = '<div class=\"body\"><div class=\"sl\">' + w.title + '</div><div class=\"sv\">' + (w.value || '') + '</div>' + (w.trend ? '<div class=\"st\"><b>' + w.trend + '</b> vs last week</div>' : '') + '</div>' +\n        '<div class=\"popup\">' + PALETTE.slice(0, 4).map(p => '<span class=\"swatch' + (p === w.color ? ' on' : '') + '\" data-c=\"' + p + '\" style=\"--c:var(--' + p + ')\"></span>').join('') + '<span class=\"del\">✕</span></div>';\n    } else {\n      el.innerHTML = '<div class=\"header\"><span class=\"wicon\">' + svg(w.icon) + '</span><span class=\"title\">' + w.title + '</span><span class=\"buttons\">' +\n        b.map(n => '<svg class=\"wbtn\" data-b=\"' + n + '\" viewBox=\"0 0 24 24\">' + ICONS[n === 'collapse' && w.collapsed ? 'expand' : n] + '</svg>').join('') + '</span></div>' +\n        '<div class=\"body\">' + (w.body || '') + '</div>' +\n        (w.footerText ? '<div class=\"footer\">' + w.footerText + '</div>' : '') +\n        '<div class=\"palette\">' + PALETTE.map(p => '<span class=\"swatch' + (p === w.color ? ' on' : '') + '\" data-c=\"' + p + '\" style=\"--c:var(--' + p + ')\"></span>').join('') + '</div>';\n    }\n    el.insertAdjacentHTML('beforeend', '<span class=\"grip\"></span>');\n    board.appendChild(el);\n    if (fs) { el.style.left = el.style.top = '0'; el.style.width = el.style.height = '100%'; }\n    else if (w.collapsed) { place(el, w.x, w.y, w.w, 1); el.style.height = '36px'; }\n    else place(el, w.x, w.y, w.w, w.h);\n\n    el.onmousedown = () => fire('widgetSelected', { itemId: w.id, selected: w.id });\n    el.querySelectorAll('.wbtn').forEach(btn => btn.onclick = e => {\n      e.stopPropagation();\n      const n = btn.dataset.b;\n      if (n === 'refresh') fire('widgetRefresh', { itemId: w.id });\n      else if (n === 'fullscreen') fire('changed', { kind: 'fullscreen', itemId: w.id });\n      else if (n === 'collapse') fire('changed', { kind: w.collapsed ? 'expanded' : 'collapsed', itemId: w.id });\n      else if (n === 'delete') fire('changed', { kind: 'removed', itemId: w.id });\n      else if (n === 'edit') fire('changed', { kind: 'edit', itemId: w.id });\n      else if (n === 'color') el.querySelector('.palette').classList.toggle('open');\n    });\n    el.querySelectorAll('.swatch').forEach(s => s.onclick = e => { e.stopPropagation(); fire('changed', { kind: 'color', itemId: w.id, color: s.dataset.c }); });\n    const del = el.querySelector('.del');\n    if (del) del.onclick = e => { e.stopPropagation(); fire('changed', { kind: 'removed', itemId: w.id }); };\n\n    const startDrag = (e, resize) => {\n      if (!props.editMode || fs) return;\n      e.preventDefault(); e.stopPropagation();\n      const sx = e.clientX, sy = e.clientY, c = cw();\n      const ph = document.createElement('div'); ph.className = 'placeholder'; board.insertBefore(ph, el);\n      el.classList.add('dragging');\n      const r = { x: w.x, y: w.y, w: w.w, h: w.h }; place(ph, r.x, r.y, r.w, r.h);\n      const ox = el.offsetLeft, oy = el.offsetTop, ow = el.offsetWidth, oh = el.offsetHeight;\n      const move = m => {\n        const dx = m.clientX - sx, dy = m.clientY - sy;\n        if (resize) {\n          el.style.width = Math.max(c, ow + dx) + 'px'; el.style.height = Math.max(rowH, oh + dy) + 'px';\n          r.w = Math.min(cols - w.x, Math.max(w.minW || 1, Math.round((ow + dx + gap) / (c + gap))));\n          r.h = Math.max(w.minH || 1, Math.round((oh + dy + gap) / (rowH + gap)));\n        } else {\n          el.style.left = ox + dx + 'px'; el.style.top = oy + dy + 'px';\n          r.x = Math.min(cols - w.w, Math.max(0, Math.round((ox + dx) / (c + gap))));\n          r.y = Math.max(0, Math.round((oy + dy) / (rowH + gap)));\n        }\n        place(ph, r.x, r.y, r.w, r.h);\n      };\n      const up = () => {\n        document.removeEventListener('mousemove', move); document.removeEventListener('mouseup', up);\n        ph.remove(); el.classList.remove('dragging'); place(el, r.x, r.y, r.w, r.h);\n        if (r.x !== w.x || r.y !== w.y || r.w !== w.w || r.h !== w.h)\n          fire('changed', { kind: resize ? 'resized' : 'moved', itemId: w.id, x: r.x, y: r.y, w: r.w, h: r.h });\n      };\n      document.addEventListener('mousemove', move); document.addEventListener('mouseup', up);\n    };\n    el.querySelector('.grip').onmousedown = e => startDrag(e, true);\n    const handle = w.chrome === 'plain' ? el : el.querySelector('.header');\n    handle.addEventListener('mousedown', e => { if (!e.target.closest('.wbtn,.swatch,.del')) startDrag(e, false); });\n  });\n  gb.onclick = () => cat.classList.remove('open');\n}",
+    "props": [
+      {
+        "name": "columns",
+        "type": "int",
+        "default": 12,
+        "description": "Number of grid columns in the widest layout."
+      },
+      {
+        "name": "rowHeight",
+        "type": "int",
+        "default": 62,
+        "description": "Height of one grid row, in pixels."
+      },
+      {
+        "name": "gap",
+        "type": "int",
+        "default": 12,
+        "description": "Space between cells, in pixels."
+      },
+      {
+        "name": "editMode",
+        "type": "bool",
+        "default": false,
+        "description": "Widgets can be dragged and resized; the grid backdrop, Add widget and + show."
+      },
+      {
+        "name": "showToolbar",
+        "type": "bool",
+        "default": true,
+        "description": "Shows the Edit button, the section tabs and the Collapse all / Expand all links."
+      },
+      {
+        "name": "selectedSection",
+        "type": "string",
+        "default": "overview",
+        "description": "Id of the section whose widgets show."
+      },
+      {
+        "name": "selected",
+        "type": "string",
+        "default": "",
+        "description": "Id of the selected widget (sketch only; outlined only in edit mode)."
+      },
+      {
+        "name": "sections",
+        "type": "items",
+        "item": "GridBoardSection",
+        "fields": [
+          {
+            "name": "Id",
+            "type": "string",
+            "default": "section1"
+          },
+          {
+            "name": "Title",
+            "type": "string",
+            "default": "Section"
+          },
+          {
+            "name": "Icon",
+            "type": "string",
+            "default": "home"
+          }
+        ],
+        "default": [
+          {
+            "id": "overview",
+            "title": "Overview",
+            "icon": "home"
+          },
+          {
+            "id": "sales",
+            "title": "Sales",
+            "icon": "cart"
+          }
+        ],
+        "description": "The board's sections, shown as underlined tabs with a count of their widgets."
+      },
+      {
+        "name": "catalog",
+        "type": "items",
+        "item": "GridWidgetKind",
+        "fields": [
+          {
+            "name": "Kind",
+            "type": "string",
+            "default": "kind"
+          },
+          {
+            "name": "Description",
+            "type": "string",
+            "default": ""
+          },
+          {
+            "name": "Icon",
+            "type": "string",
+            "default": "chart"
+          },
+          {
+            "name": "Color",
+            "type": "string",
+            "default": "blue"
+          },
+          {
+            "name": "W",
+            "type": "int",
+            "default": 4
+          },
+          {
+            "name": "H",
+            "type": "int",
+            "default": 3
+          },
+          {
+            "name": "MinW",
+            "type": "int",
+            "default": 1
+          },
+          {
+            "name": "MinH",
+            "type": "int",
+            "default": 1
+          },
+          {
+            "name": "MaxW",
+            "type": "int",
+            "default": 0
+          },
+          {
+            "name": "MaxH",
+            "type": "int",
+            "default": 0
+          },
+          {
+            "name": "AutoHeight",
+            "type": "bool",
+            "default": false
+          },
+          {
+            "name": "Refresh",
+            "type": "int",
+            "default": 0
+          }
+        ],
+        "default": [
+          {
+            "kind": "stat",
+            "name": "Stat tile",
+            "description": "A number with its trend",
+            "icon": "chart",
+            "color": "green",
+            "w": 3,
+            "h": 2
+          },
+          {
+            "kind": "activity",
+            "name": "Activity",
+            "description": "Latest events as a timeline",
+            "icon": "activity",
+            "color": "violet",
+            "w": 8,
+            "h": 4
+          },
+          {
+            "kind": "load",
+            "name": "Server load",
+            "description": "CPU, memory and disk meters",
+            "icon": "server",
+            "color": "green",
+            "w": 4,
+            "h": 4
+          },
+          {
+            "kind": "table",
+            "name": "Table",
+            "description": "Rows in a data grid",
+            "icon": "table",
+            "color": "blue",
+            "w": 6,
+            "h": 4
+          }
+        ],
+        "description": "The kinds of widget Add widget offers."
+      },
+      {
+        "name": "widgets",
+        "type": "rows",
+        "default": [
+          {
+            "id": "revenue",
+            "section": "overview",
+            "chrome": "plain",
+            "title": "Revenue",
+            "value": "$48,200",
+            "trend": "+3.2%",
+            "color": "green",
+            "x": 0,
+            "y": 0,
+            "w": 3,
+            "h": 2
+          },
+          {
+            "id": "visitors",
+            "section": "overview",
+            "chrome": "plain",
+            "title": "Visitors",
+            "value": "12,840",
+            "trend": "+8.1%",
+            "color": "blue",
+            "x": 3,
+            "y": 0,
+            "w": 3,
+            "h": 2
+          },
+          {
+            "id": "orders",
+            "section": "overview",
+            "chrome": "plain",
+            "title": "Orders",
+            "value": "1,204",
+            "trend": "-2.4%",
+            "color": "orange",
+            "x": 6,
+            "y": 0,
+            "w": 3,
+            "h": 2
+          },
+          {
+            "id": "uptime",
+            "section": "overview",
+            "chrome": "plain",
+            "title": "Uptime",
+            "value": "99.98%",
+            "trend": "+0.02%",
+            "color": "violet",
+            "x": 9,
+            "y": 0,
+            "w": 3,
+            "h": 2
+          },
+          {
+            "id": "activity",
+            "section": "overview",
+            "chrome": "card",
+            "title": "Activity",
+            "icon": "activity",
+            "color": "violet",
+            "buttons": [
+              "refresh",
+              "color",
+              "edit",
+              "fullscreen",
+              "collapse",
+              "delete"
+            ],
+            "body": "Timeline control",
+            "footerText": "Last updated 5:54:03 AM",
+            "x": 0,
+            "y": 2,
+            "w": 8,
+            "h": 4
+          },
+          {
+            "id": "load",
+            "section": "overview",
+            "chrome": "card",
+            "title": "Server load",
+            "icon": "server",
+            "color": "green",
+            "buttons": [
+              "refresh",
+              "fullscreen",
+              "collapse",
+              "delete"
+            ],
+            "body": "MeterBar controls",
+            "footerText": "Last updated 5:54:03 AM",
+            "x": 8,
+            "y": 2,
+            "w": 4,
+            "h": 4
+          },
+          {
+            "id": "sales-table",
+            "section": "sales",
+            "chrome": "card",
+            "title": "Orders",
+            "icon": "table",
+            "color": "blue",
+            "buttons": [
+              "refresh",
+              "fullscreen",
+              "collapse",
+              "delete"
+            ],
+            "body": "DataGridView",
+            "x": 0,
+            "y": 0,
+            "w": 12,
+            "h": 5
+          }
+        ],
+        "description": "Sketch only: stands for the GridWidget child controls (ItemId, Section, Chrome, Title, Icon, Color, Buttons, GridX/Y/W/H, Collapsed, FooterText)."
+      }
+    ],
+    "events": [
+      {
+        "name": "changed",
+        "payload": {
+          "kind": "string",
+          "itemId": "string",
+          "sectionId": "string",
+          "x": "int",
+          "y": "int",
+          "w": "int",
+          "h": "int",
+          "color": "string",
+          "editMode": "bool",
+          "selectedSection": "string"
+        },
+        "sets": [
+          "editMode",
+          "selectedSection"
+        ]
+      },
+      {
+        "name": "layoutChanged",
+        "payload": {
+          "breakpoint": "string",
+          "columns": "int"
+        }
+      },
+      {
+        "name": "widgetRefresh",
+        "payload": {
+          "itemId": "string"
+        }
+      },
+      {
+        "name": "addWidgetRequested",
+        "payload": {
+          "kind": "string"
+        }
+      },
+      {
+        "name": "sectionAdding",
+        "payload": {
+          "title": "string"
+        }
+      },
+      {
+        "name": "widgetSelected",
+        "payload": {
+          "itemId": "string",
+          "selected": "string"
+        },
+        "sets": [
+          "selected"
+        ]
+      }
+    ],
+    "tokens": {
+      "accent": "#8B74FF",
+      "blue": "#4493F8",
+      "green": "#2FCB8D",
+      "orange": "#FF8C3A",
+      "violet": "#8B74FF",
+      "amber": "#F5B83D",
+      "sky": "#38B6F2",
+      "red": "#F0686C",
+      "pink": "#F062A8",
+      "window": "#161B22",
+      "background": "#0D1117",
+      "text": "#E6EDF3",
+      "muted": "#8D96A0",
+      "border": "#262C36",
+      "hover": "#1F2630",
+      "badge": "#262C36"
+    },
+    "dependencies": [],
+    "notes": "Restyled to the GridKrafter MVC demo look (dark sketch tokens = GridKrafter-Dark): Edit toggle (small outlined, pencil) above underlined section tabs with grey count badges and a 1 px line; right-aligned Collapse all / Expand all links (muted when nothing to do); Add widget and + only in edit mode. Cards: window surface, 1 px windowFrame border, 8 px radius, 3 px top edge in the widget colour, 34 px header with a 16 px line icon in the widget colour, 13 px normal title, 16 px line buttons (refresh, color, edit, fullscreen, collapse, close) muted, accent on hover, no header divider. Plain tiles: same surface with a 3 px left edge in the widget colour; colour/delete pop-up only in edit mode. GridWidget.FooterText (string): right-aligned small muted line under the body. Gap 12; dotted backdrop, grips, selection outline and drag only in edit mode. Colours from theme names: window, windowFrame, grayText, highlight, blue/green/orange/violet/amber/sky/red/pink (mixin fallbacks for themes without them). Edit button raises Changed kind \"edit\"; Collapse all / Expand all raise Changed \"collapsed-all\" / \"expanded-all\". Server: GridBoard Columns/RowHeight/Gap/EditMode/ShowToolbar/SelectedSection/Sections/Catalog, LoadBoard/ToBoard/AddWidget/RemoveWidget/FindWidget/SetFullscreen; events Changed, LayoutChanged, WidgetRefresh, AddWidgetRequested, SectionAdding (unchanged). Earlier parts plan: GridWidgetChrome enum, GridBoardSection(+Collection), GridWidgetKind(+Collection), event args classes; layout server-side by GridKrafter.Core GridEngine/BoardArranger.",
+    "filledByAgent": true,
+    "icon": {
+      "rgba": "AAAAAAAAAABpS/8AAAAAAAAAAABpS/8AAAAAAAAAAAAAAAAAAAAAAB60eAAAAAAAAAAAAB60eAAAAAAAAAAAAAAAAABtTf+xbU3//21N//9tTf//bU3//21N/7EAAAAAAAAAAB+1erEftXr/H7V6/x+1ev8ftXr/H7V6sQAAAABpS/8AbU3//21N//9tTf//bU3//21N//9tTf//AAAAAB60eAAftXr/H7V6/x+1ev8ftXr/H7V6/x+1ev8AAAAAAAAAAG1N//9tTf//bU3//21N//9tTf//bU3//wAAAAAAAAAAH7V6/x+1ev8ftXr/H7V6/x+1ev8ftXr/AAAAAGlL/wBtTf//bU3//21N//9tTf//bU3//21N//8AAAAAAAAAAB+1ev8ftXr/H7V6/x+1ev8ftXr/H7V6/wAAAAAAAAAAbU3/sW1N//9tTf//bU3//21N//9tTf+xAAAAAAAAAAAftXr/H7V6/x+1ev8ftXr/H7V6/x+1ev8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAetHgAH7V6/x+1ev8ftXr/H7V6/x+1ev8ftXr/AAAAAAAAAAAAAAAALWn/AAAAAAAAAAAALWn/AAAAAAAAAAAAAAAAAB+1erEftXr/H7V6/x+1ev8ftXr/H7V6sQAAAAAAAAAAL2v/sS9r//8va///L2v//y9r//8va/+xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALWn/AC9r//8va///L2v//y9r//8va///L2v//wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAva///L2v//y9r//8va///L2v//y9r//8AAAAAAAAAAP96GrH/ehr//3oa//96Gv//ehr//3oasQAAAAAAAAAAL2v//y9r//8va///L2v//y9r//8va///AAAAAAAAAAD/ehr//3oa//96Gv//ehr//3oa//96Gv8AAAAAAAAAAC9r//8va///L2v//y9r//8va///L2v//wAAAAAAAAAA/3oa//96Gv//ehr//3oa//96Gv//ehr/AAAAAC1p/wAva///L2v//y9r//8va///L2v//y9r//8AAAAAAAAAAP96Gv//ehr//3oa//96Gv//ehr//3oa/wAAAAAAAAAAL2v/sS9r//8va///L2v//y9r//8va/+xAAAAAAAAAAD/ehqx/3oa//96Gv//ehr//3oa//96GrEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 16 16\"><rect x=\"1\" y=\"1\" width=\"6\" height=\"5\" rx=\"1.2\" fill=\"#6d4dff\"/><rect x=\"9\" y=\"1\" width=\"6\" height=\"7\" rx=\"1.2\" fill=\"#1fb57a\"/><rect x=\"1\" y=\"8\" width=\"6\" height=\"7\" rx=\"1.2\" fill=\"#2f6bff\"/><rect x=\"9\" y=\"10\" width=\"6\" height=\"5\" rx=\"1.2\" fill=\"#ff7a1a\"/></svg>"
+    }
+  }
+}
