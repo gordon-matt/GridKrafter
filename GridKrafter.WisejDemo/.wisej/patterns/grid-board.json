@@ -1,0 +1,14 @@
+{
+  "id": "grid-board",
+  "name": "Grid board",
+  "purpose": "A dashboard board: section tabs, an edit toggle and a widget catalog over a 12-column grid whose widgets host real Wisej controls and can be dragged, resized, collapsed, recoloured and removed.",
+  "keywords": [
+    "grid board",
+    "gridboard"
+  ],
+  "control": "GridBoard",
+  "type": "GridKrafter.WisejDemo.Controls.GridBoard",
+  "extends": null,
+  "component": null,
+  "preview": "<div data-wisej-pattern=\"grid-board\"><div class=\"gb\">\n  <div class=\"toolbar\">\n    <div class=\"tabs\"></div>\n    <div class=\"tools\">\n      <button class=\"tbtn edit\"><svg viewBox=\"0 0 24 24\"><path d=\"M4 20h4L19 9l-4-4L4 16z\"/></svg>Edit layout</button>\n      <div class=\"addwrap\">\n        <button class=\"tbtn primary add\"><svg viewBox=\"0 0 24 24\"><path d=\"M12 5v14M5 12h14\"/></svg>Add widget</button>\n        <div class=\"catalog\"></div>\n      </div>\n    </div>\n  </div>\n  <div class=\"board\"></div>\n</div></div>"
+}

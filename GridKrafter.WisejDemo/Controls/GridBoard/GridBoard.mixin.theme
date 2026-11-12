@@ -1,0 +1,257 @@
+{
+	"name": "GridBoard.mixin",
+
+	// the board's own colours; surfaces, text and borders use the theme's colours (window, windowText,
+	// controlText, windowFrame, buttonFace, highlightText) so the board follows every theme
+	"colors": {
+		"grid-board-accent": "#6d4dff",
+		"grid-board-gradient-accent": "#2f6bff",
+		"grid-board-accent-soft": "#eeeaff",
+		"grid-board-placeholder": "rgba(109,77,255,0.12)",
+		"grid-board-grid": "rgba(109,77,255,0.18)",
+		"grid-board-shadow": "rgba(20,20,50,0.16)",
+		"grid-board-shadow-soft": "rgba(20,20,50,0.06)",
+		"grid-board-blue-accent": "#2f6bff",
+		"grid-board-green-accent": "#1fb57a",
+		"grid-board-orange-accent": "#ff7a1a",
+		"grid-board-violet-accent": "#6d4dff",
+		"grid-board-amber-accent": "#f2a516",
+		"grid-board-sky-accent": "#0ea5e9",
+		"grid-board-red-accent": "#e5484d",
+		"grid-board-pink-accent": "#e84393"
+	},
+
+	"appearances": {
+
+		"grid-board": {
+			"inherit": "widget",
+			"states": {
+				"default": {
+					"properties": {
+						"font": "default",
+						"textColor": "windowText",
+						"backgroundColor": "transparent",
+						"opacity": 1,
+						"themeAccentColor": "grid-board-accent",
+						"themePlaceholderColor": "grid-board-placeholder",
+						"themeGridColor": "grid-board-grid",
+						"themePlaceholderRadius": 12
+					},
+					"styles": { "width": 0 }
+				},
+				"disabled": { "properties": { "opacity": 0.55 } }
+			},
+			"components": {
+
+				"pane": {
+					"inherit": "scrollarea",
+					"states": { "default": { "properties": { "margin": [12, 16, 16, 16] } } }
+				},
+
+				"toolbar": {
+					"states": { "default": { "properties": { "padding": [12, 16, 0, 16], "backgroundColor": "transparent" } } }
+				},
+
+				"tabs": {
+					"states": {
+						"default": {
+							"properties": { "padding": 3, "backgroundColor": "window" },
+							"styles": { "width": 1, "style": "solid", "color": "windowFrame", "radius": 10 }
+						}
+					}
+				},
+
+				"tab": {
+					"inherit": "widget",
+					"states": {
+						"default": {
+							"properties": { "padding": [6, 14], "font": "default", "textColor": "controlText", "backgroundColor": "transparent", "cursor": "pointer" },
+							"styles": { "width": 0, "radius": 7 }
+						},
+						"hovered": { "properties": { "backgroundColor": "buttonFace", "textColor": "windowText" } },
+						"focused": { "styles": { "width": 1, "style": "solid", "color": "grid-board-accent" } },
+						"plus": { "properties": { "padding": [6, 10], "font": "defaultBold" } },
+						"selected": {
+							"properties": { "textColor": "highlightText", "backgroundColor": "grid-board-accent" },
+							"styles": { "startColor": "grid-board-accent", "endColor": "grid-board-gradient-accent", "orientation": "horizontal" }
+						},
+						"disabled": { "properties": { "opacity": 0.55 } }
+					}
+				},
+
+				"edit-button": {
+					"inherit": "widget",
+					"states": {
+						"default": {
+							"properties": { "padding": [0, 12], "height": 32, "font": "default", "textColor": "windowText", "backgroundColor": "window", "cursor": "pointer" },
+							"styles": { "width": 1, "style": "solid", "color": "windowFrame", "radius": 8 }
+						},
+						"hovered": { "properties": { "textColor": "grid-board-accent" }, "styles": { "color": "grid-board-accent" } },
+						"focused": { "styles": { "color": "grid-board-accent" } },
+						"checked": {
+							"properties": { "textColor": "grid-board-accent", "backgroundColor": "grid-board-accent-soft" },
+							"styles": { "color": "grid-board-accent" }
+						},
+						"disabled": { "properties": { "opacity": 0.55 } }
+					}
+				},
+
+				"add-button": {
+					"inherit": "widget",
+					"states": {
+						"default": {
+							"properties": { "padding": [0, 12], "height": 32, "font": "defaultBold", "textColor": "highlightText", "backgroundColor": "grid-board-accent", "cursor": "pointer", "opacity": 1 },
+							"styles": { "width": 0, "radius": 8, "startColor": "grid-board-accent", "endColor": "grid-board-gradient-accent", "orientation": "horizontal" }
+						},
+						"hovered": { "properties": { "opacity": 0.92 } },
+						"pressed": { "properties": { "opacity": 0.85 } },
+						"focused": { "styles": { "shadowColor": "grid-board-accent", "shadowSpreadRadius": 2 } },
+						"disabled": { "properties": { "opacity": 0.55 } }
+					}
+				},
+
+				"catalog": {
+					"inherit": "popup",
+					"states": {
+						"default": {
+							"properties": { "padding": 4, "minWidth": 280, "backgroundColor": "window", "textColor": "windowText" },
+							"styles": { "width": 1, "style": "solid", "color": "windowFrame", "radius": 10, "shadowColor": "grid-board-shadow", "shadowBlurRadius": 24, "shadowLength": 8 }
+						}
+					}
+				},
+
+				"catalog-item": {
+					"states": {
+						"default": {
+							"properties": { "padding": [8, 10], "backgroundColor": "transparent", "cursor": "pointer" },
+							"styles": { "radius": 7 }
+						},
+						"hovered": { "properties": { "backgroundColor": "grid-board-accent-soft" } }
+					}
+				},
+
+				"catalog-name": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "defaultBold", "textColor": "windowText" } } }
+				},
+
+				"catalog-description": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "default", "textColor": "controlText" } } }
+				},
+
+				"chip-tint": {
+					"states": { "default": { "properties": { "opacity": 0.15 }, "styles": { "radius": 7 } } }
+				},
+
+				"chip": {
+					"states": {
+						"default": {
+							"properties": { "width": 26, "height": 26, "padding": 0, "allowGrowX": false, "allowGrowY": false },
+							"styles": { "radius": 7 }
+						}
+					}
+				}
+			}
+		},
+
+		"grid-board-widget": {
+			"inherit": "widget",
+			"states": {
+				"default": {
+					"properties": {
+						"font": "default",
+						"textColor": "windowText",
+						"backgroundColor": "window",
+						"opacity": 1,
+						"themeSurfaceColor": "window",
+						"themeBorderColor": "windowFrame",
+						"themeMutedColor": "controlText",
+						"themeAccentColor": "grid-board-accent",
+						"themeShadowColor": "grid-board-shadow"
+					},
+					"styles": {
+						"width": 1, "style": "solid", "color": "windowFrame", "radius": 12,
+						"shadowColor": "grid-board-shadow-soft", "shadowBlurRadius": 2, "shadowLength": 1
+					}
+				},
+				"selected": { "styles": { "color": "grid-board-accent", "width": 2 } },
+				"dragging": {
+					"properties": { "opacity": 0.9 },
+					"styles": { "shadowColor": "grid-board-shadow", "shadowBlurRadius": 30, "shadowLength": 10 }
+				},
+				"disabled": { "properties": { "opacity": 0.55 } }
+			},
+			"components": {
+
+				"pane": {
+					"inherit": "scrollarea",
+					"states": { "default": { "properties": { "backgroundColor": "transparent" } } }
+				},
+
+				"header": {
+					"states": {
+						"default": {
+							"properties": { "padding": [0, 10, 0, 14], "backgroundColor": "transparent" },
+							"styles": { "widthBottom": 1, "styleBottom": "solid", "colorBottom": "windowFrame" }
+						},
+						"collapsed": { "styles": { "widthBottom": 0 } }
+					}
+				},
+
+				"chip-tint": {
+					"states": { "default": { "properties": { "opacity": 0.15 }, "styles": { "radius": 7 } } }
+				},
+
+				"chip": {
+					"states": {
+						"default": {
+							"properties": { "width": 26, "height": 26, "padding": 0, "allowGrowX": false, "allowGrowY": false },
+							"styles": { "radius": 7 }
+						}
+					}
+				},
+
+				"title": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "defaultBold", "textColor": "windowText" } } }
+				},
+
+				"button": {
+					"inherit": "widget",
+					"states": {
+						"default": {
+							"properties": { "width": 26, "height": 26, "padding": 6, "textColor": "controlText", "backgroundColor": "transparent", "cursor": "pointer" },
+							"styles": { "width": 0, "radius": 6 }
+						},
+						"hovered": { "properties": { "textColor": "grid-board-accent", "backgroundColor": "buttonFace" } },
+						"focused": { "properties": { "textColor": "grid-board-accent" } },
+						"pressed": { "properties": { "backgroundColor": "grid-board-accent-soft" } }
+					}
+				},
+
+				"palette": {
+					"inherit": "popup",
+					"states": {
+						"default": {
+							"properties": { "padding": 6, "backgroundColor": "window" },
+							"styles": { "width": 1, "style": "solid", "color": "windowFrame", "radius": 8, "shadowColor": "grid-board-shadow", "shadowBlurRadius": 12, "shadowLength": 4 }
+						}
+					}
+				},
+
+				"swatch": {
+					"inherit": "widget",
+					"states": {
+						"default": {
+							"properties": { "width": 16, "height": 16, "padding": 0, "cursor": "pointer" },
+							"styles": { "width": 0, "radius": 8 }
+						},
+						"hovered": { "styles": { "width": 2, "style": "solid", "color": "window" } },
+						"selected": { "styles": { "width": 2, "style": "solid", "color": "grid-board-accent" } }
+					}
+				}
+			}
+		}
+	}
+}

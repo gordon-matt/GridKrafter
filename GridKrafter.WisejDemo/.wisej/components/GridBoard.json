@@ -1,0 +1,409 @@
+{
+  "name": "GridBoard",
+  "namespace": "GridKrafter.WisejDemo.Controls",
+  "fullName": "GridKrafter.WisejDemo.Controls.GridBoard",
+  "language": "csharp",
+  "files": [
+    "Controls/GridBoard/GridBoard.cs",
+    "Controls/GridBoard/gridkrafter.wisejdemo.GridBoard.js",
+    "Controls/GridBoard/GridBoard.mixin.theme",
+    "Controls/GridBoard/GridBoard.bmp",
+    "Controls/GridBoard/GridBoardSection.cs",
+    "Controls/GridBoard/GridBoardSectionCollection.cs",
+    "Controls/GridBoard/GridWidgetKind.cs",
+    "Controls/GridBoard/GridWidgetKindCollection.cs",
+    "GridKrafter.WisejDemo.csproj"
+  ],
+  "saved": "2026-11-12T10:25:25.7969899Z",
+  "sketch": {
+    "schema": "wisej-component-sketch/1",
+    "name": "GridBoard",
+    "namespace": "GridKrafter.WisejDemo.Controls",
+    "description": "A dashboard board: section tabs, an edit toggle and a widget catalog over a 12-column grid whose widgets host real Wisej controls and can be dragged, resized, collapsed, recoloured and removed.",
+    "size": [
+      960,
+      560
+    ],
+    "html": "<div class=\"gb\">\n  <div class=\"toolbar\">\n    <div class=\"tabs\"></div>\n    <div class=\"tools\">\n      <button class=\"tbtn edit\"><svg viewBox=\"0 0 24 24\"><path d=\"M4 20h4L19 9l-4-4L4 16z\"/></svg>Edit layout</button>\n      <div class=\"addwrap\">\n        <button class=\"tbtn primary add\"><svg viewBox=\"0 0 24 24\"><path d=\"M12 5v14M5 12h14\"/></svg>Add widget</button>\n        <div class=\"catalog\"></div>\n      </div>\n    </div>\n  </div>\n  <div class=\"board\"></div>\n</div>",
+    "css": ".gb{box-sizing:border-box;width:100%;height:100%;display:flex;flex-direction:column;background:var(--background);color:var(--text);font:14px/1.45 \"Segoe UI\",system-ui,sans-serif;overflow:hidden}\n.gb *{box-sizing:border-box}\n.gb svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}\n.toolbar{display:flex;justify-content:space-between;align-items:center;padding:12px 16px 0}\n.toolbar.hidden{display:none}\n.tabs{display:flex;gap:4px;background:var(--window);border:1px solid var(--border);border-radius:10px;padding:3px}\n.tab{display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:7px;color:var(--muted);font-weight:500;cursor:pointer}\n.tab svg{width:15px;height:15px}\n.tab:hover{background:var(--background)}\n.tab.selected{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff}\n.tab.plus{padding:6px 10px;font-weight:700}\n.tools{display:flex;gap:8px}\n.tbtn{display:flex;align-items:center;gap:6px;height:32px;padding:0 12px;border-radius:8px;border:1px solid var(--border);background:var(--window);color:var(--text);font:inherit;font-weight:500;cursor:pointer}\n.tbtn svg{width:15px;height:15px}\n.tbtn.on{border-color:var(--accent);color:var(--accent);background:var(--hover)}\n.tbtn.primary{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;border:0}\n.addwrap{position:relative}\n.catalog{display:none;position:absolute;right:0;top:36px;width:280px;background:var(--window);border:1px solid var(--border);border-radius:10px;box-shadow:0 8px 24px rgba(20,20,50,.14);padding:4px;z-index:20}\n.catalog.open{display:block}\n.kind{display:flex;gap:10px;align-items:center;padding:8px 10px;border-radius:7px;cursor:pointer}\n.kind:hover{background:var(--hover)}\n.kind .chip{flex:none}\n.kind b{display:block;font-weight:600}\n.kind small{color:var(--muted)}\n.board{position:relative;flex:1;margin:12px 16px 16px;overflow:auto;border-radius:10px}\n.board.editing{background-image:radial-gradient(circle,color-mix(in srgb,var(--accent) 18%,transparent) 1.2px,transparent 1.4px)}\n.widget{position:absolute;background:var(--window);border:1px solid var(--border);border-radius:12px;box-shadow:0 1px 2px rgba(20,20,50,.05);overflow:hidden;display:flex;flex-direction:column}\n.widget.selected{outline:2px solid var(--accent);outline-offset:-1px}\n.widget.dragging{opacity:.85;z-index:10;box-shadow:0 10px 30px rgba(20,20,50,.2)}\n.widget.fullscreen{z-index:15}\n.header{flex:none;height:46px;display:flex;align-items:center;gap:9px;padding:0 10px 0 14px;border-bottom:1px solid var(--border)}\n.editing .header,.editing .widget.plain{cursor:move}\n.chip{width:26px;height:26px;border-radius:7px;display:grid;place-items:center;background:color-mix(in srgb,var(--c) 15%,transparent);color:var(--c)}\n.chip svg{width:15px;height:15px}\n.title{font-weight:600;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.buttons{display:flex;gap:4px;color:var(--muted)}\n.wbtn{width:26px;height:26px;padding:6px;border-radius:6px;cursor:pointer}\n.wbtn:hover{background:var(--background);color:var(--accent)}\n.body{flex:1;padding:12px 14px;overflow:hidden;color:var(--muted)}\n.widget.collapsed .body{display:none}\n.widget.collapsed .header{border-bottom:0}\n.plain .body{padding:14px 16px 0 20px;color:var(--text)}\n.stripe{position:absolute;left:0;top:12px;bottom:12px;width:4px;border-radius:0 4px 4px 0;background:var(--c)}\n.sl{color:var(--muted);font-size:12.5px;font-weight:500}\n.sv{font-size:26px;font-weight:700;letter-spacing:-.02em;line-height:1.25}\n.popup{display:none;position:absolute;top:8px;right:8px;gap:5px;align-items:center;background:var(--window);padding:4px 6px;border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 12px rgba(20,20,50,.1);z-index:3}\n.widget.plain:hover .popup{display:flex}\n.swatch{width:13px;height:13px;border-radius:50%;background:var(--c);cursor:pointer}\n.swatch.on{box-shadow:0 0 0 2px var(--window),0 0 0 3.5px var(--accent)}\n.del{font-size:11px;color:var(--muted);margin-left:3px;cursor:pointer}\n.palette{display:none;position:absolute;top:44px;right:8px;gap:5px;background:var(--window);padding:6px;border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 12px rgba(20,20,50,.1);z-index:4}\n.palette.open{display:flex}\n.grip{display:none;position:absolute;right:4px;bottom:4px;width:10px;height:10px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);opacity:.5;border-radius:0 0 3px 0;cursor:se-resize;z-index:4}\n.editing .grip{display:block}\n.placeholder{position:absolute;border-radius:12px;background:color-mix(in srgb,var(--accent) 12%,transparent);border:2px dashed var(--accent);pointer-events:none}",
+    "js": "function render(root, props, fire) {\n  const ICONS = {\n    home: '<path d=\"M3 11l9-7 9 7v9H3z\"/>',\n    cart: '<circle cx=\"9\" cy=\"20\" r=\"1.5\"/><circle cx=\"18\" cy=\"20\" r=\"1.5\"/><path d=\"M2 3h3l3 12h11l2-8H6\"/>',\n    activity: '<path d=\"M3 12h4l3-8 4 16 3-8h4\"/>',\n    server: '<rect x=\"3\" y=\"4\" width=\"18\" height=\"7\" rx=\"1.5\"/><rect x=\"3\" y=\"13\" width=\"18\" height=\"7\" rx=\"1.5\"/>',\n    chart: '<path d=\"M4 20V10M10 20V4M16 20v-7M22 20H2\"/>',\n    table: '<rect x=\"3\" y=\"4\" width=\"18\" height=\"16\" rx=\"2\"/><path d=\"M3 10h18M9 4v16\"/>',\n    refresh: '<path d=\"M20 11a8 8 0 1 0-2 6M20 5v6h-6\"/>',\n    fullscreen: '<path d=\"M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5\"/>',\n    collapse: '<path d=\"M6 15l6-6 6 6\"/>',\n    expand: '<path d=\"M6 9l6 6 6-6\"/>',\n    delete: '<path d=\"M6 6l12 12M18 6L6 18\"/>',\n    color: '<circle cx=\"12\" cy=\"12\" r=\"8\"/><path d=\"M12 4a8 8 0 0 0 0 16z\" fill=\"currentColor\"/>'\n  };\n  const PALETTE = ['blue','green','orange','violet','amber','sky','red','pink'];\n  const svg = n => '<svg viewBox=\"0 0 24 24\">' + (ICONS[n] || ICONS.chart) + '</svg>';\n  const col = c => 'var(--' + (PALETTE.indexOf(c) >= 0 ? c : 'accent') + ')';\n  const cols = props.columns || 12, rowH = props.rowHeight || 62, gap = props.gap == null ? 12 : props.gap;\n  const sections = props.sections || [];\n  const sel = props.selectedSection || (sections[0] && sections[0].id);\n  const widgets = (props.widgets || []).filter(w => (w.section || (sections[0] && sections[0].id)) === sel);\n\n  // toolbar\n  const tb = root.querySelector('.toolbar');\n  tb.classList.toggle('hidden', props.showToolbar === false);\n  const tabs = root.querySelector('.tabs');\n  tabs.innerHTML = sections.map(s => '<a class=\"tab' + (s.id === sel ? ' selected' : '') + '\" data-id=\"' + s.id + '\">' + svg(s.icon) + s.title + '</a>').join('') + '<a class=\"tab plus\">+</a>';\n  tabs.querySelectorAll('.tab[data-id]').forEach(t => t.onclick = () => fire('changed', { kind: 'section-selected', sectionId: t.dataset.id, selectedSection: t.dataset.id }));\n  tabs.querySelector('.plus').onclick = () => fire('sectionAdding', { title: 'New section' });\n  const edit = root.querySelector('.edit');\n  edit.classList.toggle('on', !!props.editMode);\n  edit.onclick = () => fire('changed', { kind: 'edit-mode', editMode: !props.editMode });\n  const cat = root.querySelector('.catalog');\n  cat.innerHTML = (props.catalog || []).map(k => '<div class=\"kind\" data-kind=\"' + k.kind + '\"><span class=\"chip\" style=\"--c:' + col(k.color) + '\">' + svg(k.icon) + '</span><div><b>' + k.name + '</b><small>' + k.description + '</small></div></div>').join('');\n  root.querySelector('.add').onclick = e => { e.stopPropagation(); cat.classList.toggle('open'); };\n  cat.querySelectorAll('.kind').forEach(k => k.onclick = () => { cat.classList.remove('open'); fire('addWidgetRequested', { kind: k.dataset.kind }); });\n\n  // board\n  const board = root.querySelector('.board');\n  board.classList.toggle('editing', !!props.editMode);\n  board.innerHTML = '';\n  const cw = () => (board.clientWidth - gap * (cols - 1)) / cols;\n  board.style.backgroundSize = 'calc((100% + ' + gap + 'px)/' + cols + ') ' + (rowH + gap) + 'px';\n  const place = (el, x, y, w, h) => {\n    const c = cw();\n    el.style.left = x * (c + gap) + 'px'; el.style.top = y * (rowH + gap) + 'px';\n    el.style.width = (w * c + (w - 1) * gap) + 'px'; el.style.height = (h * rowH + (h - 1) * gap) + 'px';\n  };\n  const fs = widgets.find(w => w.fullscreen);\n  widgets.forEach(w => {\n    if (fs && fs !== w) return;\n    const el = document.createElement('div');\n    const b = w.buttons || [];\n    el.className = 'widget ' + (w.chrome === 'plain' ? 'plain' : 'card') + (w.collapsed ? ' collapsed' : '') + (w.id === props.selected ? ' selected' : '') + (fs ? ' fullscreen' : '');\n    el.style.setProperty('--c', col(w.color));\n    if (w.chrome === 'plain') {\n      el.innerHTML = '<span class=\"stripe\"></span><div class=\"body\"><div class=\"sl\">' + w.title + '</div><div class=\"sv\">' + (w.value || '') + '</div></div>' +\n        '<div class=\"popup\">' + PALETTE.slice(0, 4).map(p => '<span class=\"swatch' + (p === w.color ? ' on' : '') + '\" data-c=\"' + p + '\" style=\"--c:var(--' + p + ')\"></span>').join('') + '<span class=\"del\">✕</span></div>';\n    } else {\n      el.innerHTML = '<div class=\"header\"><span class=\"chip\">' + svg(w.icon) + '</span><span class=\"title\">' + w.title + '</span><span class=\"buttons\">' +\n        b.map(n => '<svg class=\"wbtn\" data-b=\"' + n + '\" viewBox=\"0 0 24 24\">' + ICONS[n === 'collapse' && w.collapsed ? 'expand' : n] + '</svg>').join('') + '</span></div>' +\n        '<div class=\"body\">' + (w.body || '') + '</div>' +\n        '<div class=\"palette\">' + PALETTE.map(p => '<span class=\"swatch' + (p === w.color ? ' on' : '') + '\" data-c=\"' + p + '\" style=\"--c:var(--' + p + ')\"></span>').join('') + '</div>';\n    }\n    el.insertAdjacentHTML('beforeend', '<span class=\"grip\"></span>');\n    board.appendChild(el);\n    if (fs) { el.style.left = el.style.top = '0'; el.style.width = el.style.height = '100%'; }\n    else place(el, w.x, w.y, w.w, w.collapsed ? 1 : w.h);\n\n    el.onmousedown = () => fire('widgetSelected', { itemId: w.id, selected: w.id });\n    el.querySelectorAll('.wbtn').forEach(btn => btn.onclick = e => {\n      e.stopPropagation();\n      const n = btn.dataset.b;\n      if (n === 'refresh') fire('widgetRefresh', { itemId: w.id });\n      else if (n === 'fullscreen') fire('changed', { kind: 'fullscreen', itemId: w.id });\n      else if (n === 'collapse') fire('changed', { kind: w.collapsed ? 'expanded' : 'collapsed', itemId: w.id });\n      else if (n === 'delete') fire('changed', { kind: 'removed', itemId: w.id });\n      else if (n === 'color') el.querySelector('.palette').classList.toggle('open');\n    });\n    el.querySelectorAll('.swatch').forEach(s => s.onclick = e => { e.stopPropagation(); fire('changed', { kind: 'color', itemId: w.id, color: s.dataset.c }); });\n    const del = el.querySelector('.del');\n    if (del) del.onclick = e => { e.stopPropagation(); fire('changed', { kind: 'removed', itemId: w.id }); };\n\n    // drag / resize with a snapping placeholder (edit mode only)\n    const startDrag = (e, resize) => {\n      if (!props.editMode || fs) return;\n      e.preventDefault(); e.stopPropagation();\n      const sx = e.clientX, sy = e.clientY, c = cw();\n      const ph = document.createElement('div'); ph.className = 'placeholder'; board.insertBefore(ph, el);\n      el.classList.add('dragging');\n      const r = { x: w.x, y: w.y, w: w.w, h: w.h }; place(ph, r.x, r.y, r.w, r.h);\n      const ox = el.offsetLeft, oy = el.offsetTop, ow = el.offsetWidth, oh = el.offsetHeight;\n      const move = m => {\n        const dx = m.clientX - sx, dy = m.clientY - sy;\n        if (resize) {\n          el.style.width = Math.max(c, ow + dx) + 'px'; el.style.height = Math.max(rowH, oh + dy) + 'px';\n          r.w = Math.min(cols - w.x, Math.max(w.minW || 1, Math.round((ow + dx + gap) / (c + gap))));\n          r.h = Math.max(w.minH || 1, Math.round((oh + dy + gap) / (rowH + gap)));\n        } else {\n          el.style.left = ox + dx + 'px'; el.style.top = oy + dy + 'px';\n          r.x = Math.min(cols - w.w, Math.max(0, Math.round((ox + dx) / (c + gap))));\n          r.y = Math.max(0, Math.round((oy + dy) / (rowH + gap)));\n        }\n        place(ph, r.x, r.y, r.w, r.h);\n      };\n      const up = () => {\n        document.removeEventListener('mousemove', move); document.removeEventListener('mouseup', up);\n        ph.remove(); el.classList.remove('dragging'); place(el, r.x, r.y, r.w, r.h);\n        if (r.x !== w.x || r.y !== w.y || r.w !== w.w || r.h !== w.h)\n          fire('changed', { kind: resize ? 'resized' : 'moved', itemId: w.id, x: r.x, y: r.y, w: r.w, h: r.h });\n      };\n      document.addEventListener('mousemove', move); document.addEventListener('mouseup', up);\n    };\n    el.querySelector('.grip').onmousedown = e => startDrag(e, true);\n    const handle = w.chrome === 'plain' ? el : el.querySelector('.header');\n    handle.addEventListener('mousedown', e => { if (!e.target.closest('.wbtn,.swatch,.del')) startDrag(e, false); });\n  });\n  root.querySelector('.gb').onclick = () => cat.classList.remove('open');\n}",
+    "props": [
+      {
+        "name": "columns",
+        "type": "int",
+        "default": 12,
+        "description": "Number of grid columns in the widest layout."
+      },
+      {
+        "name": "rowHeight",
+        "type": "int",
+        "default": 62,
+        "description": "Height of one grid row, in pixels."
+      },
+      {
+        "name": "gap",
+        "type": "int",
+        "default": 12,
+        "description": "Space between cells, in pixels."
+      },
+      {
+        "name": "editMode",
+        "type": "bool",
+        "default": true,
+        "description": "Widgets can be dragged and resized; the grid backdrop shows."
+      },
+      {
+        "name": "showToolbar",
+        "type": "bool",
+        "default": true,
+        "description": "Shows the section tabs and the Edit layout / Add widget buttons."
+      },
+      {
+        "name": "selectedSection",
+        "type": "string",
+        "default": "overview",
+        "description": "Id of the section whose widgets show."
+      },
+      {
+        "name": "selected",
+        "type": "string",
+        "default": "uptime",
+        "description": "Id of the selected widget (sketch only; the control tracks it on the client)."
+      },
+      {
+        "name": "sections",
+        "type": "items",
+        "item": "GridBoardSection",
+        "fields": [
+          {
+            "name": "Id",
+            "type": "string",
+            "default": "section1"
+          },
+          {
+            "name": "Title",
+            "type": "string",
+            "default": "Section"
+          },
+          {
+            "name": "Icon",
+            "type": "string",
+            "default": "home"
+          }
+        ],
+        "default": [
+          {
+            "id": "overview",
+            "title": "Overview",
+            "icon": "home"
+          },
+          {
+            "id": "sales",
+            "title": "Sales",
+            "icon": "cart"
+          }
+        ],
+        "description": "The board's sections, shown as tabs."
+      },
+      {
+        "name": "catalog",
+        "type": "items",
+        "item": "GridWidgetKind",
+        "fields": [
+          {
+            "name": "Kind",
+            "type": "string",
+            "default": "kind"
+          },
+          {
+            "name": "Description",
+            "type": "string",
+            "default": ""
+          },
+          {
+            "name": "Icon",
+            "type": "string",
+            "default": "chart"
+          },
+          {
+            "name": "Color",
+            "type": "string",
+            "default": "blue"
+          },
+          {
+            "name": "W",
+            "type": "int",
+            "default": 4
+          },
+          {
+            "name": "H",
+            "type": "int",
+            "default": 3
+          },
+          {
+            "name": "MinW",
+            "type": "int",
+            "default": 1
+          },
+          {
+            "name": "MinH",
+            "type": "int",
+            "default": 1
+          },
+          {
+            "name": "MaxW",
+            "type": "int",
+            "default": 0
+          },
+          {
+            "name": "MaxH",
+            "type": "int",
+            "default": 0
+          },
+          {
+            "name": "AutoHeight",
+            "type": "bool",
+            "default": false
+          },
+          {
+            "name": "Refresh",
+            "type": "int",
+            "default": 0
+          }
+        ],
+        "default": [
+          {
+            "kind": "stat",
+            "name": "Stat tile",
+            "description": "A number with its trend",
+            "icon": "chart",
+            "color": "green",
+            "w": 3,
+            "h": 2
+          },
+          {
+            "kind": "activity",
+            "name": "Activity",
+            "description": "Latest events as a timeline",
+            "icon": "activity",
+            "color": "violet",
+            "w": 8,
+            "h": 4
+          },
+          {
+            "kind": "load",
+            "name": "Server load",
+            "description": "CPU, memory and disk meters",
+            "icon": "server",
+            "color": "green",
+            "w": 4,
+            "h": 4
+          },
+          {
+            "kind": "table",
+            "name": "Table",
+            "description": "Rows in a data grid",
+            "icon": "table",
+            "color": "blue",
+            "w": 6,
+            "h": 4
+          }
+        ],
+        "description": "The kinds of widget Add widget offers."
+      },
+      {
+        "name": "widgets",
+        "type": "rows",
+        "default": [
+          {
+            "id": "revenue",
+            "section": "overview",
+            "chrome": "plain",
+            "title": "Revenue",
+            "value": "$48,200",
+            "color": "green",
+            "x": 0,
+            "y": 0,
+            "w": 3,
+            "h": 2
+          },
+          {
+            "id": "visitors",
+            "section": "overview",
+            "chrome": "plain",
+            "title": "Visitors",
+            "value": "12,840",
+            "color": "blue",
+            "x": 3,
+            "y": 0,
+            "w": 3,
+            "h": 2
+          },
+          {
+            "id": "orders",
+            "section": "overview",
+            "chrome": "plain",
+            "title": "Orders",
+            "value": "1,204",
+            "color": "orange",
+            "x": 6,
+            "y": 0,
+            "w": 3,
+            "h": 2
+          },
+          {
+            "id": "uptime",
+            "section": "overview",
+            "chrome": "plain",
+            "title": "Uptime",
+            "value": "99.98%",
+            "color": "violet",
+            "x": 9,
+            "y": 0,
+            "w": 3,
+            "h": 2
+          },
+          {
+            "id": "activity",
+            "section": "overview",
+            "chrome": "card",
+            "title": "Activity",
+            "icon": "activity",
+            "color": "violet",
+            "buttons": [
+              "refresh",
+              "fullscreen",
+              "collapse"
+            ],
+            "body": "Timeline control",
+            "x": 0,
+            "y": 2,
+            "w": 8,
+            "h": 4
+          },
+          {
+            "id": "load",
+            "section": "overview",
+            "chrome": "card",
+            "title": "Server load",
+            "icon": "server",
+            "color": "green",
+            "buttons": [
+              "refresh",
+              "fullscreen",
+              "collapse",
+              "delete",
+              "color"
+            ],
+            "body": "MeterBar controls",
+            "x": 8,
+            "y": 2,
+            "w": 4,
+            "h": 4
+          },
+          {
+            "id": "sales-table",
+            "section": "sales",
+            "chrome": "card",
+            "title": "Orders",
+            "icon": "table",
+            "color": "blue",
+            "buttons": [
+              "refresh",
+              "fullscreen",
+              "collapse",
+              "delete"
+            ],
+            "body": "DataGridView",
+            "x": 0,
+            "y": 0,
+            "w": 12,
+            "h": 5
+          }
+        ],
+        "description": "Sketch only: stands for the GridWidget child controls (ItemId, Section, Chrome, Title, Icon, Color, Buttons, GridX/Y/W/H, Collapsed)."
+      }
+    ],
+    "events": [
+      {
+        "name": "changed",
+        "payload": {
+          "kind": "string",
+          "itemId": "string",
+          "sectionId": "string",
+          "x": "int",
+          "y": "int",
+          "w": "int",
+          "h": "int",
+          "color": "string",
+          "editMode": "bool",
+          "selectedSection": "string"
+        },
+        "sets": [
+          "editMode",
+          "selectedSection"
+        ]
+      },
+      {
+        "name": "layoutChanged",
+        "payload": {
+          "breakpoint": "string",
+          "columns": "int"
+        }
+      },
+      {
+        "name": "widgetRefresh",
+        "payload": {
+          "itemId": "string"
+        }
+      },
+      {
+        "name": "addWidgetRequested",
+        "payload": {
+          "kind": "string"
+        }
+      },
+      {
+        "name": "sectionAdding",
+        "payload": {
+          "title": "string"
+        }
+      },
+      {
+        "name": "widgetSelected",
+        "payload": {
+          "itemId": "string",
+          "selected": "string"
+        },
+        "sets": [
+          "selected"
+        ]
+      }
+    ],
+    "tokens": {
+      "accent": "#6d4dff",
+      "accent2": "#2f6bff",
+      "blue": "#2f6bff",
+      "green": "#1fb57a",
+      "orange": "#ff7a1a",
+      "violet": "#6d4dff",
+      "amber": "#f2a516",
+      "sky": "#0ea5e9",
+      "red": "#e5484d",
+      "pink": "#e84393",
+      "window": "#ffffff",
+      "background": "#f3f4f7",
+      "text": "#171a21",
+      "muted": "#5f6878",
+      "border": "#e1e4ea",
+      "hover": "#eeeaff"
+    },
+    "dependencies": [],
+    "notes": "Parts plan (10): GridBoard (container control: toolbar, grid, server-side layout with GridKrafter.Core GridEngine/BoardArranger); GridWidget (container panel child: ItemId, Kind, Section, Title, Icon, Color, Chrome, Buttons, GridX/Y/W/H, Min/Max, Collapsed, AutoHeight, RefreshInterval; designer-placeable, body editable); GridWidgetChrome enum (Card, Plain); GridBoardSection + GridBoardSectionCollection; GridWidgetKind + GridWidgetKindCollection; GridBoardChangedEventArgs (Kind, ItemId, SectionId, Layout), GridBoardLayoutEventArgs (Breakpoint, Columns), GridWidgetEventArgs (Widget), GridWidgetKindEventArgs (Kind), GridBoardSectionAddingEventArgs (CancelEventArgs + Title); client class wisej.web.GridBoard.js (toolbar, edit backdrop, drag/resize placeholder, widget chrome DOM over child controls); theme mixin (colours from theme names: window, controlText, border, highlight, plus gridboard palette colours). Buttons reuse GridKrafter.Models.WidgetButtons. Breakpoints: 12 cols >=1100 px, 6 >=768 (task) / 1 below 480; widgets lay out server-side as child control bounds; collapse = header only; fullscreen = one widget fills the board.",
+    "filledByAgent": true,
+    "icon": {
+      "rgba": "AAAAAAAAAABpS/8AAAAAAAAAAABpS/8AAAAAAAAAAAAAAAAAAAAAAB60eAAAAAAAAAAAAB60eAAAAAAAAAAAAAAAAABtTf+xbU3//21N//9tTf//bU3//21N/7EAAAAAAAAAAB+1erEftXr/H7V6/x+1ev8ftXr/H7V6sQAAAABpS/8AbU3//21N//9tTf//bU3//21N//9tTf//AAAAAB60eAAftXr/H7V6/x+1ev8ftXr/H7V6/x+1ev8AAAAAAAAAAG1N//9tTf//bU3//21N//9tTf//bU3//wAAAAAAAAAAH7V6/x+1ev8ftXr/H7V6/x+1ev8ftXr/AAAAAGlL/wBtTf//bU3//21N//9tTf//bU3//21N//8AAAAAAAAAAB+1ev8ftXr/H7V6/x+1ev8ftXr/H7V6/wAAAAAAAAAAbU3/sW1N//9tTf//bU3//21N//9tTf+xAAAAAAAAAAAftXr/H7V6/x+1ev8ftXr/H7V6/x+1ev8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAetHgAH7V6/x+1ev8ftXr/H7V6/x+1ev8ftXr/AAAAAAAAAAAAAAAALWn/AAAAAAAAAAAALWn/AAAAAAAAAAAAAAAAAB+1erEftXr/H7V6/x+1ev8ftXr/H7V6sQAAAAAAAAAAL2v/sS9r//8va///L2v//y9r//8va/+xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALWn/AC9r//8va///L2v//y9r//8va///L2v//wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAva///L2v//y9r//8va///L2v//y9r//8AAAAAAAAAAP96GrH/ehr//3oa//96Gv//ehr//3oasQAAAAAAAAAAL2v//y9r//8va///L2v//y9r//8va///AAAAAAAAAAD/ehr//3oa//96Gv//ehr//3oa//96Gv8AAAAAAAAAAC9r//8va///L2v//y9r//8va///L2v//wAAAAAAAAAA/3oa//96Gv//ehr//3oa//96Gv//ehr/AAAAAC1p/wAva///L2v//y9r//8va///L2v//y9r//8AAAAAAAAAAP96Gv//ehr//3oa//96Gv//ehr//3oa/wAAAAAAAAAAL2v/sS9r//8va///L2v//y9r//8va/+xAAAAAAAAAAD/ehqx/3oa//96Gv//ehr//3oa//96GrEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 16 16\"><rect x=\"1\" y=\"1\" width=\"6\" height=\"5\" rx=\"1.2\" fill=\"#6d4dff\"/><rect x=\"9\" y=\"1\" width=\"6\" height=\"7\" rx=\"1.2\" fill=\"#1fb57a\"/><rect x=\"1\" y=\"8\" width=\"6\" height=\"7\" rx=\"1.2\" fill=\"#2f6bff\"/><rect x=\"9\" y=\"10\" width=\"6\" height=\"5\" rx=\"1.2\" fill=\"#ff7a1a\"/></svg>"
+    }
+  }
+}
