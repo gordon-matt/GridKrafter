@@ -1,0 +1,36 @@
+{
+	"name": "WidgetClock.mixin",
+
+	// as the GridKrafter demos' clock widget: a large semi-bold time (tabular figures, set by the client)
+	// and a 13 px muted date line, centred on a transparent body.
+	"fonts": {
+		"widget-clock-time": { "size": 40, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] },
+		"widget-clock-date": { "size": 13, "family": ["Segoe UI", "system-ui", "Roboto", "Helvetica Neue", "Arial", "sans-serif"] }
+	},
+
+	"appearances": {
+
+		"widget-clock": {
+			"inherit": "widget",
+			"states": {
+				"default": {
+					"properties": { "padding": [8, 12], "font": "default", "textColor": "windowText", "backgroundColor": "transparent", "opacity": 1 },
+					"styles": { "width": 0 }
+				},
+				"disabled": { "properties": { "opacity": 0.55 } }
+			},
+			"components": {
+
+				"time": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "widget-clock-time", "textColor": "windowText" } } }
+				},
+
+				"date": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "widget-clock-date", "textColor": "grayText" } } }
+				}
+			}
+		}
+	}
+}

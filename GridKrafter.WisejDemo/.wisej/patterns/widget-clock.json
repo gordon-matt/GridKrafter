@@ -1,0 +1,14 @@
+{
+  "id": "widget-clock",
+  "name": "Widget clock",
+  "purpose": "The time and date where the user is (browser local time), ticking every second in the browser: a large tabular-number time above a muted date line, centred.",
+  "keywords": [
+    "widget clock",
+    "widgetclock"
+  ],
+  "control": "WidgetClock",
+  "type": "GridKrafter.WisejDemo.Controls.WidgetClock",
+  "extends": null,
+  "component": null,
+  "preview": "<div data-wisej-pattern=\"widget-clock\"><div class=\"clock\"><div class=\"time\">14:05:09</div><div class=\"date\">Thursday, 12 November 2026</div></div></div>"
+}

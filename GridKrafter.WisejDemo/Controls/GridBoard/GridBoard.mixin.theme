@@ -7,7 +7,7 @@
 	// (blue, green, orange, violet, amber, sky, red, pink) and, in a theme without one, the fallback below.
 	"colors": {
 		"grid-board-placeholder": "rgba(128,128,128,0.14)",
-		"grid-board-grid": "rgba(128,128,128,0.35)",
+		"grid-board-grid": "rgba(110,135,180,0.12)",
 		"grid-board-shadow": "rgba(0,0,0,0.22)",
 		"grid-board-blue-accent": "#2f6bff",
 		"grid-board-green-accent": "#1fb57a",

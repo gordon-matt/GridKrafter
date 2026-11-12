@@ -43,7 +43,54 @@ namespace GridKrafter.WisejDemo
 				this.labelStatus.Text = BoardEvents.Status;
 
 			this.comboBoxTheme.Text = (string)Application.Session["gk.theme"] ?? AUTO;
+			this.panelTop.Resize += this.panelTop_Resize;
+			LayoutHeader();
 			this.navigationBar.SelectedItem = this.navigationBarHome;
+		}
+
+		private void panelTop_Resize(object sender, EventArgs e)
+		{
+			LayoutHeader();
+		}
+
+		// The top bar follows the width, as the MVC page's header does: the theme switcher and Reset sit on
+		// the right of the title on a wide screen, and under the texts on a narrow one.
+		private void LayoutHeader()
+		{
+			const int SIDE = 24, GAP = 12;
+			int width = this.panelTop.ClientSize.Width;
+			int side = width < 600 ? 12 : SIDE;
+
+			// on a phone the theme box gets narrower so Reset still fits beside it
+			this.comboBoxTheme.Width = width < 480 ? Math.Max(150, width - 2 * side - GAP - this.buttonReset.Width) : 206;
+			int buttons = this.comboBoxTheme.Width + GAP + this.buttonReset.Width;
+			bool wide = width >= 760;
+			int textWidth = Math.Max(120, width - 2 * side - (wide ? buttons + SIDE : 0));
+
+			this.comboBoxTheme.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+			this.buttonReset.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+
+			this.labelTitle.Location = new System.Drawing.Point(side, 12);
+			this.labelIntro.AutoSize = true;
+			this.labelIntro.MaximumSize = new System.Drawing.Size(textWidth, 0);
+			this.labelIntro.Location = new System.Drawing.Point(side, this.labelTitle.Bottom + 4);
+			this.labelStatus.Location = new System.Drawing.Point(side, this.labelIntro.Bottom + 4);
+			this.labelStatus.Width = textWidth;
+
+			int bottom;
+			if (wide)
+			{
+				this.comboBoxTheme.Location = new System.Drawing.Point(width - side - buttons, 14);
+				bottom = this.labelStatus.Bottom;
+			}
+			else
+			{
+				this.comboBoxTheme.Location = new System.Drawing.Point(side, this.labelStatus.Bottom + 10);
+				bottom = this.comboBoxTheme.Bottom;
+			}
+			this.buttonReset.Location = new System.Drawing.Point(this.comboBoxTheme.Right + GAP, this.comboBoxTheme.Top);
+
+			this.panelTop.Height = bottom + 12;
 		}
 
 		private void Unsubscribe(object sender, EventArgs e)
@@ -65,6 +112,7 @@ namespace GridKrafter.WisejDemo
 
 			this.labelTitle.Text = this.navigationBar.SelectedItem.Text;
 			this.labelIntro.Text = Intros.TryGetValue(panelName, out string intro) ? intro : "";
+			LayoutHeader();
 		}
 
 		private void navigationBar_SelectedItemChanged(object sender, EventArgs e)

@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using GridKrafter.WisejDemo.Controls;
+using GridKrafter.WisejDemo.Widgets;
 using Wisej.Web;
 
 namespace GridKrafter.WisejDemo.Model
@@ -12,7 +13,8 @@ namespace GridKrafter.WisejDemo.Model
 	public static class WidgetBodies
 	{
 		/// <summary>Creates the body of a widget of the given kind, filled with fresh data.</summary>
-		/// <param name="kind">The widget's kind: stat, activity, server-load, orders, about, note or links.</param>
+		/// <param name="kind">The widget's kind: stat, activity, server-load, orders, about, note or links (the MVC
+		/// demo's), or sales, todo, clock, stopwatch, notes, calendar or bookmarks (the Blazor and React demos').</param>
 		/// <param name="id">The widget's id; the stat tiles take their figures from it.</param>
 		/// <param name="title">The widget's title.</param>
 		public static Control Create(string kind, string id, string title)
@@ -27,11 +29,20 @@ namespace GridKrafter.WisejDemo.Model
 				case "about": body = CreateText("The board is defined in C# with the GridKrafter.Core model and shown with the GridBoard control. Each widget hosts real Wisej.NET controls, so the theme you pick styles all of them.\r\n\r\nEvery change is saved on the server in App_Data, so the board follows you from browser to browser."); break;
 				case "note": body = CreateText("Notes suit content that's part of the page: help, notices or a short form."); break;
 				case "links": body = CreateLinks(); break;
+				case "sales": body = new SalesChartBody(); break;
+				case "todo": body = new TodoListBody(); break;
+				case "clock": body = new WidgetClock(); break;
+				case "stopwatch": body = new WidgetStopwatch(); break;
+				case "notes": body = new NotesBody(); break;
+				case "calendar": body = CreateCalendar(); break;
+				case "bookmarks": body = new BookmarksBody(); break;
 				default: body = CreateText(""); break;
 			}
 
 			body.Dock = DockStyle.Fill;
 			body.Name = kind;
+			if (body is WidgetBody content && !string.IsNullOrEmpty(id))
+				content.LoadContent(id);
 			Refresh(body);
 			return body;
 		}
@@ -54,6 +65,10 @@ namespace GridKrafter.WisejDemo.Model
 
 				case ServerLoadList load:
 					load.SetItems(DemoData.ServerLoad().Select(meter => new ServerLoadItem { Name = meter.Name, Icon = meter.Icon, Value = meter.Value }));
+					break;
+
+				case SalesChartBody chart:
+					chart.Regenerate();
 					break;
 
 				case DataGridView grid:
@@ -116,6 +131,15 @@ namespace GridKrafter.WisejDemo.Model
 			grid.Columns["Total"].HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleRight;
 			return grid;
 		}
+
+		// This month at a glance, weeks starting on Monday, as the Blazor demo's calendar.
+		private static Control CreateCalendar() => new MonthCalendar
+		{
+			BorderStyle = BorderStyle.None,
+			FirstDayOfWeek = Day.Monday,
+			ShowWeekNumbers = false,
+			MaxSelectionCount = 1,
+		};
 
 		private static Control CreateText(string text) => new Label
 		{

@@ -402,7 +402,8 @@ qx.Class.define("gridkrafter.wisejdemo.GridBoard", {
 
 				case "toolbar":
 					// three rows: Edit (and Add widget), the tabs, the Collapse all / Expand all links
-					control = new qx.ui.container.Composite(new qx.ui.layout.VBox(8));
+					// minWidth 0 on the toolbar and its rows: they never hold the page wider than the screen
+					control = new qx.ui.container.Composite(new qx.ui.layout.VBox(8)).set({ minWidth: 0 });
 					control.setHeight(this.getToolbarHeight());
 					control.add(this.getChildControl("actions"));
 					control.add(this.getChildControl("tabs"));
@@ -412,7 +413,7 @@ qx.Class.define("gridkrafter.wisejdemo.GridBoard", {
 
 				case "actions":
 					// view mode: Edit; edit mode: Done, Add widget, Add section ... Reset layout (as the original)
-					control = new qx.ui.container.Composite(new qx.ui.layout.HBox(8).set({ alignY: "middle" }));
+					control = new qx.ui.container.Composite(new qx.ui.layout.HBox(8).set({ alignY: "middle" })).set({ minWidth: 0 });
 					control.add(this.getChildControl("edit-button"));
 					control.add(this.getChildControl("add-button"));
 					control.add(this.getChildControl("section-button"));
@@ -433,7 +434,7 @@ qx.Class.define("gridkrafter.wisejdemo.GridBoard", {
 					break;
 
 				case "section-title":
-					control = new qx.ui.form.TextField().set({ width: 280, placeholder: "Section title" });
+					control = new qx.ui.form.TextField().set({ width: 280, minWidth: 90, allowShrinkX: true, placeholder: "Section title" });
 					control.getContentElement().setAttribute("aria-label", "Section title");
 					control.addListener("input", this.__onSectionTitleInput, this);
 					break;
@@ -453,15 +454,18 @@ qx.Class.define("gridkrafter.wisejdemo.GridBoard", {
 					break;
 
 				case "tabs":
-					control = new qx.ui.container.Composite(new qx.ui.layout.HBox(2).set({ alignY: "bottom" }));
+					// tabs that don't fit scroll sideways, with arrows, instead of being cut off
+					control = new qx.ui.container.SlideBar("horizontal").set({ minWidth: 0, appearance: "grid-board/tabs" });
+					control.setLayout(new qx.ui.layout.HBox(2).set({ alignY: "bottom" }));
 					control.getContentElement().setAttribute("role", "tablist");
 					break;
 
 				case "links":
 					// the section's title (a field in edit mode) on the left; Collapse all, Expand all and,
 					// in edit mode, the section's actions on the right
-					control = new qx.ui.container.Composite(new qx.ui.layout.HBox(14).set({ alignY: "middle" }));
-					control.add(this.getChildControl("section-title"));
+					control = new qx.ui.container.Composite(new qx.ui.layout.HBox(14).set({ alignY: "middle" })).set({ minWidth: 0 });
+					control.add(this.getChildControl("section-title"), { flex: 1 });
+					this.getChildControl("section-title").setMaxWidth(280);
 					control.add(new qx.ui.core.Spacer(), { flex: 1 });
 					control.add(this.getChildControl("collapse-link"));
 					control.add(this.getChildControl("expand-link"));
@@ -750,14 +754,18 @@ qx.Class.define("gridkrafter.wisejdemo.GridBoard", {
 				return;
 			}
 
+			// every free cell is a softly filled rounded block, as the original's edit-mode grid
 			var manager = qx.theme.manager.Color.getInstance();
-			var dot = manager.resolve(this.getThemeGridColor());
-			var gap = this.getGap();
-			var stepX = cell + gap, stepY = this.getRowHeight() + gap;
+			var fill = manager.resolve(this.getThemeGridColor());
+			var gap = this.getGap(), rowH = this.getRowHeight();
+			var stepX = cell + gap, stepY = rowH + gap;
+			var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + stepX + '" height="' + stepY + '">' +
+				'<rect x="0" y="0" width="' + cell + '" height="' + rowH + '" rx="4" ry="4" fill="' + fill + '"/></svg>';
 			el.setStyles({
-				backgroundImage: "radial-gradient(circle, " + dot + " 1.3px, transparent 1.6px)",
+				backgroundImage: 'url("data:image/svg+xml,' + encodeURIComponent(svg) + '")',
 				backgroundSize: stepX + "px " + stepY + "px",
-				backgroundPosition: Math.round(cell / 2 - stepX / 2) + "px " + Math.round(this.getRowHeight() / 2 - stepY / 2) + "px"
+				backgroundPosition: "0px 0px",
+				backgroundRepeat: "repeat"
 			});
 		},
 

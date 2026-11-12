@@ -5,6 +5,7 @@ using GridKrafter.Models;
 using GridKrafter.WisejDemo.Controls;
 using GridKrafter.WisejDemo.Model;
 using GridKrafter.WisejDemo.Services;
+using GridKrafter.WisejDemo.Widgets;
 using Wisej.Web;
 
 namespace GridKrafter.WisejDemo.Panels
@@ -58,7 +59,8 @@ namespace GridKrafter.WisejDemo.Panels
 		// The board is a centred column at most 1080 pixels wide, as on the MVC page.
 		private void CenterBoard()
 		{
-			const int MAX_WIDTH = 1080, SIDE = 24;
+			const int MAX_WIDTH = 1080;
+			int SIDE = this.Width < 600 ? 4 : 24;
 			int extra = Math.Max(0, (this.Width - 2 * SIDE - MAX_WIDTH) / 2);
 			this.Padding = new Padding(SIDE + extra, 12, SIDE + extra, 20);
 		}
@@ -71,6 +73,7 @@ namespace GridKrafter.WisejDemo.Panels
 		private void board_ResetRequested(object sender, EventArgs e)
 		{
 			BoardStore.Reset();
+			WidgetContentStore.Reset();
 			this.timerSave.Stop();
 			ShowBoard(null);
 			BoardEvents.Write("reset", "the page's own board");
@@ -96,6 +99,9 @@ namespace GridKrafter.WisejDemo.Panels
 					?? new GridWidgetKind { Kind = e.Kind, Text = e.Item.Text, Icon = e.Item.Icon, Color = e.Item.Color };
 				widget = CreateCatalogWidget(kind);
 				widget.ItemId = id;
+				// what was written into it (tasks, notes, links) comes back too
+				if (widget.Controls.Count > 0 && widget.Controls[0] is WidgetBody content)
+					content.LoadContent(id);
 			}
 
 			// as it was when deleted: its title and colour
@@ -134,7 +140,7 @@ namespace GridKrafter.WisejDemo.Panels
 				RefreshInterval = item.Refresh ?? 0,
 			};
 
-			Fill(widget, WidgetBodies.Create(widget.Kind, item.Id, widget.Title), item.NoPadding);
+			Fill(widget, WidgetBodies.Create(widget.Kind, item.Id, widget.Title), item.NoPadding || item.Kind == "notes");
 			return widget;
 		}
 
@@ -154,7 +160,10 @@ namespace GridKrafter.WisejDemo.Panels
 
 		private void board_AddWidgetRequested(object sender, GridWidgetKindEventArgs e)
 		{
-			this.board.AddWidget(CreateCatalogWidget(e.Item));
+			var widget = CreateCatalogWidget(e.Item);
+			this.board.AddWidget(widget);
+			// a new widget starts with its own content, even when its id was used before
+			WidgetContentStore.Remove(widget.EffectiveId);
 		}
 
 		// A new widget of a catalog kind, with its body.
@@ -180,7 +189,7 @@ namespace GridKrafter.WisejDemo.Panels
 			if (kind.Refresh > 0)
 				widget.Buttons |= WidgetButtons.Refresh;
 
-			Fill(widget, WidgetBodies.Create(kind.Kind, "", widget.Title), kind.Kind == "orders");
+			Fill(widget, WidgetBodies.Create(kind.Kind, "", widget.Title), kind.Kind == "orders" || kind.Kind == "notes");
 			return widget;
 		}
 

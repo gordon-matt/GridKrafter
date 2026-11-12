@@ -1,0 +1,112 @@
+{
+	"name": "WidgetStopwatch.mixin",
+
+	// as the GridKrafter React demo's stopwatch: a large semi-bold time (tabular figures, set by the client),
+	// a primary toggle in the theme's highlight, a plain Lap button, an icon-only ghost Reset, and 13 px lap rows
+	// with a muted name and a thin line between them, on a transparent body.
+	"fonts": {
+		"widget-stopwatch-time": { "size": 38, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] },
+		"widget-stopwatch-lap": { "size": 13, "family": ["Segoe UI", "system-ui", "Roboto", "Helvetica Neue", "Arial", "sans-serif"] }
+	},
+
+	"appearances": {
+
+		"widget-stopwatch": {
+			"inherit": "widget",
+			"states": {
+				"default": {
+					"properties": { "padding": [8, 14], "font": "default", "textColor": "windowText", "backgroundColor": "transparent", "opacity": 1 },
+					"styles": { "width": 0 }
+				},
+				"disabled": { "properties": { "opacity": 0.55 } }
+			},
+			"components": {
+
+				"time": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "widget-stopwatch-time", "textColor": "windowText" } } }
+				},
+
+				"buttons": {
+					"inherit": "widget",
+					"states": { "default": { "properties": { "backgroundColor": "transparent" } } }
+				},
+
+				"toggle": {
+					"inherit": "button",
+					"states": {
+						"default": {
+							"properties": { "textColor": "highlightText", "opacity": 1 },
+							"styles": { "backgroundColor": "highlight", "color": "highlight" }
+						},
+						"hovered": {
+							"properties": { "opacity": 0.9 },
+							"styles": { "backgroundColor": "highlight", "color": "highlight" }
+						},
+						"pressed": {
+							"properties": { "opacity": 0.8 },
+							"styles": { "backgroundColor": "highlight", "color": "highlight" }
+						},
+						"focused": {
+							"styles": { "backgroundColor": "highlight" }
+						}
+					}
+				},
+
+				"lap": {
+					"inherit": "button",
+					"states": {
+						"default": { "properties": { "opacity": 1 } },
+						"disabled": { "properties": { "opacity": 0.5 } }
+					}
+				},
+
+				"reset": {
+					"inherit": "button",
+					"states": {
+						"default": {
+							"properties": { "textColor": "grayText", "opacity": 1 },
+							"styles": { "backgroundColor": "transparent", "color": "transparent" }
+						},
+						"hovered": {
+							"properties": { "textColor": "windowText" },
+							"styles": { "backgroundColor": "windowFrame", "color": "windowFrame" }
+						},
+						"disabled": {
+							"properties": { "opacity": 0.45 },
+							"styles": { "backgroundColor": "transparent", "color": "transparent" }
+						}
+					}
+				},
+
+				"laps": {
+					"inherit": "widget",
+					"states": { "default": { "properties": { "backgroundColor": "transparent" } } }
+				},
+
+				"lap-row": {
+					"inherit": "widget",
+					"states": {
+						"default": {
+							"properties": { "padding": [5, 0], "backgroundColor": "transparent" },
+							"styles": { "width": [1, 0, 0, 0], "color": "windowFrame" }
+						},
+						"first": {
+							"styles": { "width": 0 }
+						}
+					}
+				},
+
+				"lap-name": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "widget-stopwatch-lap", "textColor": "grayText" } } }
+				},
+
+				"lap-time": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "widget-stopwatch-lap", "textColor": "windowText" } } }
+				}
+			}
+		}
+	}
+}

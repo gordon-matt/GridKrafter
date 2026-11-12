@@ -128,4 +128,38 @@
     </EmbeddedResource>
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- WidgetClock: its files, each embedded under the name Wisej.NET or the Toolbox reads it by (added by Component Studio) -->
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\WidgetClock\WidgetClock.mixin.theme">
+      <DependentUpon>WidgetClock.cs</DependentUpon>
+      <LogicalName>$(RootNamespace).Themes.WidgetClock.mixin.theme</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\WidgetClock\WidgetClock.bmp">
+      <DependentUpon>WidgetClock.cs</DependentUpon>
+      <LogicalName>GridKrafter.WisejDemo.Controls.WidgetClock.bmp</LogicalName>
+    </EmbeddedResource>
+    <None Remove="$(MSBuildThisFileDirectory)Controls\WidgetClock\gridkrafter.wisejdemo.WidgetClock.js" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\WidgetClock\gridkrafter.wisejdemo.WidgetClock.js">
+      <DependentUpon>WidgetClock.cs</DependentUpon>
+      <LogicalName>$(RootNamespace).Platform.gridkrafter.wisejdemo.WidgetClock.js</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- WidgetStopwatch: its files, each embedded under the name Wisej.NET or the Toolbox reads it by -->
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\WidgetStopwatch\WidgetStopwatch.mixin.theme">
+      <DependentUpon>WidgetStopwatch.cs</DependentUpon>
+      <LogicalName>$(RootNamespace).Themes.WidgetStopwatch.mixin.theme</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\WidgetStopwatch\WidgetStopwatch.bmp">
+      <DependentUpon>WidgetStopwatch.cs</DependentUpon>
+      <LogicalName>GridKrafter.WisejDemo.Controls.WidgetStopwatch.bmp</LogicalName>
+    </EmbeddedResource>
+    <None Remove="$(MSBuildThisFileDirectory)Controls\WidgetStopwatch\gridkrafter.wisejdemo.WidgetStopwatch.js" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\WidgetStopwatch\gridkrafter.wisejdemo.WidgetStopwatch.js">
+      <DependentUpon>WidgetStopwatch.cs</DependentUpon>
+      <LogicalName>$(RootNamespace).Platform.gridkrafter.wisejdemo.WidgetStopwatch.js</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
 </Project>

@@ -1,0 +1,53 @@
+{
+  "name": "WidgetClock",
+  "namespace": "GridKrafter.WisejDemo.Controls",
+  "fullName": "GridKrafter.WisejDemo.Controls.WidgetClock",
+  "language": "csharp",
+  "files": [
+    "Controls/WidgetClock/WidgetClock.cs",
+    "Controls/WidgetClock/gridkrafter.wisejdemo.WidgetClock.js",
+    "Controls/WidgetClock/WidgetClock.mixin.theme",
+    "Controls/WidgetClock/WidgetClock.bmp",
+    "GridKrafter.WisejDemo.csproj"
+  ],
+  "saved": "2026-11-12T17:44:19.3363981Z",
+  "sketch": {
+    "schema": "wisej-component-sketch/1",
+    "name": "WidgetClock",
+    "namespace": "GridKrafter.WisejDemo.Controls",
+    "description": "The time and date where the user is (browser local time), ticking every second in the browser: a large tabular-number time above a muted date line, centred.",
+    "size": [
+      320,
+      160
+    ],
+    "html": "<div class=\"clock\"><div class=\"time\">14:05:09</div><div class=\"date\">Thursday, 12 November 2026</div></div>",
+    "css": ".clock { display:flex; flex-direction:column; align-items:center; justify-content:center; width:100%; height:100%; box-sizing:border-box; background:transparent; font-family:\"Segoe UI\", system-ui, Roboto, Arial, sans-serif; color:var(--text); text-align:center; gap:4px; }\n.time { font-size:40px; font-weight:600; font-variant-numeric:tabular-nums; letter-spacing:-0.02em; line-height:1.1; }\n.date { font-size:13px; color:var(--muted); }",
+    "js": "function render(root, props, fire) {\n  var DAYS = [\"Sunday\",\"Monday\",\"Tuesday\",\"Wednesday\",\"Thursday\",\"Friday\",\"Saturday\"];\n  var MONTHS = [\"January\",\"February\",\"March\",\"April\",\"May\",\"June\",\"July\",\"August\",\"September\",\"October\",\"November\",\"December\"];\n  function pad(n) { return (n < 10 ? \"0\" : \"\") + n; }\n  function draw() {\n    var d = new Date(), h = d.getHours(), t;\n    if (props.Hour12) {\n      var h12 = h % 12 || 12;\n      t = h12 + \":\" + pad(d.getMinutes()) + (props.ShowSeconds ? \":\" + pad(d.getSeconds()) : \"\") + \" \" + (h < 12 ? \"AM\" : \"PM\");\n    } else {\n      t = pad(h) + \":\" + pad(d.getMinutes()) + (props.ShowSeconds ? \":\" + pad(d.getSeconds()) : \"\");\n    }\n    root.querySelector(\".time\").textContent = t;\n    root.querySelector(\".date\").textContent = DAYS[d.getDay()] + \", \" + d.getDate() + \" \" + MONTHS[d.getMonth()] + \" \" + d.getFullYear();\n  }\n  if (root.__clockTimer) clearInterval(root.__clockTimer);\n  root.__clockTimer = setInterval(draw, 1000);\n  draw();\n}",
+    "props": [
+      {
+        "name": "Hour12",
+        "type": "bool",
+        "default": false,
+        "description": "Shows the time on a 12-hour clock with AM/PM instead of 24 hours."
+      },
+      {
+        "name": "ShowSeconds",
+        "type": "bool",
+        "default": true,
+        "description": "Shows the seconds."
+      }
+    ],
+    "events": [],
+    "tokens": {
+      "text": "#1f2328",
+      "muted": "#6b7280"
+    },
+    "dependencies": [],
+    "notes": "Simple control, no parts. Ticks client-side every second (browser timer in the JS class, no server round-trips). Transparent background, theme font; time colour windowText, date grayText. Time formats: HH:mm:ss / HH:mm / h:mm:ss tt / h:mm tt; date \"dddd, d MMMM yyyy\" (en-GB, English names).",
+    "filledByAgent": true,
+    "icon": {
+      "rgba": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAL27uAS9v7BQvb+wUL27uAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAvb+0vL2/toy9v7e0vb+3/L2/t/y9v7e0vb+2jL2/tLwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACqA/wAvb+16L2/t/C9v7f8vb+3pL2/tui9v7bovb+3pL2/t/y9v7fwvb+16KoD/AAAAAAAAAAAAAAAAAAAAAAAvb+16L2/t/y9v7egvb+1WL27uA2tygB9rcoAgL27uAy9v7VYvb+3oL2/t/y9v7XoAAAAAAAAAAAAAAAAvb+0vL2/t/C9v7egvb+0hAAAAAAAAAABrcoDDa3KAwwAAAAAAAAAAL2/tIS9v7egvb+38L2/tLwAAAAAAAAAAL2/toy9v7f8vb+1WAAAAAAAAAAAAAAAAa3KAy2tygMsAAAAAAAAAAAAAAAAvb+1WL2/t/y9v7aMAAAAAL27uAS9v7e0vb+3pL27uAwAAAAAAAAAAAAAAAGtygMtrcoDLAAAAAAAAAAAAAAAAL27uAy9v7ekvb+3tL27uAS9v7BQvb+3/L2/tugAAAAAAAAAAAAAAAAAAAABrcoDLa3KA32tygBYAAAAAAAAAAAAAAAAvb+26L2/t/y9v7BQvb+wUL2/t/y9v7boAAAAAAAAAAAAAAAAAAAAAa3KAg2tygP5rcoDta3KAZ2pygQIAAAAAL2/tui9v7f8vb+wUL27uAS9v7e0vb+3pL27uAwAAAAAAAAAAAAAAAAAAAABrcoBAa3KA1WtygP9rcoBTL27uAy9v7ekvb+3tL27uAQAAAAAvb+2jL2/t/y9v7VYAAAAAAAAAAAAAAAAAAAAAAAAAAGpygAdrcoBTa3KACy9v7VYvb+3/L2/towAAAAAAAAAAL2/tLy9v7fwvb+3oL2/tIQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAC9v7SEvb+3oL2/t/C9v7S8AAAAAAAAAAAAAAAAvb+16L2/t/y9v7egvb+1WL27uAwAAAAAAAAAAL27uAy9v7VYvb+3oL2/t/y9v7XoAAAAAAAAAAAAAAAAAAAAAKoD/AC9v7Xovb+38L2/t/y9v7ekvb+26L2/tui9v7ekvb+3/L2/t/C9v7XoqgP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAL2/tLy9v7aMvb+3tL2/t/y9v7f8vb+3tL2/toy9v7S8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAL27uAS9v7BQvb+wUL27uAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 16 16\"><circle cx=\"8\" cy=\"8\" r=\"6.2\" fill=\"none\" stroke=\"#2f6fed\" stroke-width=\"1.8\"/><path d=\"M8 4.5V8l2.6 1.6\" fill=\"none\" stroke=\"#6b7280\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"
+    }
+  }
+}
