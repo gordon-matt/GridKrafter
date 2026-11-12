@@ -249,7 +249,7 @@
     "tint": "rgba(139,116,255,0.18)",
     "accent2": "#4493F8",
     "kpipanel-background": "#161B22",
-    "kpipanel-border": "#262C36",
+    "kpipanel-border": "#161B22",
     "kpipanel-muted": "#8D96A0",
     "kpipanel-text": "#E6EDF3",
     "kpipanel-primary": "#8B74FF",
@@ -296,7 +296,12 @@
     "info-border": "#1D5E80",
     "success-border": "#1E6B52",
     "warning-border": "#6B5217",
-    "danger-border": "#7A2E33"
+    "danger-border": "#7A2E33",
+    "navbar-background-hover": "#1F2630",
+    "navbar-background-selected": "#2A2550",
+    "navbar-text": "#8D96A0",
+    "navbar-text-hover": "#E6EDF3",
+    "navbar-text-selected": "#A796FF"
   },
   "appearances": {
     "accordion": {

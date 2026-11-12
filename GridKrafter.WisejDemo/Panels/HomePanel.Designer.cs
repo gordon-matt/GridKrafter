@@ -29,7 +29,7 @@
 		private void InitializeComponent()
 		{
 			this.components = new System.ComponentModel.Container();
-			this.gridBoard = new GridKrafter.WisejDemo.Controls.GridBoard();
+			this.board = new GridKrafter.WisejDemo.Controls.GridBoard();
 			this.sectionOverview = new GridKrafter.WisejDemo.Controls.GridBoardSection();
 			this.sectionSales = new GridKrafter.WisejDemo.Controls.GridBoardSection();
 			this.kindOrders = new GridKrafter.WisejDemo.Controls.GridWidgetKind();
@@ -40,25 +40,25 @@
 			this.timerSave = new Wisej.Web.Timer(this.components);
 			this.SuspendLayout();
 			//
-			// gridBoard
+			// board
 			//
-			this.gridBoard.Catalog.Add(this.kindOrders);
-			this.gridBoard.Catalog.Add(this.kindServerLoad);
-			this.gridBoard.Catalog.Add(this.kindActivity);
-			this.gridBoard.Catalog.Add(this.kindNote);
-			this.gridBoard.Catalog.Add(this.kindLinks);
-			this.gridBoard.Dock = Wisej.Web.DockStyle.Fill;
-			this.gridBoard.Location = new System.Drawing.Point(24, 12);
-			this.gridBoard.Name = "gridBoard";
-			this.gridBoard.Sections.Add(this.sectionOverview);
-			this.gridBoard.Sections.Add(this.sectionSales);
-			this.gridBoard.SelectedSection = "overview";
-			this.gridBoard.Size = new System.Drawing.Size(1082, 642);
-			this.gridBoard.TabIndex = 0;
-			this.gridBoard.Changed += new GridKrafter.WisejDemo.Controls.GridBoardChangedEventHandler(this.gridBoard_Changed);
-			this.gridBoard.LayoutChanged += new GridKrafter.WisejDemo.Controls.GridBoardLayoutEventHandler(this.gridBoard_LayoutChanged);
-			this.gridBoard.WidgetRefresh += new GridKrafter.WisejDemo.Controls.GridWidgetEventHandler(this.gridBoard_WidgetRefresh);
-			this.gridBoard.AddWidgetRequested += new GridKrafter.WisejDemo.Controls.GridWidgetKindEventHandler(this.gridBoard_AddWidgetRequested);
+			this.board.Catalog.Add(this.kindOrders);
+			this.board.Catalog.Add(this.kindServerLoad);
+			this.board.Catalog.Add(this.kindActivity);
+			this.board.Catalog.Add(this.kindNote);
+			this.board.Catalog.Add(this.kindLinks);
+			this.board.Dock = Wisej.Web.DockStyle.Fill;
+			this.board.Location = new System.Drawing.Point(24, 12);
+			this.board.Name = "board";
+			this.board.Sections.Add(this.sectionOverview);
+			this.board.Sections.Add(this.sectionSales);
+			this.board.SelectedSection = "overview";
+			this.board.Size = new System.Drawing.Size(1082, 642);
+			this.board.TabIndex = 0;
+			this.board.Changed += new GridKrafter.WisejDemo.Controls.GridBoardChangedEventHandler(this.board_Changed);
+			this.board.LayoutChanged += new GridKrafter.WisejDemo.Controls.GridBoardLayoutEventHandler(this.board_LayoutChanged);
+			this.board.WidgetRefresh += new GridKrafter.WisejDemo.Controls.GridWidgetEventHandler(this.board_WidgetRefresh);
+			this.board.AddWidgetRequested += new GridKrafter.WisejDemo.Controls.GridWidgetKindEventHandler(this.board_AddWidgetRequested);
 			//
 			// sectionOverview
 			//
@@ -143,7 +143,7 @@
 			//
 			// HomePanel
 			//
-			this.Controls.Add(this.gridBoard);
+			this.Controls.Add(this.board);
 			this.Name = "HomePanel";
 			this.Padding = new Wisej.Web.Padding(24, 12, 24, 20);
 			this.Size = new System.Drawing.Size(1130, 674);
@@ -154,7 +154,7 @@
 
 		#endregion
 
-		private GridKrafter.WisejDemo.Controls.GridBoard gridBoard;
+		private GridKrafter.WisejDemo.Controls.GridBoard board;
 		private GridKrafter.WisejDemo.Controls.GridBoardSection sectionOverview;
 		private GridKrafter.WisejDemo.Controls.GridBoardSection sectionSales;
 		private GridKrafter.WisejDemo.Controls.GridWidgetKind kindOrders;

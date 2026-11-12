@@ -22,6 +22,14 @@ namespace GridKrafter.WisejDemo
 
 		private const string AUTO = "Auto";
 
+		// The line under each page's title.
+		private static readonly Dictionary<string, string> Intros = new Dictionary<string, string>
+		{
+			["HomePanel"] = "Every widget is a real Wisej.NET control on the GridBoard. Refreshing one loads its data again, and every change is saved on the server, so the board follows you from browser to browser.",
+			["EventsPanel"] = "Move, resize, collapse or edit a widget and it shows up here, newest first.",
+			["AboutPanel"] = "How this demo is put together, and where to read more.",
+		};
+
 		public Page1()
 		{
 			InitializeComponent();
@@ -56,6 +64,7 @@ namespace GridKrafter.WisejDemo
 			animationIn.Name = "slideLeftIn";
 
 			this.labelTitle.Text = this.navigationBar.SelectedItem.Text;
+			this.labelIntro.Text = Intros.TryGetValue(panelName, out string intro) ? intro : "";
 		}
 
 		private void navigationBar_SelectedItemChanged(object sender, EventArgs e)

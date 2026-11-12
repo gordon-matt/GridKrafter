@@ -31,7 +31,10 @@ namespace GridKrafter.WisejDemo.Controls
 	public class GridWidget : ScrollableControl
 	{
 		/// <summary>The height of a card's header, in pixels.</summary>
-		internal const int HeaderHeight = 46;
+		internal const int HeaderHeight = 34;
+
+		/// <summary>The height of the footer line, when <see cref="FooterText"/> is set, in pixels.</summary>
+		internal const int FooterHeight = 24;
 
 		/// <summary>The default header buttons.</summary>
 		public const WidgetButtons DefaultButtons = WidgetButtons.Fullscreen | WidgetButtons.Collapse | WidgetButtons.Delete | WidgetButtons.Color;
@@ -58,6 +61,7 @@ namespace GridKrafter.WisejDemo.Controls
 		private bool collapsed;
 		private bool autoHeight;
 		private int refreshInterval;
+		private string footerText = "";
 
 		// positions in the layouts other than the widest, keyed by layout id.
 		private readonly Dictionary<string, GridRect> placements = new Dictionary<string, GridRect>(StringComparer.Ordinal);
@@ -164,8 +168,8 @@ namespace GridKrafter.WisejDemo.Controls
 		}
 
 		/// <summary>
-		/// Gets or sets the buttons in the card's header: Refresh, Fullscreen, Collapse, Delete and Color
-		/// (Edit is not shown). A plain tile offers colours and delete on hover.
+		/// Gets or sets the buttons in the card's header: Refresh, Color, Edit, Fullscreen, Collapse and
+		/// Delete (Edit raises <see cref="GridBoard.Changed"/> with the kind "edit"). A plain tile offers colours and delete on hover.
 		/// </summary>
 		[Category("Appearance"), DefaultValue(DefaultButtons)]
 		[Description("The buttons in the card's header.")]
@@ -306,6 +310,26 @@ namespace GridKrafter.WisejDemo.Controls
 		}
 
 		/// <summary>
+		/// Gets or sets the small muted text shown right-aligned under the body ("Last updated 5:54:03 AM");
+		/// empty shows no footer.
+		/// </summary>
+		[Category("Appearance"), DefaultValue(""), Localizable(true)]
+		[Description("Small muted text shown right-aligned under the body; empty shows no footer.")]
+		public string FooterText
+		{
+			get => this.footerText;
+			set
+			{
+				value = value ?? "";
+				if (this.footerText == value)
+					return;
+				this.footerText = value;
+				PerformLayout();
+				Update();
+			}
+		}
+
+		/// <summary>
 		/// Gets the board the widget is on, or null.
 		/// </summary>
 		[Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -349,6 +373,8 @@ namespace GridKrafter.WisejDemo.Controls
 				var rect = base.DisplayRectangle;
 				if (this.chrome == GridWidgetChrome.Card)
 					rect.Height = Math.Max(0, rect.Height - HeaderHeight);
+				if (this.footerText.Length > 0)
+					rect.Height = Math.Max(0, rect.Height - FooterHeight);
 				return rect;
 			}
 		}
@@ -407,7 +433,7 @@ namespace GridKrafter.WisejDemo.Controls
 			if (bottom <= 0)
 				return;
 
-			int height = bottom + (this.chrome == GridWidgetChrome.Card ? HeaderHeight : 0) + 2;
+			int height = bottom + (this.chrome == GridWidgetChrome.Card ? HeaderHeight : 0) + (this.footerText.Length > 0 ? FooterHeight : 0) + 2;
 			int rows = Math.Max(this.minH, (int)Math.Ceiling((height + gap) / (double)(rowHeight + gap)));
 			if (this.maxH > 0)
 				rows = Math.Min(rows, this.maxH);
@@ -597,10 +623,12 @@ namespace GridKrafter.WisejDemo.Controls
 		private static string[] ButtonNames(WidgetButtons buttons)
 		{
 			var names = new List<string>();
+			// the order of the original GridKrafter header: refresh, colour, edit, full screen, collapse, close
 			if ((buttons & WidgetButtons.Refresh) != 0) names.Add("refresh");
+			if ((buttons & WidgetButtons.Color) != 0) names.Add("color");
+			if ((buttons & WidgetButtons.Edit) != 0) names.Add("edit");
 			if ((buttons & WidgetButtons.Fullscreen) != 0) names.Add("fullscreen");
 			if ((buttons & WidgetButtons.Collapse) != 0) names.Add("collapse");
-			if ((buttons & WidgetButtons.Color) != 0) names.Add("color");
 			if ((buttons & WidgetButtons.Delete) != 0) names.Add("delete");
 			return names.ToArray();
 		}
@@ -632,6 +660,8 @@ namespace GridKrafter.WisejDemo.Controls
 			config.fullscreen = board != null && board.FullscreenWidget == this;
 			config.refreshInterval = this.refreshInterval;
 			config.headerHeight = HeaderHeight;
+			config.footerText = this.footerText;
+			config.footerHeight = FooterHeight;
 
 			config.wiredEvents.Add("widgetAction(Data)");
 			config.wiredEvents.Add("widgetTimer");

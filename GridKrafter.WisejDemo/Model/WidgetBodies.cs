@@ -20,7 +20,7 @@ namespace GridKrafter.WisejDemo.Model
 			switch (kind)
 			{
 				case "stat": body = CreateStat(id, title); break;
-				case "activity": body = new Timeline { TimePosition = TimelineTimePosition.Inline, ShowConnector = false, HasMoreItems = false, TimeFormat = "t" }; break;
+				case "activity": body = new Timeline { TimePosition = TimelineTimePosition.Hidden, ShowConnector = false, HasMoreItems = false }; break;
 				case "server-load": body = CreateServerLoad(); break;
 				case "orders": body = CreateOrders(); break;
 				case "about": body = CreateText("The board is defined in C# with the GridKrafter.Core model and shown with the GridBoard control. Each widget hosts real Wisej.NET controls, so the theme you pick styles all of them.\r\n\r\nEvery change is saved on the server in App_Data, so the board follows you from browser to browser."); break;
@@ -49,6 +49,7 @@ namespace GridKrafter.WisejDemo.Model
 							Time = entry.At.LocalDateTime,
 							Title = entry.Text,
 							Description = DemoData.Ago(entry.At),
+							Tag = entry.Color,
 							Icon = DemoData.IconUrl(entry.Icon),
 							Tone = ToTimelineTone(entry.Color),
 						});
@@ -77,8 +78,8 @@ namespace GridKrafter.WisejDemo.Model
 			var tile = new KpiPanel
 			{
 				Title = title,
-				AccentPosition = KpiAccentPosition.Left,
-				Visual = KpiVisual.Sparkline,
+				AccentPosition = KpiAccentPosition.None,
+				Visual = KpiVisual.None,
 				TrendFormat = "+0.0#'%';-0.0#'%'",
 				Caption = "vs last week",
 			};
@@ -89,12 +90,6 @@ namespace GridKrafter.WisejDemo.Model
 				tile.Trend = (decimal)(stat.Trend * 100);
 				tile.Tone = stat.Trend < 0 ? KpiTone.Danger : KpiTone.Success;
 
-				// A made-up week that ends on the figure, going the way of the trend.
-				var random = new Random(id.GetHashCode());
-				double point = 100;
-				tile.SparklineValues = Enumerable.Range(0, 9)
-					.Select(i => point += (stat.Trend < 0 ? -1 : 1) * random.Next(-2, 6))
-					.ToArray();
 			}
 
 			return tile;

@@ -75,13 +75,14 @@ namespace GridKrafter.WisejDemo.Model
 			};
 		}
 
-		/// <summary>A short age, such as <c>5 min ago</c>.</summary>
+		/// <summary>An age as the MVC demo's browser writes it, such as <c>9 minutes ago</c>.</summary>
 		public static string Ago(DateTimeOffset at)
 		{
 			var age = DateTimeOffset.UtcNow - at;
-			return age.TotalMinutes < 1 ? "just now"
-				: age.TotalHours < 1 ? $"{(int)age.TotalMinutes} min ago"
-				: $"{(int)age.TotalHours} h ago";
+			int minutes = (int)age.TotalMinutes, hours = (int)Math.Round(age.TotalHours);
+			return minutes < 1 ? "this minute"
+				: minutes < 60 ? (minutes == 1 ? "1 minute ago" : $"{minutes} minutes ago")
+				: hours == 1 ? "1 hour ago" : $"{hours} hours ago";
 		}
 
 		/// <summary>The widget colour of an order status.</summary>

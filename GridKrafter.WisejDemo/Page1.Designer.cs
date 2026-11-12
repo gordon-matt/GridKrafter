@@ -38,6 +38,7 @@
             this.buttonReset = new Wisej.Web.Button();
             this.comboBoxTheme = new Wisej.Web.ComboBox();
             this.labelStatus = new Wisej.Web.Label();
+            this.labelIntro = new Wisej.Web.Label();
             this.labelTitle = new Wisej.Web.Label();
             this.panelMain = new Wisej.Web.FlexLayoutPanel();
             this.animationIn = new Wisej.Web.Animation(this.components);
@@ -90,6 +91,7 @@
             this.panelTop.Controls.Add(this.buttonReset);
             this.panelTop.Controls.Add(this.comboBoxTheme);
             this.panelTop.Controls.Add(this.labelStatus);
+            this.panelTop.Controls.Add(this.labelIntro);
             this.panelTop.Controls.Add(this.labelTitle);
             this.panelTop.Dock = Wisej.Web.DockStyle.Top;
             this.panelTop.Location = new System.Drawing.Point(70, 0);
@@ -97,15 +99,15 @@
             this.panelTop.Padding = new Wisej.Web.Padding(24, 12, 24, 12);
             this.panelTop.ResponsiveProfiles.Add(((Wisej.Base.ResponsiveProfile)(resources.GetObject("panelTop.ResponsiveProfiles"))));
             this.panelTop.ResponsiveProfiles.Add(((Wisej.Base.ResponsiveProfile)(resources.GetObject("panelTop.ResponsiveProfiles1"))));
-            this.panelTop.Size = new System.Drawing.Size(1130, 76);
+            this.panelTop.Size = new System.Drawing.Size(1130, 120);
             this.panelTop.TabIndex = 1;
             //
             // buttonReset
             //
             this.buttonReset.Anchor = ((Wisej.Web.AnchorStyles)((Wisej.Web.AnchorStyles.Top | Wisej.Web.AnchorStyles.Right)));
-            this.buttonReset.Location = new System.Drawing.Point(966, 21);
+            this.buttonReset.Location = new System.Drawing.Point(976, 14);
             this.buttonReset.Name = "buttonReset";
-            this.buttonReset.Size = new System.Drawing.Size(140, 34);
+            this.buttonReset.Size = new System.Drawing.Size(130, 30);
             this.buttonReset.TabIndex = 3;
             this.buttonReset.Text = "Reset the board";
             this.buttonReset.Click += new System.EventHandler(this.buttonReset_Click);
@@ -126,10 +128,10 @@
             "Bootstrap Dark"});
             this.comboBoxTheme.Label.Position = Wisej.Web.LabelPosition.Left;
             this.comboBoxTheme.LabelText = "Theme";
-            this.comboBoxTheme.Location = new System.Drawing.Point(706, 21);
+            this.comboBoxTheme.Location = new System.Drawing.Point(758, 14);
             this.comboBoxTheme.Name = "comboBoxTheme";
             this.comboBoxTheme.ResponsiveProfiles.Add(((Wisej.Base.ResponsiveProfile)(resources.GetObject("comboBoxTheme.ResponsiveProfiles"))));
-            this.comboBoxTheme.Size = new System.Drawing.Size(248, 34);
+            this.comboBoxTheme.Size = new System.Drawing.Size(206, 30);
             this.comboBoxTheme.TabIndex = 2;
             this.comboBoxTheme.SelectedIndexChanged += new System.EventHandler(this.comboBoxTheme_SelectedIndexChanged);
             //
@@ -137,17 +139,27 @@
             //
             this.labelStatus.AutoEllipsis = true;
             this.labelStatus.ForeColor = System.Drawing.Color.FromName("@grayText");
-            this.labelStatus.Location = new System.Drawing.Point(24, 44);
+            this.labelStatus.Font = new System.Drawing.Font("default", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
+            this.labelStatus.Location = new System.Drawing.Point(24, 92);
             this.labelStatus.Name = "labelStatus";
-            this.labelStatus.Size = new System.Drawing.Size(640, 20);
+            this.labelStatus.Size = new System.Drawing.Size(700, 18);
             this.labelStatus.TabIndex = 1;
             this.labelStatus.Text = "This is the page\'s own board. Change something and it\'s saved on the server.";
+            //
+            // labelIntro
+            //
+            this.labelIntro.ForeColor = System.Drawing.Color.FromName("@grayText");
+            this.labelIntro.Location = new System.Drawing.Point(24, 46);
+            this.labelIntro.Name = "labelIntro";
+            this.labelIntro.Size = new System.Drawing.Size(700, 42);
+            this.labelIntro.TabIndex = 4;
+            this.labelIntro.Text = "Every widget is a real Wisej.NET control on the GridBoard. Refreshing one loads its data again, and every change is saved on the server, so the board follows you from browser to browser.";
             //
             // labelTitle
             //
             this.labelTitle.AutoSize = true;
             this.labelTitle.Font = new System.Drawing.Font("windowTitle", 22F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Pixel);
-            this.labelTitle.Location = new System.Drawing.Point(24, 10);
+            this.labelTitle.Location = new System.Drawing.Point(24, 12);
             this.labelTitle.Name = "labelTitle";
             this.labelTitle.Size = new System.Drawing.Size(116, 30);
             this.labelTitle.TabIndex = 0;
@@ -156,11 +168,11 @@
             // panelMain
             //
             this.panelMain.Dock = Wisej.Web.DockStyle.Fill;
-            this.panelMain.Location = new System.Drawing.Point(70, 76);
+            this.panelMain.Location = new System.Drawing.Point(70, 120);
             this.panelMain.Name = "panelMain";
             this.panelMain.ResponsiveProfiles.Add(((Wisej.Base.ResponsiveProfile)(resources.GetObject("panelMain.ResponsiveProfiles"))));
             this.panelMain.ResponsiveProfiles.Add(((Wisej.Base.ResponsiveProfile)(resources.GetObject("panelMain.ResponsiveProfiles1"))));
-            this.panelMain.Size = new System.Drawing.Size(1130, 674);
+            this.panelMain.Size = new System.Drawing.Size(1130, 630);
             this.panelMain.TabIndex = 2;
             //
             // Page1
@@ -191,6 +203,7 @@
 		private Wisej.Web.ComboBox comboBoxTheme;
 		private Wisej.Web.Label labelTitle;
 		private Wisej.Web.Label labelStatus;
+		private Wisej.Web.Label labelIntro;
 		private Wisej.Web.Button buttonReset;
 	}
 }

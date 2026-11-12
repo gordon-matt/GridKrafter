@@ -30,8 +30,11 @@ namespace GridKrafter.WisejDemo.Controls
 	[Description("A dashboard board of sections and draggable, resizable widgets that host Wisej controls.")]
 	public class GridBoard : ScrollableControl
 	{
-		/// <summary>The height of the toolbar the client draws above the grid, in pixels.</summary>
-		internal const int ToolbarHeight = 52;
+		/// <summary>
+		/// The height of the toolbar the client draws above the grid, in pixels: the Edit button, the
+		/// underlined section tabs and the Collapse all / Expand all links, as in the GridKrafter demos.
+		/// </summary>
+		internal const int ToolbarHeight = 118;
 
 		private int columns = 12;
 		private int rowHeight = 62;
@@ -59,6 +62,9 @@ namespace GridKrafter.WisejDemo.Controls
 
 		// true while the board moves its own widgets: their bounds changes are not snapped back.
 		private bool inLayout;
+
+		// what the toolbar last showed (section counts, collapse and expand links): redrawn when it changes.
+		private string toolbarState;
 
 		#region Constructors
 
@@ -649,6 +655,39 @@ namespace GridKrafter.WisejDemo.Controls
 			return this.Widgets.Where(w => SectionOf(w) == section);
 		}
 
+		/// <summary>The number of widgets in a section, shown in its tab.</summary>
+		private int SectionCount(string section) => SectionWidgets(section).Count();
+
+		/// <summary>The cards of the selected section that Collapse all and Expand all act on.</summary>
+		private List<GridWidget> CollapsibleWidgets() =>
+			SectionWidgets(CurrentSectionId()).Where(w => w.Chrome == GridWidgetChrome.Card).ToList();
+
+		/// <summary>What the toolbar shows that depends on the widgets: the tab counts and the links' states.</summary>
+		private string ToolbarState()
+		{
+			var cards = CollapsibleWidgets();
+			return string.Join(",", this.Sections.Select(s => SectionCount(s.Id).ToString(CultureInfo.InvariantCulture))) +
+				"|" + cards.Any(w => !w.Collapsed) + "|" + cards.Any(w => w.Collapsed);
+		}
+
+		/// <summary>Collapse all or Expand all: every card of the selected section.</summary>
+		private void ProcessCollapseAllWebEvent(bool collapse)
+		{
+			if (!this.Enabled)
+				return;
+
+			var changed = CollapsibleWidgets().Where(w => w.Collapsed != collapse).ToList();
+			if (changed.Count == 0)
+				return;
+
+			foreach (var widget in changed)
+				widget.Collapsed = collapse;
+
+			PerformLayout();
+			Update();
+			OnChanged(new GridBoardChangedEventArgs(collapse ? "collapsed-all" : "expanded-all", null, CurrentSectionId(), CurrentLayout, null));
+		}
+
 		private string UniqueItemId(string prefix)
 		{
 			for (int i = 1; ; i++)
@@ -744,8 +783,12 @@ namespace GridKrafter.WisejDemo.Controls
 					}
 				}
 
-				if (cellChanged)
+				var state = ToolbarState();
+				if (cellChanged || state != this.toolbarState)
+				{
+					this.toolbarState = state;
 					Update();
+				}
 
 				if (previous != null && previous.Id != layout.Id)
 				{
@@ -894,6 +937,12 @@ namespace GridKrafter.WisejDemo.Controls
 					OnChanged(new GridBoardChangedEventArgs("color", widget.EffectiveId, section, CurrentLayout, widget));
 					break;
 
+				case "edit":
+					if ((widget.Buttons & WidgetButtons.Edit) == 0)
+						return;
+					OnChanged(new GridBoardChangedEventArgs("edit", widget.EffectiveId, section, CurrentLayout, widget));
+					break;
+
 				case "delete":
 					if ((widget.Buttons & WidgetButtons.Delete) == 0 && widget.Chrome == GridWidgetChrome.Card)
 						return;
@@ -1010,7 +1059,7 @@ namespace GridKrafter.WisejDemo.Controls
 			config.appearance = this.AppearanceKey ?? "grid-board";
 
 			// the collections: plain values only
-			config.sections = this.Sections.Select(i => new { name = i.Name, id = i.Id, title = i.Title, icon = i.Icon }).ToArray();
+			config.sections = this.Sections.Select(i => new { name = i.Name, id = i.Id, title = i.Title, icon = i.Icon, count = SectionCount(i.Id) }).ToArray();
 			config.catalog = this.Catalog.Select(i => new { name = i.Name, text = i.DisplayName, kind = i.Kind, description = i.Description, icon = i.Icon, color = i.Color, w = i.W, h = i.H, minW = i.MinW, minH = i.MinH, maxW = i.MaxW, maxH = i.MaxH, autoHeight = i.AutoHeight, refresh = i.Refresh }).ToArray();
 
 			// state and geometry
@@ -1024,6 +1073,12 @@ namespace GridKrafter.WisejDemo.Controls
 			config.gap = this.Gap;
 			config.cellWidth = this.cellWidth;
 
+			// the Collapse all / Expand all links are muted when there is nothing to do
+			var cards = CollapsibleWidgets();
+			config.canCollapse = cards.Any(w => !w.Collapsed);
+			config.canExpand = cards.Any(w => w.Collapsed);
+			this.toolbarState = ToolbarState();
+
 			// events the client may send
 			config.wiredEvents.Add("widgetMove(Data)");
 			config.wiredEvents.Add("widgetResize(Data)");
@@ -1032,6 +1087,8 @@ namespace GridKrafter.WisejDemo.Controls
 			config.wiredEvents.Add("editToggle");
 			config.wiredEvents.Add("widgetAdd(Data)");
 			config.wiredEvents.Add("areaResize(Data)");
+			config.wiredEvents.Add("collapseAll");
+			config.wiredEvents.Add("expandAll");
 		}
 
 		/// <summary>
@@ -1067,6 +1124,14 @@ namespace GridKrafter.WisejDemo.Controls
 
 				case "areaResize":
 					ProcessAreaResizeWebEvent(e);
+					break;
+
+				case "collapseAll":
+					ProcessCollapseAllWebEvent(true);
+					break;
+
+				case "expandAll":
+					ProcessCollapseAllWebEvent(false);
 					break;
 
 				default:
@@ -1107,7 +1172,7 @@ namespace GridKrafter.WisejDemo.Controls
 
 		/// <summary>
 		/// Gets what changed: moved, resized, collapsed, expanded, color, removed, added, fullscreen,
-		/// section-added, section-selected or edit-mode.
+		/// section-added, section-selected, edit-mode, edit (a widget's Edit button), collapsed-all or expanded-all.
 		/// </summary>
 		public string Kind { get; }
 

@@ -21,18 +21,18 @@ namespace GridKrafter.WisejDemo.Panels
 
 		private void HomePanel_Load(object sender, EventArgs e)
 		{
-			var board = DemoBoard.Create();
+			var model = DemoBoard.Create();
 			var saved = BoardStore.Load();
 			if (saved != null)
 			{
 				// Widgets added from the catalog stay as long as their kind is still offered.
-				BoardMerge.Apply(board, saved, item => this.gridBoard.Catalog.Any(k => k.Kind == item.Kind));
+				BoardMerge.Apply(model, saved, item => this.board.Catalog.Any(k => k.Kind == item.Kind));
 			}
 
-			foreach (var item in board.Items.Where(i => !i.Hidden))
-				this.gridBoard.Controls.Add(CreateWidget(item));
+			foreach (var item in model.Items.Where(i => !i.Hidden))
+				this.board.Controls.Add(CreateWidget(item));
 
-			this.gridBoard.LoadBoard(board);
+			this.board.LoadBoard(model);
 			BoardEvents.Status ??= saved == null
 				? "This is the page's own board. Change something and it's saved on the server."
 				: "This is the board saved on the server.";
@@ -49,7 +49,8 @@ namespace GridKrafter.WisejDemo.Panels
 				Icon = item.Icon ?? "",
 				Color = item.Color ?? "",
 				Chrome = item.Chrome == WidgetChrome.Plain ? GridWidgetChrome.Plain : GridWidgetChrome.Card,
-				Buttons = item.Buttons ?? GridWidget.DefaultButtons,
+				// Refresh shows on every widget that refreshes, as in the MVC demo; renaming isn't offered here.
+				Buttons = ((item.Buttons ?? GridWidget.DefaultButtons) | ((item.Refresh ?? 0) > 0 ? WidgetButtons.Refresh : WidgetButtons.None)) & ~WidgetButtons.Edit,
 				GridW = item.W ?? 4,
 				GridH = item.H ?? 3,
 				MinW = item.MinW ?? 0,
@@ -60,11 +61,25 @@ namespace GridKrafter.WisejDemo.Panels
 				RefreshInterval = item.Refresh ?? 0,
 			};
 
-			widget.Controls.Add(WidgetBodies.Create(widget.Kind, item.Id, widget.Title));
+			Fill(widget, WidgetBodies.Create(widget.Kind, item.Id, widget.Title), item.NoPadding);
 			return widget;
 		}
 
-		private void gridBoard_AddWidgetRequested(object sender, GridWidgetKindEventArgs e)
+		// Puts the body in a widget: cards get the original's padding and, when they refresh, a "Last updated" footer.
+		private static void Fill(GridWidget widget, Control body, bool noPadding)
+		{
+			if (widget.Chrome == GridWidgetChrome.Card && !noPadding)
+				widget.Padding = new Padding(12, 6, 12, 8);
+
+			if (widget.RefreshInterval > 0)
+				widget.FooterText = LastUpdated();
+
+			widget.Controls.Add(body);
+		}
+
+		private static string LastUpdated() => "Last updated " + DateTime.Now.ToLongTimeString();
+
+		private void board_AddWidgetRequested(object sender, GridWidgetKindEventArgs e)
 		{
 			var widget = new GridWidget
 			{
@@ -82,11 +97,15 @@ namespace GridKrafter.WisejDemo.Panels
 				RefreshInterval = e.Item.Refresh,
 			};
 
-			widget.Controls.Add(WidgetBodies.Create(e.Kind, "", widget.Title));
-			this.gridBoard.AddWidget(widget);
+			if (e.Item.Refresh > 0)
+				widget.Buttons |= WidgetButtons.Refresh;
+			widget.Buttons &= ~WidgetButtons.Edit;
+
+			Fill(widget, WidgetBodies.Create(e.Kind, "", widget.Title), e.Kind == "orders");
+			this.board.AddWidget(widget);
 		}
 
-		private void gridBoard_Changed(object sender, GridBoardChangedEventArgs e)
+		private void board_Changed(object sender, GridBoardChangedEventArgs e)
 		{
 			string detail = string.Join(" · ", new[] { e.ItemId, e.SectionId, e.Layout?.Id }.Where(s => !string.IsNullOrEmpty(s)));
 			BoardEvents.Write(e.Kind, detail);
@@ -96,16 +115,19 @@ namespace GridKrafter.WisejDemo.Panels
 			this.timerSave.Start();
 		}
 
-		private void gridBoard_LayoutChanged(object sender, GridBoardLayoutEventArgs e)
+		private void board_LayoutChanged(object sender, GridBoardLayoutEventArgs e)
 		{
 			BoardEvents.Write("layout", e.Breakpoint + ", " + e.Columns + " columns");
 		}
 
-		private void gridBoard_WidgetRefresh(object sender, GridWidgetEventArgs e)
+		private void board_WidgetRefresh(object sender, GridWidgetEventArgs e)
 		{
 			var body = e.Widget.Controls.Cast<Control>().FirstOrDefault();
 			if (body != null)
 				WidgetBodies.Refresh(body);
+
+			if (e.Widget.RefreshInterval > 0)
+				e.Widget.FooterText = LastUpdated();
 		}
 
 		private void timerSave_Tick(object sender, EventArgs e)
@@ -114,7 +136,7 @@ namespace GridKrafter.WisejDemo.Panels
 			BoardEvents.Status = "Saving…";
 			try
 			{
-				BoardStore.Save(this.gridBoard.ToBoard());
+				BoardStore.Save(this.board.ToBoard());
 				BoardEvents.Status = "Saved on the server at " + DateTime.Now.ToLongTimeString() + ".";
 			}
 			catch (Exception ex)

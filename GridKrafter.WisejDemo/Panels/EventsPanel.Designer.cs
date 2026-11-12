@@ -28,7 +28,6 @@ namespace GridKrafter.WisejDemo.Panels
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.labelIntro = new Wisej.Web.Label();
 			this.dataGridViewEvents = new Wisej.Web.DataGridView();
 			this.columnTime = new Wisej.Web.DataGridViewTextBoxColumn();
 			this.columnKind = new Wisej.Web.DataGridViewTextBoxColumn();
@@ -36,16 +35,6 @@ namespace GridKrafter.WisejDemo.Panels
 			this.labelEmpty = new Wisej.Web.Label();
 			((System.ComponentModel.ISupportInitialize)(this.dataGridViewEvents)).BeginInit();
 			this.SuspendLayout();
-			//
-			// labelIntro
-			//
-			this.labelIntro.Dock = Wisej.Web.DockStyle.Top;
-			this.labelIntro.ForeColor = System.Drawing.Color.FromName("@grayText");
-			this.labelIntro.Location = new System.Drawing.Point(24, 20);
-			this.labelIntro.Name = "labelIntro";
-			this.labelIntro.Size = new System.Drawing.Size(689, 32);
-			this.labelIntro.TabIndex = 0;
-			this.labelIntro.Text = "Move, resize, collapse or recolour a widget and it shows up here, newest first.";
 			//
 			// dataGridViewEvents
 			//
@@ -96,7 +85,6 @@ namespace GridKrafter.WisejDemo.Panels
 			//
 			this.Controls.Add(this.dataGridViewEvents);
 			this.Controls.Add(this.labelEmpty);
-			this.Controls.Add(this.labelIntro);
 			this.Name = "EventsPanel";
 			this.Padding = new Wisej.Web.Padding(24, 20, 24, 20);
 			this.Size = new System.Drawing.Size(737, 637);
@@ -108,7 +96,6 @@ namespace GridKrafter.WisejDemo.Panels
 
 		#endregion
 
-		private Wisej.Web.Label labelIntro;
 		private Wisej.Web.DataGridView dataGridViewEvents;
 		private Wisej.Web.DataGridViewTextBoxColumn columnTime;
 		private Wisej.Web.DataGridViewTextBoxColumn columnKind;

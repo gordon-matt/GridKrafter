@@ -2,7 +2,9 @@
  * gridkrafter.wisejdemo.GridBoard
  *
  * The client half of GridKrafter.WisejDemo.Controls.GridBoard: a scrollable Wisej container with a
- * toolbar (section tabs, Edit layout, Add widget and its catalog) docked above the grid area. The
+ * toolbar docked above the grid area, drawn as the GridKrafter demos draw it: the Edit toggle (and Add
+ * widget with its catalog in edit mode), the underlined section tabs with their widget counts (and +
+ * in edit mode), and the Collapse all / Expand all links. The
  * server places the GridWidget children; the browser only shows where a dragged or resized widget
  * would snap to and reports the cell it was dropped on. The server answers with the new layout.
  */
@@ -25,6 +27,7 @@ qx.Class.define("gridkrafter.wisejdemo.GridBoard", {
 
 		this._applySections();
 		this._applyEditMode(this.getEditMode());
+		this._applyLinks();
 	},
 
 	events: {
@@ -62,7 +65,17 @@ qx.Class.define("gridkrafter.wisejdemo.GridBoard", {
 		/**
 		 * The width of the grid area changed; the data is the width in pixels.
 		 */
-		areaResize: "qx.event.type.Data"
+		areaResize: "qx.event.type.Data",
+
+		/**
+		 * The user clicked Collapse all.
+		 */
+		collapseAll: "qx.event.type.Event",
+
+		/**
+		 * The user clicked Expand all.
+		 */
+		expandAll: "qx.event.type.Event"
 	},
 
 	properties: {
@@ -73,7 +86,7 @@ qx.Class.define("gridkrafter.wisejdemo.GridBoard", {
 		appearance: { init: "grid-board", refine: true },
 
 		/**
-		 * The sections, shown as tabs: [{ name, id, title, icon }].
+		 * The sections, shown as tabs: [{ name, id, title, icon, count }].
 		 */
 		sections: { init: null, nullable: true, check: "Array", apply: "_applySections" },
 
@@ -100,7 +113,17 @@ qx.Class.define("gridkrafter.wisejdemo.GridBoard", {
 		/**
 		 * The height of the toolbar, in pixels: the server lays the grid out below it.
 		 */
-		toolbarHeight: { init: 52, check: "Integer", apply: "_applyShowToolbar" },
+		toolbarHeight: { init: 118, check: "Integer", apply: "_applyShowToolbar" },
+
+		/**
+		 * Whether Collapse all has something to collapse.
+		 */
+		canCollapse: { init: true, check: "Boolean", apply: "_applyLinks" },
+
+		/**
+		 * Whether Expand all has something to expand.
+		 */
+		canExpand: { init: false, check: "Boolean", apply: "_applyLinks" },
 
 		/**
 		 * The number of columns of the current layout.
@@ -140,7 +163,17 @@ qx.Class.define("gridkrafter.wisejdemo.GridBoard", {
 		/**
 		 * The theme's corner radius of the drop placeholder, in pixels.
 		 */
-		themePlaceholderRadius: { init: 12, check: "Integer", themeable: true }
+		themePlaceholderRadius: { init: 8, check: "Integer", themeable: true },
+
+		/**
+		 * The theme's fill of a tab's count badge.
+		 */
+		themeBadgeColor: { init: "#262c36", check: "Color", themeable: true, apply: "_applySections" },
+
+		/**
+		 * The theme's text of a tab's count badge.
+		 */
+		themeBadgeTextColor: { init: "#8d96a0", check: "Color", themeable: true, apply: "_applySections" }
 	},
 
 	statics: {
@@ -167,7 +200,9 @@ qx.Class.define("gridkrafter.wisejdemo.GridBoard", {
 			collapse: '<path d="M6 15l6-6 6 6"/>',
 			expand: '<path d="M6 9l6 6 6-6"/>',
 			"delete": '<path d="M6 6l12 12M18 6L6 18"/>',
-			color: '<circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 0 0 16z" fill="currentColor"/>',
+			color: '<path d="M12 3a9 9 0 1 0 0 18c1.1 0 2-.9 2-2 0-.5-.2-1-.5-1.3-.3-.4-.5-.8-.5-1.3 0-1.1.9-2 2-2h2.4A4.6 4.6 0 0 0 21 9.8C21 6 17 3 12 3z"/><circle cx="7.5" cy="11" r="1"/><circle cx="10.5" cy="7.5" r="1"/><circle cx="15" cy="7.5" r="1"/>',
+			collapseAll: '<path d="M7 11l5-5 5 5M7 18l5-5 5 5"/>',
+			expandAll: '<path d="M7 6l5 5 5-5M7 13l5 5 5-5"/>',
 			edit: '<path d="M4 20h4L19 9l-4-4L4 16z"/>',
 			plus: '<path d="M12 5v14M5 12h14"/>'
 		},
@@ -203,10 +238,11 @@ qx.Class.define("gridkrafter.wisejdemo.GridBoard", {
 		 * @param {String} text the literal text; it is escaped.
 		 * @return {String} the markup.
 		 */
-		iconTextHtml: function (icon, text) {
+		iconTextHtml: function (icon, text, size, after) {
 
-			var svg = gridkrafter.wisejdemo.GridBoard.iconHtml(icon, 15);
-			return '<span style="display:inline-flex;align-items:center;gap:6px;white-space:nowrap">' + svg + '<span>' + qx.bom.String.escape(text || "") + '</span></span>';
+			var svg = gridkrafter.wisejdemo.GridBoard.iconHtml(icon, size || 15);
+			return '<span style="display:inline-flex;align-items:center;gap:' + (after ? 8 : 6) + 'px;white-space:nowrap">' + svg +
+				'<span>' + qx.bom.String.escape(text || "") + '</span>' + (after || "") + '</span>';
 		},
 
 		/**
@@ -217,12 +253,13 @@ qx.Class.define("gridkrafter.wisejdemo.GridBoard", {
 		 */
 		resolveColor: function (color) {
 
+			// the theme's own palette first (GridKrafter-Light/Dark define blue, green...), then the mixin's
 			var manager = qx.theme.manager.Color.getInstance();
 			color = color || "blue";
-			if (manager.isDynamic("grid-board-" + color + "-accent"))
-				return manager.resolve("grid-board-" + color + "-accent");
 			if (manager.isDynamic(color))
 				return manager.resolve(color);
+			if (manager.isDynamic("grid-board-" + color + "-accent"))
+				return manager.resolve("grid-board-" + color + "-accent");
 			return color;
 		},
 
@@ -293,24 +330,42 @@ qx.Class.define("gridkrafter.wisejdemo.GridBoard", {
 			switch (id) {
 
 				case "toolbar":
-					control = new qx.ui.container.Composite(new qx.ui.layout.HBox(8).set({ alignY: "middle" }));
+					// three rows: Edit (and Add widget), the tabs, the Collapse all / Expand all links
+					control = new qx.ui.container.Composite(new qx.ui.layout.VBox(8));
 					control.setHeight(this.getToolbarHeight());
+					control.add(this.getChildControl("actions"));
 					control.add(this.getChildControl("tabs"));
-					control.add(new qx.ui.core.Spacer(), { flex: 1 });
-					control.add(this.getChildControl("edit-button"));
-					control.add(this.getChildControl("add-button"));
+					control.add(this.getChildControl("links"));
 					this._addAt(control, 0, { edge: "north" });
 					break;
 
+				case "actions":
+					control = new qx.ui.container.Composite(new qx.ui.layout.HBox(8).set({ alignY: "middle" }));
+					control.add(this.getChildControl("edit-button"));
+					control.add(new qx.ui.core.Spacer(), { flex: 1 });
+					control.add(this.getChildControl("add-button"));
+					break;
+
 				case "tabs":
-					control = new qx.ui.container.Composite(new qx.ui.layout.HBox(4).set({ alignY: "middle" }));
+					control = new qx.ui.container.Composite(new qx.ui.layout.HBox(2).set({ alignY: "bottom" }));
 					control.getContentElement().setAttribute("role", "tablist");
+					break;
+
+				case "links":
+					control = new qx.ui.container.Composite(new qx.ui.layout.HBox(16).set({ alignX: "right", alignY: "middle" }));
+					control.add(this.getChildControl("collapse-link"));
+					control.add(this.getChildControl("expand-link"));
+					break;
+
+				case "collapse-link":
+				case "expand-link":
+					control = this.__createLink(id === "collapse-link");
 					break;
 
 				case "edit-button":
 					control = new qx.ui.form.Button();
 					control.setRich(true);
-					control.setLabel(gridkrafter.wisejdemo.GridBoard.iconTextHtml("edit", "Edit layout"));
+					control.setLabel(gridkrafter.wisejdemo.GridBoard.iconTextHtml("edit", "Edit", 14));
 					control.getContentElement().setAttribute("aria-pressed", "false");
 					control.addListener("execute", function () {
 						this.fireEvent("editToggle");
@@ -320,7 +375,7 @@ qx.Class.define("gridkrafter.wisejdemo.GridBoard", {
 				case "add-button":
 					control = new qx.ui.form.Button();
 					control.setRich(true);
-					control.setLabel(gridkrafter.wisejdemo.GridBoard.iconTextHtml("plus", "Add widget"));
+					control.setLabel(gridkrafter.wisejdemo.GridBoard.iconTextHtml("plus", "Add widget", 14));
 					control.getContentElement().setAttribute("aria-haspopup", "true");
 					control.addListener("execute", this.__onAddButton, this);
 					break;
@@ -336,6 +391,22 @@ qx.Class.define("gridkrafter.wisejdemo.GridBoard", {
 		},
 
 		/**
+		 * Creates the Collapse all or the Expand all link.
+		 *
+		 * @param {Boolean} collapse true for Collapse all.
+		 * @return {qx.ui.form.Button} the link.
+		 */
+		__createLink: function (collapse) {
+
+			var link = new qx.ui.form.Button().set({ rich: true });
+			link.setLabel(gridkrafter.wisejdemo.GridBoard.iconTextHtml(collapse ? "collapseAll" : "expandAll", collapse ? "Collapse all" : "Expand all", 13));
+			link.addListener("execute", function () {
+				this.fireEvent(collapse ? "collapseAll" : "expandAll");
+			}, this);
+			return link;
+		},
+
+		/**
 		 * Draws the section tabs and the + tab.
 		 */
 		_applySections: function () {
@@ -347,11 +418,15 @@ qx.Class.define("gridkrafter.wisejdemo.GridBoard", {
 
 			var sections = this.getSections() || [];
 			var selected = this.getSelectedSection();
+			var manager = qx.theme.manager.Color.getInstance();
+			var badgeStyle = "padding:0 6px;border-radius:999px;font-size:11.5px;line-height:18px;background:" +
+				manager.resolve(this.getThemeBadgeColor()) + ";color:" + manager.resolve(this.getThemeBadgeTextColor());
 			for (var i = 0; i < sections.length; i++) {
 
 				var section = sections[i];
 				var tab = new qx.ui.form.Button().set({ appearance: "grid-board/tab", rich: true, focusable: true });
-				tab.setLabel(gridkrafter.wisejdemo.GridBoard.iconTextHtml(section.icon, section.title || section.id));
+				var badge = '<span style="' + badgeStyle + '">' + (parseInt(section.count, 10) || 0) + '</span>';
+				tab.setLabel(gridkrafter.wisejdemo.GridBoard.iconTextHtml(section.icon, section.title || section.id, 16, badge));
 				tab.setUserData("id", section.id);
 				tab.getContentElement().setAttribute("role", "tab");
 				tab.getContentElement().setAttribute("aria-selected", section.id === selected ? "true" : "false");
@@ -368,7 +443,18 @@ qx.Class.define("gridkrafter.wisejdemo.GridBoard", {
 			plus.addListener("execute", function () {
 				this.fireEvent("sectionAdd");
 			}, this);
+			if (!this.getEditMode())
+				plus.exclude();
 			tabs.add(plus);
+		},
+
+		/**
+		 * Shows Collapse all and Expand all as enabled when they have something to do.
+		 */
+		_applyLinks: function () {
+
+			this.getChildControl("collapse-link").setEnabled(this.getCanCollapse());
+			this.getChildControl("expand-link").setEnabled(this.getCanExpand());
 		},
 
 		/**
@@ -390,9 +476,9 @@ qx.Class.define("gridkrafter.wisejdemo.GridBoard", {
 				entry.setUserData("kind", kind.kind);
 
 				var color = gridkrafter.wisejdemo.GridBoard.resolveColor(kind.color);
-				var chip = gridkrafter.wisejdemo.GridBoard.createChip("grid-board/chip");
-				gridkrafter.wisejdemo.GridBoard.setChip(chip, kind.icon, color);
-				entry.add(chip);
+				var icon = new qx.ui.basic.Label().set({ rich: true, anonymous: true, appearance: "label", textColor: color });
+				icon.setValue(gridkrafter.wisejdemo.GridBoard.iconHtml(kind.icon, 16));
+				entry.add(icon);
 
 				var texts = new qx.ui.container.Composite(new qx.ui.layout.VBox(0)).set({ anonymous: true });
 				texts.add(new qx.ui.basic.Label(kind.text || kind.kind).set({ appearance: "grid-board/catalog-name", rich: false, anonymous: true }));
@@ -419,6 +505,24 @@ qx.Class.define("gridkrafter.wisejdemo.GridBoard", {
 				button.removeState("checked");
 
 			button.getContentElement().setAttribute("aria-pressed", value ? "true" : "false");
+
+			// Add widget and the + tab only in edit mode, as in the original
+			var add = this.getChildControl("add-button");
+			if (value)
+				add.show();
+			else
+				add.exclude();
+			this._applySections();
+
+			// the selection outline only shows while editing
+			var selected = this.__selected;
+			if (selected && !selected.isDisposed()) {
+				if (value)
+					selected.addState("selected");
+				else
+					selected.removeState("selected");
+			}
+
 			this._applyGrid();
 		},
 
@@ -476,7 +580,7 @@ qx.Class.define("gridkrafter.wisejdemo.GridBoard", {
 				this.__selected.removeState("selected");
 
 			this.__selected = widget;
-			if (widget)
+			if (widget && this.getEditMode())
 				widget.addState("selected");
 		},
 
@@ -683,8 +787,10 @@ qx.Class.define("gridkrafter.wisejdemo.GridBoard", {
  * gridkrafter.wisejdemo.GridWidget
  *
  * The client half of GridKrafter.WisejDemo.Controls.GridWidget: a scrollable Wisej container whose
- * child controls fill the body. A card has a header (colour chip, title, buttons) docked above it;
- * a plain tile has none, and offers its colours and delete in a pop-up when the pointer is over it.
+ * child controls fill the body, drawn as the GridKrafter demos draw a widget. A card has a 3-pixel top
+ * edge in its colour and a header (a small line icon in its colour, the title, compact line buttons)
+ * docked above the body; a plain tile has a 3-pixel left edge in its colour and no header, and offers
+ * its colours and delete in a pop-up in edit mode. The footer text shows right-aligned under the body.
  * In edit mode the header (the whole tile when plain) drags the widget and the grip resizes it,
  * through the board.
  */
@@ -700,10 +806,11 @@ qx.Class.define("gridkrafter.wisejdemo.GridWidget", {
 		this.base(arguments);
 
 		this._createChildControl("header");
+		this._createChildControl("footer");
 
+		// the coloured edge: across the top of a card, down the left of a tile (inside the 1 px border)
 		var stripe = this.__stripe = new qx.html.Element("div", {
-			position: "absolute", left: "0px", top: "12px", bottom: "12px", width: "4px",
-			borderRadius: "0 4px 4px 0", zIndex: 100000, pointerEvents: "none", display: "none"
+			position: "absolute", left: "0px", top: "0px", zIndex: 100000, pointerEvents: "none"
 		}, { "aria-hidden": "true" });
 
 		var hover = this.__hover = new qx.html.Element("div", {
@@ -816,7 +923,22 @@ qx.Class.define("gridkrafter.wisejdemo.GridWidget", {
 		/**
 		 * The height of the header, in pixels: the server places the body below it.
 		 */
-		headerHeight: { init: 46, check: "Integer", apply: "_applyChrome" },
+		headerHeight: { init: 34, check: "Integer", apply: "_applyChrome" },
+
+		/**
+		 * The small muted text right-aligned under the body; empty shows no footer.
+		 */
+		footerText: { init: "", check: "String", apply: "_applyFooter" },
+
+		/**
+		 * The height of the footer, in pixels: the server places the body above it.
+		 */
+		footerHeight: { init: 24, check: "Integer", apply: "_applyFooter" },
+
+		/**
+		 * The theme's corner radius of the widget, in pixels: the coloured edge follows it.
+		 */
+		themeRadius: { init: 8, check: "Integer", themeable: true, apply: "_applyChrome" },
 
 		/**
 		 * The theme's surface of the hover pop-up.
@@ -868,24 +990,32 @@ qx.Class.define("gridkrafter.wisejdemo.GridWidget", {
 			switch (id) {
 
 				case "header":
-					control = new qx.ui.container.Composite(new qx.ui.layout.HBox(9).set({ alignY: "middle" }));
+					control = new qx.ui.container.Composite(new qx.ui.layout.HBox(8).set({ alignY: "middle" }));
 					control.setHeight(this.getHeaderHeight());
-					control.add(this.getChildControl("chip"));
+					control.add(this.getChildControl("icon"));
 					control.add(this.getChildControl("title"), { flex: 1 });
 					control.add(this.getChildControl("buttons"));
 					this._addAt(control, 0, { edge: "north" });
 					break;
 
-				case "chip":
-					control = gridkrafter.wisejdemo.GridBoard.createChip("grid-board-widget/chip");
+				case "icon":
+					control = new qx.ui.basic.Label().set({ rich: true, anonymous: true });
 					break;
 
 				case "title":
-					control = new qx.ui.basic.Label().set({ rich: false, anonymous: true });
+					// grows to take the header's free width, so the buttons sit at the right edge
+					control = new qx.ui.basic.Label().set({ rich: false, anonymous: true, allowGrowX: true, allowShrinkX: true, minWidth: 0 });
 					break;
 
 				case "buttons":
-					control = new qx.ui.container.Composite(new qx.ui.layout.HBox(4).set({ alignY: "middle" }));
+					control = new qx.ui.container.Composite(new qx.ui.layout.HBox(2).set({ alignY: "middle" }));
+					break;
+
+				case "footer":
+					control = new qx.ui.basic.Label().set({ rich: true, anonymous: true, textAlign: "right", allowGrowX: true });
+					control.setHeight(this.getFooterHeight());
+					control.exclude();
+					this._addAt(control, 1, { edge: "south" });
 					break;
 
 				case "palette":
@@ -922,7 +1052,22 @@ qx.Class.define("gridkrafter.wisejdemo.GridWidget", {
 		},
 
 		/**
-		 * Applies the colour to the chip, the stripe and the pop-ups, and the theme's colours to the overlays.
+		 * Shows the footer text under the body, or no footer.
+		 */
+		_applyFooter: function () {
+
+			var footer = this.getChildControl("footer");
+			var text = this.getFooterText();
+			footer.setValue(text ? '<span style="font-size:12px">' + qx.bom.String.escape(text) + '</span>' : "");
+			footer.setHeight(this.getFooterHeight());
+			if (text && !(this.getCollapsed() && this.getChrome() !== "plain"))
+				footer.show();
+			else
+				footer.exclude();
+		},
+
+		/**
+		 * Applies the colour to the icon, the coloured edge and the pop-ups, and the theme's colours to the overlays.
 		 */
 		_applyLook: function () {
 
@@ -933,7 +1078,7 @@ qx.Class.define("gridkrafter.wisejdemo.GridWidget", {
 			var manager = qx.theme.manager.Color.getInstance();
 			var color = GridBoard.resolveColor(this.getColor());
 
-			GridBoard.setChip(this.getChildControl("chip"), this.getIcon(), color);
+			this.getChildControl("icon").set({ value: GridBoard.iconHtml(this.getIcon(), 16), textColor: color });
 
 			this.__stripe.setStyle("backgroundColor", color);
 			this.__grip.setStyles({
@@ -1004,10 +1149,16 @@ qx.Class.define("gridkrafter.wisejdemo.GridWidget", {
 			header.setCursor(edit ? "move" : null);
 			this.setCursor(edit && plain ? "move" : null);
 
-			this.__stripe.setStyle("display", plain ? "block" : "none");
+			// a card's edge runs across the top, a tile's down the left, inside the border and its rounding
+			var radius = Math.max(0, this.getThemeRadius() - 1) + "px";
+			this.__stripe.setStyles(plain ?
+				{ right: null, bottom: "0px", width: "3px", height: null, borderRadius: radius + " 0 0 " + radius } :
+				{ right: "0px", bottom: null, width: null, height: "3px", borderRadius: radius + " " + radius + " 0 0" });
 			this.__grip.setStyle("display", edit && !collapsed ? "block" : "none");
-			if (!plain)
+			if (!plain || !edit)
 				this.__hover.setStyle("display", "none");
+
+			this._applyFooter();
 
 			if (this.getFullscreen())
 				this.addState("fullscreen");
@@ -1028,7 +1179,7 @@ qx.Class.define("gridkrafter.wisejdemo.GridWidget", {
 			for (var i = 0; i < old.length; i++)
 				old[i].dispose();
 
-			var names = { refresh: "Refresh", fullscreen: "Full screen", collapse: "Collapse", color: "Colour", "delete": "Delete" };
+			var names = { refresh: "Refresh", color: "Colour", edit: "Edit", fullscreen: "Full screen", collapse: "Collapse", "delete": "Close" };
 			var buttons = this.getButtons() || [];
 			for (var i = 0; i < buttons.length; i++) {
 
@@ -1039,7 +1190,7 @@ qx.Class.define("gridkrafter.wisejdemo.GridWidget", {
 				if (action === "fullscreen" && this.getFullscreen()) { icon = "exitFullscreen"; label = "Exit full screen"; }
 
 				var button = new qx.ui.form.Button().set({ appearance: "grid-board-widget/button", rich: true, toolTipText: label });
-				button.setLabel(GridBoard.iconHtml(icon, 14));
+				button.setLabel(GridBoard.iconHtml(icon, 16));
 				button.setUserData("action", action);
 				button.getContentElement().setAttribute("aria-label", label);
 				button.addListener("execute", this.__onButton, this);
@@ -1154,7 +1305,8 @@ qx.Class.define("gridkrafter.wisejdemo.GridWidget", {
 		 */
 		__onPointerOver: function (e) {
 
-			if (this.getChrome() === "plain" && this.isEnabled() && !wisej.web.DesignMode)
+			// the colours and delete of a tile are an edit-mode affordance, as in the original
+			if (this.getChrome() === "plain" && this.getEditMode() && this.isEnabled() && !wisej.web.DesignMode)
 				this.__hover.setStyle("display", "flex");
 		},
 
