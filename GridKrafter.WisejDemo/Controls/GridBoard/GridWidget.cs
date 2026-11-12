@@ -488,6 +488,17 @@ namespace GridKrafter.WisejDemo.Controls
 			}
 		}
 
+		/// <summary>
+		/// Forgets where the widget sits, so the board finds it a free place: what happens to the widgets of a
+		/// deleted section, as in the original.
+		/// </summary>
+		internal void ClearPosition()
+		{
+			this.gridX = -1;
+			this.gridY = -1;
+			this.placements.Clear();
+		}
+
 		/// <summary>The widget as GridKrafter's node: where it sits and how far it may grow or shrink.</summary>
 		internal GridNode ToNode(string largestId, int columns)
 		{
@@ -616,7 +627,10 @@ namespace GridKrafter.WisejDemo.Controls
 				return;
 
 			string action = Convert.ToString((object)data.action, CultureInfo.InvariantCulture);
-			string value = Convert.ToString((object)data.color, CultureInfo.InvariantCulture);
+			// a rename sends the new title, a colour change the colour
+			string value = action == "rename"
+				? Convert.ToString((object)data.title, CultureInfo.InvariantCulture)
+				: Convert.ToString((object)data.color, CultureInfo.InvariantCulture);
 			this.Board?.ProcessWidgetAction(this, action, value);
 		}
 

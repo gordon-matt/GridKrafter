@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using GridKrafter.WisejDemo.Controls;
 using Wisej.Web;
 
 namespace GridKrafter.WisejDemo.Model
@@ -20,8 +21,8 @@ namespace GridKrafter.WisejDemo.Model
 			switch (kind)
 			{
 				case "stat": body = CreateStat(id, title); break;
-				case "activity": body = new Timeline { TimePosition = TimelineTimePosition.Hidden, ShowConnector = false, HasMoreItems = false }; break;
-				case "server-load": body = CreateServerLoad(); break;
+				case "activity": body = new ActivityList(); break;
+				case "server-load": body = new ServerLoadList(); break;
 				case "orders": body = CreateOrders(); break;
 				case "about": body = CreateText("The board is defined in C# with the GridKrafter.Core model and shown with the GridBoard control. Each widget hosts real Wisej.NET controls, so the theme you pick styles all of them.\r\n\r\nEvery change is saved on the server in App_Data, so the board follows you from browser to browser."); break;
 				case "note": body = CreateText("Notes suit content that's part of the page: help, notices or a short form."); break;
@@ -40,29 +41,19 @@ namespace GridKrafter.WisejDemo.Model
 		{
 			switch (body)
 			{
-				case Timeline timeline:
-					timeline.Items.Clear();
-					foreach (var entry in DemoData.Activity())
+				case ActivityList activity:
+					activity.SetItems(DemoData.Activity().Select(entry => new ActivityListItem
 					{
-						timeline.Items.Add(new TimelineItem
-						{
-							Time = entry.At.LocalDateTime,
-							Title = entry.Text,
-							Description = DemoData.Ago(entry.At),
-							Tag = entry.Color,
-							Icon = DemoData.IconUrl(entry.Icon),
-							Tone = ToTimelineTone(entry.Color),
-						});
-					}
+						Icon = entry.Icon,
+						Color = entry.Color,
+						Text = entry.Text,
+						At = entry.At,
+						TimeText = DemoData.Ago(entry.At),
+					}));
 					break;
 
-				case FlowLayoutPanel meters when meters.Name == "server-load":
-					var values = DemoData.ServerLoad();
-					foreach (var meter in meters.Controls.OfType<MeterBar>())
-					{
-						var value = values.First(v => v.Name == meter.Label);
-						meter.Value = value.Value;
-					}
+				case ServerLoadList load:
+					load.SetItems(DemoData.ServerLoad().Select(meter => new ServerLoadItem { Name = meter.Name, Icon = meter.Icon, Value = meter.Value }));
 					break;
 
 				case DataGridView grid:
@@ -75,62 +66,14 @@ namespace GridKrafter.WisejDemo.Model
 
 		private static Control CreateStat(string id, string title)
 		{
-			var tile = new KpiPanel
-			{
-				Title = title,
-				AccentPosition = KpiAccentPosition.None,
-				Visual = KpiVisual.None,
-				TrendFormat = "+0.0#'%';-0.0#'%'",
-				Caption = "vs last week",
-			};
-
+			var tile = new StatTile { Label = title, Caption = "vs last week" };
 			if (DemoBoard.Stats.TryGetValue(id, out var stat))
 			{
 				tile.Value = stat.Value.ToString(stat.Format, DemoData.Culture);
-				tile.Trend = (decimal)(stat.Trend * 100);
-				tile.Tone = stat.Trend < 0 ? KpiTone.Danger : KpiTone.Success;
-
+				tile.Change = (stat.Trend * 100).ToString("+0.0#;-0.0#", DemoData.Culture) + "%";
 			}
 
 			return tile;
-		}
-
-		private static Control CreateServerLoad()
-		{
-			var panel = new FlowLayoutPanel
-			{
-				FlowDirection = FlowDirection.TopDown,
-				WrapContents = false,
-				AutoScroll = true,
-				Padding = new Padding(4, 8, 4, 4),
-			};
-
-			foreach (var meter in DemoData.ServerLoad())
-			{
-				var bar = new MeterBar
-				{
-					Label = meter.Name,
-					Maximum = 100,
-					Format = "{0:N0}%",
-					BarHeight = 8,
-					Animated = true,
-					Height = 44,
-					Margin = new Padding(0, 0, 0, 12),
-				};
-				bar.Thresholds.Add(new MeterThreshold(0, MeterTone.Success));
-				bar.Thresholds.Add(new MeterThreshold(65, MeterTone.Warning));
-				bar.Thresholds.Add(new MeterThreshold(85, MeterTone.Danger));
-				panel.Controls.Add(bar);
-				FlowLayoutPanelFill(panel, bar);
-			}
-
-			return panel;
-		}
-
-		// Keeps the meters as wide as the panel.
-		private static void FlowLayoutPanelFill(FlowLayoutPanel panel, Control child)
-		{
-			panel.SetFillWeight(child, 1);
 		}
 
 		private static Control CreateOrders()
@@ -143,7 +86,13 @@ namespace GridKrafter.WisejDemo.Model
 				RowHeadersVisible = false,
 				SelectionMode = DataGridViewSelectionMode.FullRowSelect,
 				BorderStyle = BorderStyle.None,
+				// as the MVC demo's table: horizontal lines only, 36-pixel rows, a muted header
+				CellBorderStyle = DataGridViewCellBorderStyle.Horizontal,
+				ColumnHeadersHeight = 34,
+				AllowUserToResizeRows = false,
 			};
+			grid.RowTemplate.Height = 36;
+			grid.ColumnHeadersDefaultCellStyle.ForeColor = System.Drawing.Color.FromName("@grayText");
 
 			var status = new DataGridViewChipColumn { Name = "Status", HeaderText = "Status", Width = 110 };
 			status.ToneMap["Pending"] = ChipTone.Warning;
@@ -190,13 +139,5 @@ namespace GridKrafter.WisejDemo.Model
 			panel.Controls.Add(link);
 		}
 
-		private static TimelineTone ToTimelineTone(string color) => color switch
-		{
-			"green" => TimelineTone.Success,
-			"amber" => TimelineTone.Warning,
-			"red" => TimelineTone.Danger,
-			"violet" => TimelineTone.Primary,
-			_ => TimelineTone.Neutral,
-		};
 	}
 }

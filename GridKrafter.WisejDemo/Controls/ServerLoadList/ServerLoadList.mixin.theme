@@ -1,0 +1,65 @@
+{
+	"name": "ServerLoadList.mixin",
+
+	// rows as the GridKrafter MVC demo's server load widget: a muted icon, 13 px name, 12 px muted
+	// percentage, a 6 px bar on the theme's button face, a 1 px line between rows. Bar colours are the
+	// board's palette (green, amber, red).
+	"fonts": {
+		"server-load-list-text": { "size": 13, "family": ["Segoe UI", "system-ui", "Roboto", "Helvetica Neue", "Arial", "sans-serif"] },
+		"server-load-list-small": { "size": 12, "family": ["Segoe UI", "system-ui", "Roboto", "Helvetica Neue", "Arial", "sans-serif"] }
+	},
+
+	"appearances": {
+
+		"server-load-list": {
+			"inherit": "widget",
+			"states": {
+				"default": {
+					"properties": { "font": "default", "textColor": "windowText", "backgroundColor": "transparent", "opacity": 1 },
+					"styles": { "width": 0 }
+				},
+				"disabled": { "properties": { "opacity": 0.55 } }
+			},
+			"components": {
+
+				"row": {
+					"states": {
+						"default": {
+							"properties": { "padding": [9, 0], "backgroundColor": "transparent" },
+							"styles": { "width": 0, "widthBottom": 1, "styleBottom": "solid", "colorBottom": "windowFrame" }
+						},
+						"last": { "styles": { "widthBottom": 0 } }
+					}
+				},
+
+				"icon": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "padding": [8, 0, 0, 0], "textColor": "grayText" } } }
+				},
+
+				"name": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "server-load-list-text", "textColor": "windowText" } } }
+				},
+
+				"value": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "server-load-list-small", "textColor": "grayText" } } }
+				},
+
+				"track": {
+					"states": {
+						"default": {
+							"properties": { "height": 6, "backgroundColor": "buttonFace" },
+							"styles": { "radius": 3, "width": 1, "style": "solid", "color": "windowFrame" }
+						}
+					}
+				},
+
+				"fill": {
+					"states": { "default": { "styles": { "radius": 3 } } }
+				}
+			}
+		}
+	}
+}

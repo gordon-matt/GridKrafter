@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
 	  <TargetFrameworks>net10.0-windows;net10.0</TargetFrameworks>
@@ -87,6 +87,45 @@
     <PackageReference Include="Wisej-4" Version="4.2.0-test.7" />
     <PackageReference Include="Wisej-4-BootstrapIcons" Version="4.0.*" />
     <PackageReference Include="Wisej-4-NavigationBar" Version="4.0.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- ActivityList: its client class and theme mixin, embedded under the names Wisej.NET reads them by -->
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\ActivityList\ActivityList.mixin.theme">
+      <DependentUpon>ActivityList.cs</DependentUpon>
+      <LogicalName>$(RootNamespace).Themes.ActivityList.mixin.theme</LogicalName>
+    </EmbeddedResource>
+    <None Remove="$(MSBuildThisFileDirectory)Controls\ActivityList\gridkrafter.wisejdemo.ActivityList.js" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\ActivityList\gridkrafter.wisejdemo.ActivityList.js">
+      <DependentUpon>ActivityList.cs</DependentUpon>
+      <LogicalName>$(RootNamespace).Platform.gridkrafter.wisejdemo.ActivityList.js</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- ServerLoadList: its client class and theme mixin, embedded under the names Wisej.NET reads them by -->
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\ServerLoadList\ServerLoadList.mixin.theme">
+      <DependentUpon>ServerLoadList.cs</DependentUpon>
+      <LogicalName>$(RootNamespace).Themes.ServerLoadList.mixin.theme</LogicalName>
+    </EmbeddedResource>
+    <None Remove="$(MSBuildThisFileDirectory)Controls\ServerLoadList\gridkrafter.wisejdemo.ServerLoadList.js" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\ServerLoadList\gridkrafter.wisejdemo.ServerLoadList.js">
+      <DependentUpon>ServerLoadList.cs</DependentUpon>
+      <LogicalName>$(RootNamespace).Platform.gridkrafter.wisejdemo.ServerLoadList.js</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- StatTile: its client class and theme mixin, embedded under the names Wisej.NET reads them by -->
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\StatTile\StatTile.mixin.theme">
+      <DependentUpon>StatTile.cs</DependentUpon>
+      <LogicalName>$(RootNamespace).Themes.StatTile.mixin.theme</LogicalName>
+    </EmbeddedResource>
+    <None Remove="$(MSBuildThisFileDirectory)Controls\StatTile\gridkrafter.wisejdemo.StatTile.js" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\StatTile\gridkrafter.wisejdemo.StatTile.js">
+      <DependentUpon>StatTile.cs</DependentUpon>
+      <LogicalName>$(RootNamespace).Platform.gridkrafter.wisejdemo.StatTile.js</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
 
 </Project>

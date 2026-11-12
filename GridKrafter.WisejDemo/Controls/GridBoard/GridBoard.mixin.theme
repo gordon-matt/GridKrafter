@@ -84,7 +84,7 @@
 				},
 
 				"links": {
-					"states": { "default": { "properties": { "height": 22, "padding": [0, 8, 0, 0], "backgroundColor": "transparent" } } }
+					"states": { "default": { "properties": { "height": 30, "padding": [0, 8, 0, 0], "backgroundColor": "transparent" } } }
 				},
 
 				"collapse-link": {
@@ -117,13 +117,13 @@
 					"inherit": "widget",
 					"states": {
 						"default": {
-							"properties": { "padding": [0, 10], "height": 28, "font": "default", "textColor": "windowText", "backgroundColor": "window", "cursor": "pointer" },
+							"properties": { "padding": [0, 10], "height": 30, "font": "default", "textColor": "windowText", "backgroundColor": "window", "cursor": "pointer" },
 							"styles": { "width": 1, "style": "solid", "color": "windowFrame", "radius": 6 }
 						},
 						"hovered": { "styles": { "color": "highlight" } },
 						"focused": { "styles": { "color": "highlight" } },
 						"checked": {
-							"properties": { "textColor": "highlight" },
+							"properties": { "textColor": "highlightText", "backgroundColor": "highlight" },
 							"styles": { "color": "highlight" }
 						},
 						"disabled": { "properties": { "opacity": 0.55 } }
@@ -134,14 +134,63 @@
 					"inherit": "widget",
 					"states": {
 						"default": {
-							"properties": { "padding": [0, 10], "height": 28, "font": "default", "textColor": "highlightText", "backgroundColor": "highlight", "cursor": "pointer", "opacity": 1 },
-							"styles": { "width": 0, "radius": 6 }
+							"properties": { "padding": [0, 10], "height": 30, "font": "default", "textColor": "windowText", "backgroundColor": "window", "cursor": "pointer", "opacity": 1 },
+							"styles": { "width": 1, "style": "solid", "color": "windowFrame", "radius": 6 }
 						},
-						"hovered": { "properties": { "opacity": 0.9 } },
-						"pressed": { "properties": { "opacity": 0.82 } },
-						"focused": { "styles": { "shadowColor": "highlight", "shadowSpreadRadius": 2 } },
+						"hovered": { "styles": { "color": "highlight" } },
+						"focused": { "styles": { "color": "highlight" } },
+						"pressed": { "properties": { "backgroundColor": "buttonFace" } },
 						"disabled": { "properties": { "opacity": 0.55 } }
 					}
+				},
+
+				"section-button": {
+					"inherit": "widget",
+					"states": {
+						"default": {
+							"properties": { "padding": [0, 10], "height": 30, "font": "default", "textColor": "windowText", "backgroundColor": "window", "cursor": "pointer", "opacity": 1 },
+							"styles": { "width": 1, "style": "solid", "color": "windowFrame", "radius": 6 }
+						},
+						"hovered": { "styles": { "color": "highlight" } },
+						"focused": { "styles": { "color": "highlight" } },
+						"pressed": { "properties": { "backgroundColor": "buttonFace" } },
+						"disabled": { "properties": { "opacity": 0.55 } }
+					}
+				},
+
+				"reset-button": {
+					"inherit": "widget",
+					"states": {
+						"default": {
+							"properties": { "padding": [0, 6], "height": 30, "font": "default", "textColor": "windowText", "backgroundColor": "transparent", "cursor": "pointer" },
+							"styles": { "width": 0, "radius": 6 }
+						},
+						"hovered": { "properties": { "textColor": "highlight" } },
+						"focused": { "properties": { "textColor": "highlight" } }
+					}
+				},
+
+				"section-title": {
+					"inherit": "textfield",
+					"states": { "default": { "properties": { "height": 30 } } }
+				},
+
+				"icon-button": {
+					"inherit": "widget",
+					"states": {
+						"default": {
+							"properties": { "width": 26, "height": 26, "padding": 4, "textColor": "windowText", "backgroundColor": "transparent", "cursor": "pointer", "opacity": 1 },
+							"styles": { "width": 0, "radius": 5 }
+						},
+						"hovered": { "properties": { "textColor": "highlight", "backgroundColor": "buttonFace" } },
+						"focused": { "properties": { "textColor": "highlight" } },
+						"disabled": { "properties": { "textColor": "grayText", "cursor": "default", "opacity": 0.6 } }
+					}
+				},
+
+				"catalog-heading": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "padding": [10, 10, 4, 10], "font": "defaultBold", "textColor": "grayText" } } }
 				},
 
 				"catalog": {
@@ -220,6 +269,52 @@
 				"icon": {
 					"inherit": "label",
 					"states": { "default": { "properties": { "padding": 0, "backgroundColor": "transparent" } } }
+				},
+
+				"grip": {
+					"inherit": "label",
+					"states": {
+						"default": { "properties": { "padding": 0, "textColor": "grayText", "backgroundColor": "transparent" } },
+						"hovered": { "properties": { "textColor": "highlight" } }
+					}
+				},
+
+				"editbox": {
+					"states": {
+						"default": {
+							"properties": { "padding": [10, 12], "backgroundColor": "transparent" },
+							"styles": { "width": 0, "widthBottom": 1, "styleBottom": "solid", "colorBottom": "windowFrame" }
+						}
+					}
+				},
+
+				"editbox-label": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "default", "textColor": "windowText" } } }
+				},
+
+				"title-field": {
+					"inherit": "textfield",
+					"states": { "default": { "properties": { "height": 30 } } }
+				},
+
+				"editbox-hint": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "default", "textColor": "grayText" } } }
+				},
+
+				"editbox-close": {
+					"inherit": "widget",
+					"states": {
+						"default": {
+							"properties": { "padding": [0, 10], "height": 26, "font": "default", "textColor": "windowText", "backgroundColor": "window", "cursor": "pointer", "opacity": 1 },
+							"styles": { "width": 1, "style": "solid", "color": "windowFrame", "radius": 6 }
+						},
+						"hovered": { "styles": { "color": "highlight" } },
+						"focused": { "styles": { "color": "highlight" } },
+						"pressed": { "properties": { "backgroundColor": "buttonFace" } },
+						"disabled": { "properties": { "opacity": 0.55 } }
+					}
 				},
 
 				"title": {

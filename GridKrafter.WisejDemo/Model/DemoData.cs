@@ -55,8 +55,8 @@ namespace GridKrafter.WisejDemo.Model
 		public static IReadOnlyList<Meter> ServerLoad() => new[]
 		{
 			new Meter("CPU", "cpu", Random.Shared.Next(18, 72)),
-			new Meter("Memory", "memory", Random.Shared.Next(58, 76)),
-			new Meter("Disk", "device-hdd", Random.Shared.Next(80, 86)),
+			new Meter("Memory", "layers", Random.Shared.Next(58, 76)),
+			new Meter("Disk", "box", Random.Shared.Next(80, 86)),
 			new Meter("Network", "activity", Random.Shared.Next(6, 64)),
 		};
 
@@ -68,10 +68,10 @@ namespace GridKrafter.WisejDemo.Model
 			return new[]
 			{
 				new ActivityEntry("cart", "green", $"New order #{latest.Number} from {latest.Customer}", latest.Placed),
-				new ActivityEntry("people", "blue", "Liam Chen joined the team", now.AddMinutes(-9)),
-				new ActivityEntry("exclamation-triangle", "red", "Disk usage passed 80% on db-02", now.AddMinutes(-16)),
-				new ActivityEntry("chat-left-text", "violet", "Mia commented on the release notes", now.AddMinutes(-23)),
-				new ActivityEntry("lightning-charge", "amber", "Deployed version 4.12.1", now.AddHours(-2)),
+				new ActivityEntry("users", "blue", "Liam Chen joined the team", now.AddMinutes(-9)),
+				new ActivityEntry("alert", "red", "Disk usage passed 80% on db-02", now.AddMinutes(-16)),
+				new ActivityEntry("message", "violet", "Mia commented on the release notes", now.AddMinutes(-23)),
+				new ActivityEntry("zap", "amber", "Deployed version 4.12.1", now.AddHours(-2)),
 			};
 		}
 

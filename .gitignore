@@ -403,3 +403,4 @@ App_Data/
 
 # React demo
 dist/
+.superpowers/

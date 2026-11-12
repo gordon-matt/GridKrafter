@@ -1,0 +1,51 @@
+{
+	"name": "ActivityList.mixin",
+
+	// rows as the GridKrafter MVC demo's activity widget: 13 px text, 12 px muted time, a 1 px line
+	// between rows in the theme's border colour. Icon colours are the board's palette.
+	"fonts": {
+		"activity-list-text": { "size": 13, "family": ["Segoe UI", "system-ui", "Roboto", "Helvetica Neue", "Arial", "sans-serif"] },
+		"activity-list-small": { "size": 12, "family": ["Segoe UI", "system-ui", "Roboto", "Helvetica Neue", "Arial", "sans-serif"] }
+	},
+
+	"appearances": {
+
+		"activity-list": {
+			"inherit": "widget",
+			"states": {
+				"default": {
+					"properties": { "font": "default", "textColor": "windowText", "backgroundColor": "transparent", "opacity": 1, "themeTintOpacity": 0.14 },
+					"styles": { "width": 0 }
+				},
+				"disabled": { "properties": { "opacity": 0.55 } }
+			},
+			"components": {
+
+				"row": {
+					"states": {
+						"default": {
+							"properties": { "padding": [8, 0], "backgroundColor": "transparent" },
+							"styles": { "width": 0, "widthBottom": 1, "styleBottom": "solid", "colorBottom": "windowFrame" }
+						},
+						"last": { "styles": { "widthBottom": 0 } }
+					}
+				},
+
+				"circle": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "padding": 0 }, "styles": { "radius": 15 } } }
+				},
+
+				"text": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "activity-list-text", "textColor": "windowText" } } }
+				},
+
+				"time": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "activity-list-small", "textColor": "grayText" } } }
+				}
+			}
+		}
+	}
+}

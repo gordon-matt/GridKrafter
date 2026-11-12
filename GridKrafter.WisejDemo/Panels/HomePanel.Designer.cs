@@ -1,4 +1,4 @@
-﻿namespace GridKrafter.WisejDemo.Panels
+namespace GridKrafter.WisejDemo.Panels
 {
 	partial class HomePanel
 	{
@@ -56,6 +56,8 @@
 			this.board.Size = new System.Drawing.Size(1082, 642);
 			this.board.TabIndex = 0;
 			this.board.Changed += new GridKrafter.WisejDemo.Controls.GridBoardChangedEventHandler(this.board_Changed);
+			this.board.ResetRequested += new System.EventHandler(this.board_ResetRequested);
+			this.board.RestoreRequested += new GridKrafter.WisejDemo.Controls.GridWidgetKindEventHandler(this.board_RestoreRequested);
 			this.board.LayoutChanged += new GridKrafter.WisejDemo.Controls.GridBoardLayoutEventHandler(this.board_LayoutChanged);
 			this.board.WidgetRefresh += new GridKrafter.WisejDemo.Controls.GridWidgetEventHandler(this.board_WidgetRefresh);
 			this.board.AddWidgetRequested += new GridKrafter.WisejDemo.Controls.GridWidgetKindEventHandler(this.board_AddWidgetRequested);
@@ -148,6 +150,7 @@
 			this.Padding = new Wisej.Web.Padding(24, 12, 24, 20);
 			this.Size = new System.Drawing.Size(1130, 674);
 			this.Load += new System.EventHandler(this.HomePanel_Load);
+			this.Resize += new System.EventHandler(this.HomePanel_Resize);
 			this.ResumeLayout(false);
 
 		}

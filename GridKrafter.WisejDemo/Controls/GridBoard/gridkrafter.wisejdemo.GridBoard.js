@@ -24,6 +24,7 @@ qx.Class.define("gridkrafter.wisejdemo.GridBoard", {
 		this.getChildControl("pane").addListener("changeScrollbarYVisibility", this.__onAreaResize, this);
 
 		qx.theme.manager.Color.getInstance().addListener("changeTheme", this._applyGrid, this);
+		qx.theme.manager.Color.getInstance().addListener("changeTheme", this._applySections, this);
 
 		this._applySections();
 		this._applyEditMode(this.getEditMode());
@@ -75,7 +76,27 @@ qx.Class.define("gridkrafter.wisejdemo.GridBoard", {
 		/**
 		 * The user clicked Expand all.
 		 */
-		expandAll: "qx.event.type.Event"
+		expandAll: "qx.event.type.Event",
+
+		/**
+		 * The user clicked Reset layout.
+		 */
+		resetLayout: "qx.event.type.Event",
+
+		/**
+		 * The user typed a new title for the selected section: { id, title }.
+		 */
+		sectionRename: "qx.event.type.Data",
+
+		/**
+		 * A section action of edit mode on the selected section: { id, action }; action is up, down or delete.
+		 */
+		sectionAction: "qx.event.type.Data",
+
+		/**
+		 * The user picked a deleted widget in the catalog to bring back; the data is its id.
+		 */
+		widgetRestore: "qx.event.type.Data"
 	},
 
 	properties: {
@@ -96,6 +117,11 @@ qx.Class.define("gridkrafter.wisejdemo.GridBoard", {
 		catalog: { init: null, nullable: true, check: "Array", apply: "_applyCatalog" },
 
 		/**
+		 * The deleted widgets the catalog can bring back: [{ id, title, icon, color }].
+		 */
+		removed: { init: null, nullable: true, check: "Array", apply: "_applyCatalog" },
+
+		/**
 		 * The id of the section whose widgets show.
 		 */
 		selectedSection: { init: "", check: "String", apply: "_applySections" },
@@ -113,7 +139,7 @@ qx.Class.define("gridkrafter.wisejdemo.GridBoard", {
 		/**
 		 * The height of the toolbar, in pixels: the server lays the grid out below it.
 		 */
-		toolbarHeight: { init: 118, check: "Integer", apply: "_applyShowToolbar" },
+		toolbarHeight: { init: 128, check: "Integer", apply: "_applyShowToolbar" },
 
 		/**
 		 * Whether Collapse all has something to collapse.
@@ -179,6 +205,19 @@ qx.Class.define("gridkrafter.wisejdemo.GridBoard", {
 	statics: {
 
 		/**
+		 * The theme colours a palette colour falls back to, in order, in a theme that has no colour of
+		 * that name (the shipped Fluent, Material and Bootstrap themes): the theme's own semantic colours.
+		 */
+		SEMANTIC: {
+			green: ["success"],
+			amber: ["warning"],
+			red: ["danger"],
+			sky: ["info"],
+			blue: ["primary", "highlight"],
+			violet: ["highlight"]
+		},
+
+		/**
 		 * The built-in icons, as the inside of a 24 x 24 SVG drawn with the current text colour.
 		 */
 		ICONS: {
@@ -204,7 +243,19 @@ qx.Class.define("gridkrafter.wisejdemo.GridBoard", {
 			collapseAll: '<path d="M7 11l5-5 5 5M7 18l5-5 5 5"/>',
 			expandAll: '<path d="M7 6l5 5 5-5M7 13l5 5 5-5"/>',
 			edit: '<path d="M4 20h4L19 9l-4-4L4 16z"/>',
-			plus: '<path d="M12 5v14M5 12h14"/>'
+			plus: '<path d="M12 5v14M5 12h14"/>',
+			grip: '<circle cx="9" cy="6" r="1.2"/><circle cx="15" cy="6" r="1.2"/><circle cx="9" cy="12" r="1.2"/><circle cx="15" cy="12" r="1.2"/><circle cx="9" cy="18" r="1.2"/><circle cx="15" cy="18" r="1.2"/>',
+			check: '<path d="M5 12l5 5 9-10"/>',
+			layers: '<path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/>',
+			reset: '<path d="M4 11a8 8 0 1 1 2 6M4 5v6h6"/>',
+			up: '<path d="M12 19V5M6 11l6-6 6 6"/>',
+			down: '<path d="M12 5v14M6 13l6 6 6-6"/>',
+			trash: '<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>',
+			alert: '<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/>',
+			message: '<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/>',
+			zap: '<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>',
+			cpu: '<rect x="6" y="6" width="12" height="12" rx="1.5"/><rect x="9.5" y="9.5" width="5" height="5"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/>',
+			box: '<path d="M21 8l-9-5-9 5 9 5z"/><path d="M3 8v8l9 5 9-5V8M12 13v8"/>'
 		},
 
 		/**
@@ -258,6 +309,11 @@ qx.Class.define("gridkrafter.wisejdemo.GridBoard", {
 			color = color || "blue";
 			if (manager.isDynamic(color))
 				return manager.resolve(color);
+			var semantic = gridkrafter.wisejdemo.GridBoard.SEMANTIC[color];
+			for (var i = 0; semantic && i < semantic.length; i++) {
+				if (manager.isDynamic(semantic[i]))
+					return manager.resolve(semantic[i]);
+			}
 			if (manager.isDynamic("grid-board-" + color + "-accent"))
 				return manager.resolve("grid-board-" + color + "-accent");
 			return color;
@@ -321,6 +377,21 @@ qx.Class.define("gridkrafter.wisejdemo.GridBoard", {
 		__areaWidth: 0,
 
 		/**
+		 * The timer that sends the section's new title once the user pauses typing.
+		 */
+		__renameTimer: null,
+
+		/**
+		 * The section a pending rename is for.
+		 */
+		__renameId: null,
+
+		/**
+		 * The section's action buttons, shown in edit mode.
+		 */
+		__sectionActions: null,
+
+		/**
 		 * Creates the toolbar, the tabs, the buttons and the catalog pop-up.
 		 */
 		_createChildControlImpl: function (id, hash) {
@@ -340,10 +411,45 @@ qx.Class.define("gridkrafter.wisejdemo.GridBoard", {
 					break;
 
 				case "actions":
+					// view mode: Edit; edit mode: Done, Add widget, Add section ... Reset layout (as the original)
 					control = new qx.ui.container.Composite(new qx.ui.layout.HBox(8).set({ alignY: "middle" }));
 					control.add(this.getChildControl("edit-button"));
-					control.add(new qx.ui.core.Spacer(), { flex: 1 });
 					control.add(this.getChildControl("add-button"));
+					control.add(this.getChildControl("section-button"));
+					control.add(new qx.ui.core.Spacer(), { flex: 1 });
+					control.add(this.getChildControl("reset-button"));
+					break;
+
+				case "section-button":
+					control = new qx.ui.form.Button().set({ rich: true });
+					control.setLabel(gridkrafter.wisejdemo.GridBoard.iconTextHtml("layers", "Add section", 14));
+					control.addListener("execute", function () { this.fireEvent("sectionAdd"); }, this);
+					break;
+
+				case "reset-button":
+					control = new qx.ui.form.Button().set({ rich: true });
+					control.setLabel(gridkrafter.wisejdemo.GridBoard.iconTextHtml("reset", "Reset layout", 14));
+					control.addListener("execute", function () { this.fireEvent("resetLayout"); }, this);
+					break;
+
+				case "section-title":
+					control = new qx.ui.form.TextField().set({ width: 280, placeholder: "Section title" });
+					control.getContentElement().setAttribute("aria-label", "Section title");
+					control.addListener("input", this.__onSectionTitleInput, this);
+					break;
+
+				case "section-add":
+				case "section-up":
+				case "section-down":
+				case "section-delete":
+					var action = id.substring(8);
+					var names = { add: "Add widget", up: "Move up", down: "Move down", "delete": "Delete section" };
+					var icons = { add: "plus", up: "up", down: "down", "delete": "trash" };
+					control = new qx.ui.form.Button().set({ rich: true, appearance: "grid-board/icon-button", toolTipText: names[action] });
+					control.setLabel(gridkrafter.wisejdemo.GridBoard.iconHtml(icons[action], 16));
+					control.getContentElement().setAttribute("aria-label", names[action]);
+					control.setUserData("action", action);
+					control.addListener("execute", this.__onSectionAction, this);
 					break;
 
 				case "tabs":
@@ -352,9 +458,20 @@ qx.Class.define("gridkrafter.wisejdemo.GridBoard", {
 					break;
 
 				case "links":
-					control = new qx.ui.container.Composite(new qx.ui.layout.HBox(16).set({ alignX: "right", alignY: "middle" }));
+					// the section's title (a field in edit mode) on the left; Collapse all, Expand all and,
+					// in edit mode, the section's actions on the right
+					control = new qx.ui.container.Composite(new qx.ui.layout.HBox(14).set({ alignY: "middle" }));
+					control.add(this.getChildControl("section-title"));
+					control.add(new qx.ui.core.Spacer(), { flex: 1 });
 					control.add(this.getChildControl("collapse-link"));
 					control.add(this.getChildControl("expand-link"));
+					var actions = new qx.ui.container.Composite(new qx.ui.layout.HBox(2).set({ alignY: "middle" }));
+					actions.add(this.getChildControl("section-add"));
+					actions.add(this.getChildControl("section-up"));
+					actions.add(this.getChildControl("section-down"));
+					actions.add(this.getChildControl("section-delete"));
+					control.add(actions);
+					this.__sectionActions = actions;
 					break;
 
 				case "collapse-link":
@@ -368,6 +485,7 @@ qx.Class.define("gridkrafter.wisejdemo.GridBoard", {
 					control.setLabel(gridkrafter.wisejdemo.GridBoard.iconTextHtml("edit", "Edit", 14));
 					control.getContentElement().setAttribute("aria-pressed", "false");
 					control.addListener("execute", function () {
+						this.__flushRename();
 						this.fireEvent("editToggle");
 					}, this);
 					break;
@@ -437,15 +555,59 @@ qx.Class.define("gridkrafter.wisejdemo.GridBoard", {
 				tabs.add(tab);
 			}
 
-			var plus = new qx.ui.form.Button("+").set({ appearance: "grid-board/tab", toolTipText: "Add a section" });
-			plus.addState("plus");
-			plus.getContentElement().setAttribute("aria-label", "Add a section");
-			plus.addListener("execute", function () {
-				this.fireEvent("sectionAdd");
-			}, this);
-			if (!this.getEditMode())
-				plus.exclude();
-			tabs.add(plus);
+			// the selected section's title in its field (unless the user is typing in it), and its actions
+			var current = null, index = -1;
+			for (var i = 0; i < sections.length; i++) {
+				if (sections[i].id === selected) { current = sections[i]; index = i; }
+			}
+			var field = this.getChildControl("section-title");
+			if (!field.hasState("focused"))
+				field.setValue(current ? (current.title || "") : "");
+			this.getChildControl("section-up").setEnabled(index > 0);
+			this.getChildControl("section-down").setEnabled(index >= 0 && index < sections.length - 1);
+			this.getChildControl("section-delete").setEnabled(sections.length > 1);
+		},
+
+		/**
+		 * The section's title field: tells the server once the user pauses typing.
+		 */
+		__onSectionTitleInput: function () {
+
+			// the section the user is typing for, whatever is selected when the timer fires
+			this.__renameId = this.getSelectedSection();
+			if (!this.__renameTimer) {
+				this.__renameTimer = new qx.event.Timer(350);
+				this.__renameTimer.addListener("interval", this.__flushRename, this);
+			}
+			this.__renameTimer.restart();
+		},
+
+		/**
+		 * Sends a pending section rename now: when its timer fires, and before a tab change or Done.
+		 */
+		__flushRename: function () {
+
+			if (this.__renameTimer)
+				this.__renameTimer.stop();
+
+			var id = this.__renameId;
+			this.__renameId = null;
+			if (id && !this.isDisposed())
+				this.fireDataEvent("sectionRename", { id: id, title: this.getChildControl("section-title").getValue() || "" });
+		},
+
+		/**
+		 * A section action of edit mode: add opens the catalog for the section, the others go to the server.
+		 */
+		__onSectionAction: function (e) {
+
+			var action = e.getTarget().getUserData("action");
+			if (action === "add") {
+				this.__openCatalog(e.getTarget());
+				return;
+			}
+
+			this.fireDataEvent("sectionAction", { id: this.getSelectedSection(), action: action });
 		},
 
 		/**
@@ -491,6 +653,29 @@ qx.Class.define("gridkrafter.wisejdemo.GridBoard", {
 				entry.addListener("tap", this.__onCatalogEntry, this);
 				popup.add(entry);
 			}
+
+			// deleted widgets come back from here, as in the original
+			var removed = this.getRemoved() || [];
+			if (removed.length > 0) {
+				popup.add(new qx.ui.basic.Label("Hidden (" + removed.length + ")").set({ appearance: "grid-board/catalog-heading", anonymous: true }));
+				for (var i = 0; i < removed.length; i++) {
+
+					var item = removed[i];
+					var entry = new qx.ui.container.Composite(new qx.ui.layout.HBox(10).set({ alignY: "middle" }));
+					entry.setAppearance("grid-board/catalog-item");
+					entry.setUserData("restore", item.id);
+
+					var icon = new qx.ui.basic.Label().set({ rich: true, anonymous: true, appearance: "label", textColor: gridkrafter.wisejdemo.GridBoard.resolveColor(item.color) });
+					icon.setValue(gridkrafter.wisejdemo.GridBoard.iconHtml(item.icon, 16));
+					entry.add(icon);
+					entry.add(new qx.ui.basic.Label(item.title || item.id).set({ appearance: "grid-board/catalog-name", rich: false, anonymous: true }), { flex: 1 });
+
+					entry.addListener("pointerover", function () { this.addState("hovered"); }, entry);
+					entry.addListener("pointerout", function () { this.removeState("hovered"); }, entry);
+					entry.addListener("tap", this.__onCatalogEntry, this);
+					popup.add(entry);
+				}
+			}
 		},
 
 		/**
@@ -498,20 +683,30 @@ qx.Class.define("gridkrafter.wisejdemo.GridBoard", {
 		 */
 		_applyEditMode: function (value) {
 
+			var GridBoard = gridkrafter.wisejdemo.GridBoard;
 			var button = this.getChildControl("edit-button");
 			if (value)
 				button.addState("checked");
 			else
 				button.removeState("checked");
 
+			// Edit becomes Done, as in the original
+			button.setLabel(value ? GridBoard.iconTextHtml("check", "Done", 14) : GridBoard.iconTextHtml("edit", "Edit", 14));
 			button.getContentElement().setAttribute("aria-pressed", value ? "true" : "false");
 
-			// Add widget and the + tab only in edit mode, as in the original
-			var add = this.getChildControl("add-button");
+			// Add widget, Add section, Reset layout, the section's title field and its actions: edit mode only
+			var parts = ["add-button", "section-button", "reset-button", "section-title"];
+			for (var i = 0; i < parts.length; i++) {
+				if (value)
+					this.getChildControl(parts[i]).show();
+				else
+					this.getChildControl(parts[i]).exclude();
+			}
 			if (value)
-				add.show();
+				this.__sectionActions.show();
 			else
-				add.exclude();
+				this.__sectionActions.exclude();
+
 			this._applySections();
 
 			// the selection outline only shows while editing
@@ -591,12 +786,14 @@ qx.Class.define("gridkrafter.wisejdemo.GridBoard", {
 		 * @param {gridkrafter.wisejdemo.GridWidget} widget the widget.
 		 * @param {Number} pageX the pointer's horizontal position in the document.
 		 * @param {Number} pageY the pointer's vertical position in the document.
-		 * @param {Boolean} resize true to resize, false to move.
+		 * @param {Boolean|String} resize false to move; "e" (width), "s" (height) or true / "se" (both) to resize.
 		 */
 		startDrag: function (widget, pageX, pageY, resize) {
 
 			if (this.__drag || !this.getEditMode() || !this.isEnabled() || wisej.web.DesignMode)
 				return;
+
+			var mode = resize === true ? "se" : resize;
 
 			var cell = this.getCellWidth();
 			var bounds = widget.getBounds();
@@ -657,7 +854,7 @@ qx.Class.define("gridkrafter.wisejdemo.GridBoard", {
 				ev.preventDefault();
 				var dx = ev.pageX - pageX, dy = ev.pageY - pageY;
 				if (resize) {
-					var w = Math.max(stepX - gap, bounds.width + dx), h = Math.max(rowH, bounds.height + dy);
+					var w = Math.max(stepX - gap, bounds.width + (mode === "s" ? 0 : dx)), h = Math.max(rowH, bounds.height + (mode === "e" ? 0 : dy));
 					outline.style.width = w + "px";
 					outline.style.height = h + "px";
 					rect.w = Math.min(cols - start.x, Math.max(1, Math.round((w + gap) / stepX)));
@@ -708,6 +905,7 @@ qx.Class.define("gridkrafter.wisejdemo.GridBoard", {
 		__onTab: function (e) {
 
 			var id = e.getTarget().getUserData("id");
+			this.__flushRename();
 			if (id && id !== this.getSelectedSection())
 				this.fireDataEvent("sectionSelect", id);
 		},
@@ -717,11 +915,19 @@ qx.Class.define("gridkrafter.wisejdemo.GridBoard", {
 		 */
 		__onAddButton: function (e) {
 
+			this.__openCatalog(this.getChildControl("add-button"));
+		},
+
+		/**
+		 * Opens the catalog under a button.
+		 */
+		__openCatalog: function (button) {
+
 			var popup = this.getChildControl("catalog");
-			if (!(this.getCatalog() || []).length)
+			if (!(this.getCatalog() || []).length && !(this.getRemoved() || []).length)
 				return;
 
-			popup.placeToWidget(this.getChildControl("add-button"), true);
+			popup.placeToWidget(button, true);
 			popup.show();
 		},
 
@@ -733,7 +939,10 @@ qx.Class.define("gridkrafter.wisejdemo.GridBoard", {
 			var entry = e.getCurrentTarget();
 			this.getChildControl("catalog").hide();
 			entry.removeState("hovered");
-			this.fireDataEvent("widgetAdd", entry.getUserData("kind"));
+			if (entry.getUserData("restore"))
+				this.fireDataEvent("widgetRestore", entry.getUserData("restore"));
+			else
+				this.fireDataEvent("widgetAdd", entry.getUserData("kind"));
 		},
 
 		/**
@@ -777,8 +986,9 @@ qx.Class.define("gridkrafter.wisejdemo.GridBoard", {
 		}
 
 		qx.theme.manager.Color.getInstance().removeListener("changeTheme", this._applyGrid, this);
-		this._disposeObjects("__areaTimer");
-		this.__selected = this.__drag = null;
+		qx.theme.manager.Color.getInstance().removeListener("changeTheme", this._applySections, this);
+		this._disposeObjects("__areaTimer", "__renameTimer");
+		this.__selected = this.__drag = this.__sectionActions = null;
 	}
 });
 
@@ -817,20 +1027,35 @@ qx.Class.define("gridkrafter.wisejdemo.GridWidget", {
 			position: "absolute", top: "8px", right: "8px", zIndex: 100001, display: "none",
 			alignItems: "center", gap: "5px", padding: "4px 6px", borderRadius: "8px", boxSizing: "border-box"
 		}, { role: "toolbar" });
-		hover.addListener("pointerdown", function (e) { e.stopPropagation(); });
+		hover.addListener("pointerdown", this.__onHoverDown, this);
 		hover.addListener("tap", this.__onHoverTap, this);
 
 		var grip = this.__grip = new qx.html.Element("div", {
 			position: "absolute", right: "4px", bottom: "4px", width: "10px", height: "10px",
 			boxSizing: "border-box", borderRadius: "0 0 3px 0", opacity: 0.5, cursor: "se-resize",
 			zIndex: 100001, display: "none"
-		}, { "aria-hidden": "true" });
+		}, { "aria-hidden": "true", "data-resize": "se" });
 		grip.addListener("pointerdown", this.__onGripDown, this);
+
+		// the blue handles in the middle of the right and bottom edges, as in the original
+		var east = this.__east = new qx.html.Element("div", {
+			position: "absolute", right: "-3px", top: "50%", width: "5px", height: "26px", marginTop: "-13px",
+			borderRadius: "3px", cursor: "ew-resize", zIndex: 100001, display: "none"
+		}, { "aria-hidden": "true", "data-resize": "e" });
+		east.addListener("pointerdown", this.__onGripDown, this);
+
+		var south = this.__south = new qx.html.Element("div", {
+			position: "absolute", bottom: "-3px", left: "50%", width: "26px", height: "5px", marginLeft: "-13px",
+			borderRadius: "3px", cursor: "ns-resize", zIndex: 100001, display: "none"
+		}, { "aria-hidden": "true", "data-resize": "s" });
+		south.addListener("pointerdown", this.__onGripDown, this);
 
 		var content = this.getContentElement();
 		content.add(stripe);
 		content.add(hover);
 		content.add(grip);
+		content.add(east);
+		content.add(south);
 
 		this.addListener("pointerdown", this.__onPointerDown, this);
 		this.addListener("pointerover", this.__onPointerOver, this);
@@ -839,6 +1064,7 @@ qx.Class.define("gridkrafter.wisejdemo.GridWidget", {
 		this.addListener("disappear", this._updateTimer, this);
 
 		qx.theme.manager.Color.getInstance().addListener("changeTheme", this._applyLook, this);
+		qx.theme.manager.Color.getInstance().addListener("changeTheme", this._applyChrome, this);
 
 		this._applyLook();
 		this._applyChrome();
@@ -977,6 +1203,13 @@ qx.Class.define("gridkrafter.wisejdemo.GridWidget", {
 		/** The resize grip. */
 		__grip: null,
 
+		/** The handles in the middle of the right and bottom edges. */
+		__east: null,
+		__south: null,
+
+		/** The timer that sends the new title once the user pauses typing. */
+		__titleTimer: null,
+
 		/** The automatic refresh timer. */
 		__timer: null,
 
@@ -992,6 +1225,7 @@ qx.Class.define("gridkrafter.wisejdemo.GridWidget", {
 				case "header":
 					control = new qx.ui.container.Composite(new qx.ui.layout.HBox(8).set({ alignY: "middle" }));
 					control.setHeight(this.getHeaderHeight());
+					control.add(this.getChildControl("grip"));
 					control.add(this.getChildControl("icon"));
 					control.add(this.getChildControl("title"), { flex: 1 });
 					control.add(this.getChildControl("buttons"));
@@ -1000,6 +1234,33 @@ qx.Class.define("gridkrafter.wisejdemo.GridWidget", {
 
 				case "icon":
 					control = new qx.ui.basic.Label().set({ rich: true, anonymous: true });
+					break;
+
+				case "grip":
+					// drags the widget in edit mode
+					control = new qx.ui.basic.Label().set({ rich: true, cursor: "move", toolTipText: "Move" });
+					control.setValue(gridkrafter.wisejdemo.GridBoard.iconHtml("grip", 16));
+					control.exclude();
+					break;
+
+				case "editbox":
+					// the pencil's box: the title, renamed as the user types, as the original's
+					control = new qx.ui.container.Composite(new qx.ui.layout.VBox(4));
+					control.add(new qx.ui.basic.Label("Title").set({ appearance: "grid-board-widget/editbox-label" }));
+					control.add(this.getChildControl("title-field"));
+					control.add(new qx.ui.basic.Label("Changes are saved as you type.").set({ appearance: "grid-board-widget/editbox-hint" }));
+					var close = new qx.ui.form.Button("Close").set({ appearance: "grid-board-widget/editbox-close", allowGrowX: false });
+					close.addListener("execute", function () { this.__setEditing(false); }, this);
+					control.add(close);
+					control.exclude();
+					this._addAt(control, 1, { edge: "north" });
+					break;
+
+				case "title-field":
+					control = new qx.ui.form.TextField();
+					control.getContentElement().setAttribute("aria-label", "Title");
+					control.addListener("input", this.__onTitleInput, this);
+					control.addListener("pointerdown", function (e) { e.stopPropagation(); });
 					break;
 
 				case "title":
@@ -1049,6 +1310,10 @@ qx.Class.define("gridkrafter.wisejdemo.GridWidget", {
 
 			this.getChildControl("title").setValue(value || "");
 			this.getContentElement().setAttribute("aria-label", value || "");
+
+			var field = this.getChildControl("title-field");
+			if (!field.hasState("focused"))
+				field.setValue(value || "");
 		},
 
 		/**
@@ -1081,6 +1346,9 @@ qx.Class.define("gridkrafter.wisejdemo.GridWidget", {
 			this.getChildControl("icon").set({ value: GridBoard.iconHtml(this.getIcon(), 16), textColor: color });
 
 			this.__stripe.setStyle("backgroundColor", color);
+			var accentColor = manager.resolve(this.getThemeAccentColor());
+			this.__east.setStyle("backgroundColor", accentColor);
+			this.__south.setStyle("backgroundColor", accentColor);
 			this.__grip.setStyles({
 				borderRight: "2px solid " + manager.resolve(this.getThemeMutedColor()),
 				borderBottom: "2px solid " + manager.resolve(this.getThemeMutedColor())
@@ -1095,17 +1363,14 @@ qx.Class.define("gridkrafter.wisejdemo.GridWidget", {
 				boxShadow: "0 4px 12px " + manager.resolve(this.getThemeShadowColor())
 			});
 
-			var palette = this.getPalette() || ["blue", "green", "orange", "violet"];
-			var html = "";
-			for (var i = 0; i < palette.length && i < 4; i++) {
-				var name = palette[i];
-				var ring = name === this.getColor() ? ";box-shadow:0 0 0 2px " + surface + ",0 0 0 3.5px " + accent : "";
-				html += '<span role="button" tabindex="-1" aria-label="' + qx.bom.String.escape(name) + '" data-color="' + qx.bom.String.escape(name) +
-					'" style="display:inline-block;width:13px;height:13px;border-radius:50%;cursor:pointer;background:' + GridBoard.resolveColor(name) + ring + '"></span>';
-			}
-			html += '<span role="button" tabindex="-1" aria-label="Delete" data-action="delete" style="font-size:11px;margin-left:3px;cursor:pointer;color:' +
-				manager.resolve(this.getThemeMutedColor()) + '">✕</span>';
-			this.__hover.setAttribute("html", html);
+			// the tile's floating box in edit mode: move, colour and delete, as the original's
+			var muted = manager.resolve(this.getThemeMutedColor());
+			var tool = function (action, icon, label, cursor) {
+				return '<span role="button" tabindex="-1" aria-label="' + label + '" title="' + label + '" data-action="' + action +
+					'" style="display:inline-flex;padding:3px;border-radius:5px;cursor:' + cursor + ';color:' + muted + '">' +
+					GridBoard.iconHtml(icon, 16).replace("<svg ", '<svg style="pointer-events:none" ') + '</span>';
+			};
+			this.__hover.setAttribute("html", tool("grip", "grip", "Move", "move") + tool("color", "color", "Colour", "pointer") + tool("delete", "delete", "Close", "pointer"));
 
 			this.__drawPalette();
 		},
@@ -1146,8 +1411,18 @@ qx.Class.define("gridkrafter.wisejdemo.GridWidget", {
 			else
 				this.removeState("editing");
 
-			header.setCursor(edit ? "move" : null);
-			this.setCursor(edit && plain ? "move" : null);
+			header.setCursor(null);
+			this.setCursor(null);
+			if (edit && !plain)
+				this.getChildControl("grip").show();
+			else
+				this.getChildControl("grip").exclude();
+
+			// the dashed outline of a widget being edited
+			var manager = qx.theme.manager.Color.getInstance();
+			this.getContentElement().setStyles(edit ?
+				{ outline: "1px dashed " + manager.resolve(this.getThemeBorderColor()), outlineOffset: "3px" } :
+				{ outline: null, outlineOffset: null });
 
 			// a card's edge runs across the top, a tile's down the left, inside the border and its rounding
 			var radius = Math.max(0, this.getThemeRadius() - 1) + "px";
@@ -1155,8 +1430,11 @@ qx.Class.define("gridkrafter.wisejdemo.GridWidget", {
 				{ right: null, bottom: "0px", width: "3px", height: null, borderRadius: radius + " 0 0 " + radius } :
 				{ right: "0px", bottom: null, width: null, height: "3px", borderRadius: radius + " " + radius + " 0 0" });
 			this.__grip.setStyle("display", edit && !collapsed ? "block" : "none");
-			if (!plain || !edit)
-				this.__hover.setStyle("display", "none");
+			this.__east.setStyle("display", edit ? "block" : "none");
+			this.__south.setStyle("display", edit && !collapsed ? "block" : "none");
+			this.__hover.setStyle("display", plain && edit ? "flex" : "none");
+			if (!edit || plain || collapsed)
+				this.__setEditing(false);
 
 			this._applyFooter();
 
@@ -1233,6 +1511,10 @@ qx.Class.define("gridkrafter.wisejdemo.GridWidget", {
 
 			var button = e.getTarget();
 			var action = button.getUserData("action");
+			if (action === "edit") {
+				this.__setEditing(!this.getChildControl("editbox").isVisible());
+				return;
+			}
 			if (action === "color") {
 				var popup = this.getChildControl("palette");
 				popup.placeToWidget(button, true);
@@ -1252,11 +1534,61 @@ qx.Class.define("gridkrafter.wisejdemo.GridWidget", {
 			if (!target || !target.getAttribute)
 				return;
 
-			var color = target.getAttribute("data-color");
-			if (color)
-				this.fireDataEvent("widgetAction", { action: "color", color: color });
-			else if (target.getAttribute("data-action") === "delete")
+			var action = target.getAttribute("data-action");
+			if (action === "delete")
 				this.fireDataEvent("widgetAction", { action: "delete" });
+			else if (action === "color") {
+				var popup = this.getChildControl("palette");
+				popup.placeToWidget(this, true);
+				popup.show();
+			}
+		},
+
+		/**
+		 * The floating box's grip starts a drag; its other tools are taps.
+		 */
+		__onHoverDown: function (e) {
+
+			e.stopPropagation();
+			var target = e.getOriginalTarget();
+			var board = this.getBoard();
+			if (!board || !target || !target.getAttribute || target.getAttribute("data-action") !== "grip")
+				return;
+
+			e.preventDefault();
+			board.selectWidget(this);
+			board.startDrag(this, e.getDocumentLeft(), e.getDocumentTop(), false);
+		},
+
+		/**
+		 * Shows or hides the edit box under the header.
+		 */
+		__setEditing: function (value) {
+
+			var box = this.getChildControl("editbox");
+			if (value && this.getChrome() !== "plain" && !this.getCollapsed()) {
+				this.getChildControl("title-field").setValue(this.getTitle() || "");
+				box.show();
+				this.getChildControl("title-field").focus();
+			}
+			else
+				box.exclude();
+		},
+
+		/**
+		 * The title field: tells the server once the user pauses typing.
+		 */
+		__onTitleInput: function () {
+
+			if (!this.__titleTimer) {
+				this.__titleTimer = new qx.event.Timer(350);
+				this.__titleTimer.addListener("interval", function () {
+					this.__titleTimer.stop();
+					if (!this.isDisposed())
+						this.fireDataEvent("widgetAction", { action: "rename", title: this.getChildControl("title-field").getValue() || "" });
+				}, this);
+			}
+			this.__titleTimer.restart();
 		},
 
 		/**
@@ -1273,12 +1605,9 @@ qx.Class.define("gridkrafter.wisejdemo.GridWidget", {
 			if (!this.getEditMode() || this.getFullscreen() || !e.isPrimary || !e.isPrimary())
 				return;
 
+			// a card moves by its grip, a tile by the grip of its floating box (handled there)
 			var target = e.getTarget();
-			var header = this.getChildControl("header");
-			var plain = this.getChrome() === "plain";
-			if (!plain && !qx.ui.core.Widget.contains(header, target))
-				return;
-			if (qx.ui.core.Widget.contains(this.getChildControl("buttons"), target))
+			if (this.getChrome() === "plain" || !qx.ui.core.Widget.contains(this.getChildControl("grip"), target))
 				return;
 
 			e.preventDefault();
@@ -1294,9 +1623,11 @@ qx.Class.define("gridkrafter.wisejdemo.GridWidget", {
 			e.preventDefault();
 
 			var board = this.getBoard();
+			var target = e.getCurrentTarget();
+			var mode = (target && target.getAttribute && target.getAttribute("data-resize")) || "se";
 			if (board) {
 				board.selectWidget(this);
-				board.startDrag(this, e.getDocumentLeft(), e.getDocumentTop(), true);
+				board.startDrag(this, e.getDocumentLeft(), e.getDocumentTop(), mode);
 			}
 		},
 
@@ -1306,8 +1637,7 @@ qx.Class.define("gridkrafter.wisejdemo.GridWidget", {
 		__onPointerOver: function (e) {
 
 			// the colours and delete of a tile are an edit-mode affordance, as in the original
-			if (this.getChrome() === "plain" && this.getEditMode() && this.isEnabled() && !wisej.web.DesignMode)
-				this.__hover.setStyle("display", "flex");
+			// the tile's floating box stays while editing (see _applyChrome)
 		},
 
 		/**
@@ -1315,11 +1645,7 @@ qx.Class.define("gridkrafter.wisejdemo.GridWidget", {
 		 */
 		__onPointerOut: function (e) {
 
-			var related = e.getRelatedTarget();
-			if (related && related instanceof qx.ui.core.Widget && qx.ui.core.Widget.contains(this, related))
-				return;
-
-			this.__hover.setStyle("display", "none");
+			// nothing to hide: the floating box stays while editing
 		},
 
 		/**
@@ -1353,6 +1679,7 @@ qx.Class.define("gridkrafter.wisejdemo.GridWidget", {
 	destruct: function () {
 
 		qx.theme.manager.Color.getInstance().removeListener("changeTheme", this._applyLook, this);
-		this._disposeObjects("__timer", "__stripe", "__hover", "__grip");
+		qx.theme.manager.Color.getInstance().removeListener("changeTheme", this._applyChrome, this);
+		this._disposeObjects("__timer", "__titleTimer", "__stripe", "__hover", "__grip", "__east", "__south");
 	}
 });

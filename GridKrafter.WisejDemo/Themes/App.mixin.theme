@@ -1,0 +1,11 @@
+{
+	"name": "App.mixin",
+	"colors": {
+		"navbar-background": "window",
+		"navbar-background-hover": "buttonFace",
+		"navbar-background-selected": "highlight",
+		"navbar-text": "grayText",
+		"navbar-text-hover": "windowText",
+		"navbar-text-selected": "highlightText"
+	}
+}

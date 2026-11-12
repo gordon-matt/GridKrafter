@@ -1,0 +1,46 @@
+{
+	"name": "StatTile.mixin",
+
+	// as the GridKrafter MVC demo's stat widget: a 12 px muted label, a 26 px bold value, a 12 px change
+	// (its colour comes from the board's palette) and a 12 px muted caption.
+	"fonts": {
+		"stat-tile-small": { "size": 12, "family": ["Segoe UI", "system-ui", "Roboto", "Helvetica Neue", "Arial", "sans-serif"] },
+		"stat-tile-value": { "size": 26, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] }
+	},
+
+	"appearances": {
+
+		"stat-tile": {
+			"inherit": "widget",
+			"states": {
+				"default": {
+					"properties": { "padding": [16, 18, 12, 18], "font": "default", "textColor": "windowText", "backgroundColor": "transparent", "opacity": 1 },
+					"styles": { "width": 0 }
+				},
+				"disabled": { "properties": { "opacity": 0.55 } }
+			},
+			"components": {
+
+				"label": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "stat-tile-small", "textColor": "grayText" } } }
+				},
+
+				"value": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "stat-tile-value", "textColor": "windowText" } } }
+				},
+
+				"change": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "stat-tile-small" } } }
+				},
+
+				"caption": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "stat-tile-small", "textColor": "grayText" } } }
+				}
+			}
+		}
+	}
+}

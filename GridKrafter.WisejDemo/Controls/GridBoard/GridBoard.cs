@@ -34,7 +34,7 @@ namespace GridKrafter.WisejDemo.Controls
 		/// The height of the toolbar the client draws above the grid, in pixels: the Edit button, the
 		/// underlined section tabs and the Collapse all / Expand all links, as in the GridKrafter demos.
 		/// </summary>
-		internal const int ToolbarHeight = 118;
+		internal const int ToolbarHeight = 128;
 
 		private int columns = 12;
 		private int rowHeight = 62;
@@ -59,6 +59,13 @@ namespace GridKrafter.WisejDemo.Controls
 
 		// ids of the widgets the user removed, kept so ToBoard can tell a saved board about them.
 		private readonly HashSet<string> removedIds = new HashSet<string>(StringComparer.Ordinal);
+
+		// what the catalog shows of each removed widget, to bring it back: its title, icon and colour.
+		private readonly Dictionary<string, DashboardItem> removedItems = new Dictionary<string, DashboardItem>(StringComparer.Ordinal);
+
+		// when each removed widget was removed, so the catalog lists them in that order.
+		private readonly Dictionary<string, long> removedOrder = new Dictionary<string, long>(StringComparer.Ordinal);
+		private long removedCount;
 
 		// true while the board moves its own widgets: their bounds changes are not snapped back.
 		private bool inLayout;
@@ -122,6 +129,21 @@ namespace GridKrafter.WisejDemo.Controls
 		[Category("Action")]
 		[Description("Occurs before a section is added with the + tab.")]
 		public event GridBoardSectionAddingEventHandler SectionAdding;
+
+		/// <summary>
+		/// Occurs after the user clicked Reset layout and confirmed it: load the page's own board again.
+		/// </summary>
+		[Category("Action")]
+		[Description("Occurs after the user confirmed Reset layout.")]
+		public event EventHandler ResetRequested;
+
+		/// <summary>
+		/// Occurs when the user picks a deleted widget in the catalog to bring back: <c>e.Item.Name</c> is its id
+		/// and <c>e.Item.Kind</c> its kind. Create the <see cref="GridWidget"/> with that id and call <see cref="AddWidget"/>.
+		/// </summary>
+		[Category("Action")]
+		[Description("Occurs when the user picks a deleted widget in the catalog to bring back.")]
+		public event GridWidgetKindEventHandler RestoreRequested;
 
 		#endregion
 
@@ -340,6 +362,13 @@ namespace GridKrafter.WisejDemo.Controls
 		public GridWidget FullscreenWidget => this.fullscreen;
 
 		/// <summary>
+		/// Returns the ids of the widgets the user removed, which the catalog offers to bring back.
+		/// </summary>
+		[Browsable(false)]
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+		public IReadOnlyList<string> RemovedItemIds => this.removedIds.ToList();
+
+		/// <summary>
 		/// Returns the rectangle the child controls are placed in: the client area below the toolbar.
 		/// </summary>
 		public override Rectangle DisplayRectangle
@@ -371,6 +400,9 @@ namespace GridKrafter.WisejDemo.Controls
 			SuspendLayout();
 			try
 			{
+				// a whole board: what was removed before is forgotten, then its hidden items are remembered again
+				this.removedIds.Clear();
+				this.removedItems.Clear();
 				this.Sections.Clear();
 				foreach (var section in board.Sections)
 				{
@@ -388,15 +420,29 @@ namespace GridKrafter.WisejDemo.Controls
 				foreach (var item in board.Items)
 				{
 					var widget = FindWidget(item.Id);
-					if (widget == null)
-						continue;
-
 					if (item.Hidden)
 					{
+						// deleted earlier: the catalog offers it back, whether or not the page made a widget for it
 						this.removedIds.Add(item.Id);
-						this.Controls.Remove(widget);
+						this.removedOrder[item.Id] = ++this.removedCount;
+						this.removedItems[item.Id] = new DashboardItem
+						{
+							Id = item.Id,
+							Kind = widget?.Kind ?? item.Kind,
+							Title = widget?.Title ?? item.Title,
+							Icon = widget?.Icon ?? item.Icon,
+							Color = widget?.Color ?? item.Color,
+						};
+						if (widget != null)
+						{
+							this.Controls.Remove(widget);
+							widget.Dispose();
+						}
 						continue;
 					}
+
+					if (widget == null)
+						continue;
 
 					widget.LoadItem(item, largest.Id);
 				}
@@ -486,6 +532,8 @@ namespace GridKrafter.WisejDemo.Controls
 				this.fullscreen = null;
 
 			this.removedIds.Add(widget.EffectiveId);
+			this.removedOrder[widget.EffectiveId] = ++this.removedCount;
+			this.removedItems[widget.EffectiveId] = new DashboardItem { Id = widget.EffectiveId, Kind = widget.Kind, Title = widget.Title, Icon = widget.Icon, Color = widget.Color };
 			this.Controls.Remove(widget);
 			PerformLayout();
 		}
@@ -518,6 +566,83 @@ namespace GridKrafter.WisejDemo.Controls
 			old?.Update();
 			widget?.Update();
 			PerformLayout();
+		}
+
+		/// <summary>
+		/// Renames a section. An empty title shows "New section", as the original does.
+		/// </summary>
+		/// <param name="id">The section's id.</param>
+		/// <param name="title">The new title.</param>
+		public void RenameSection(string id, string title)
+		{
+			var section = FindSection(id);
+			if (section == null)
+				return;
+
+			title = string.IsNullOrWhiteSpace(title) ? UntitledSection : title.Trim();
+			if (section.Title == title)
+				return;
+
+			section.Title = title;
+			OnChanged(new GridBoardChangedEventArgs("section-renamed", null, id, CurrentLayout, null));
+		}
+
+		/// <summary>
+		/// Moves a section before or after its neighbours.
+		/// </summary>
+		/// <param name="id">The section's id.</param>
+		/// <param name="offset">-1 to move it up (left), 1 to move it down (right).</param>
+		public void MoveSection(string id, int offset)
+		{
+			var section = FindSection(id);
+			int index = section == null ? -1 : this.Sections.IndexOf(section);
+			int target = index + offset;
+			if (index < 0 || target < 0 || target >= this.Sections.Count || offset == 0)
+				return;
+
+			this.Sections.RemoveAt(index);
+			this.Sections.Insert(target, section);
+			OnChanged(new GridBoardChangedEventArgs("section-moved", null, id, CurrentLayout, null));
+		}
+
+		/// <summary>
+		/// Deletes a section, as the original does: its widgets move to the neighbouring section, which is
+		/// selected. The last section can't be deleted.
+		/// </summary>
+		/// <param name="id">The section's id.</param>
+		public void RemoveSection(string id)
+		{
+			var section = FindSection(id);
+			int index = section == null ? -1 : this.Sections.IndexOf(section);
+			if (index < 0 || this.Sections.Count < 2)
+				return;
+
+			string neighbour = this.Sections[index > 0 ? index - 1 : 1].Id;
+			foreach (var widget in SectionWidgets(id).ToList())
+			{
+				widget.Section = neighbour;
+				widget.ClearPosition();
+			}
+
+			this.Sections.RemoveAt(index);
+			this.SelectedSection = neighbour;
+			OnChanged(new GridBoardChangedEventArgs("section-removed", null, id, CurrentLayout, null));
+		}
+
+		/// <summary>
+		/// Raises <see cref="ResetRequested"/>.
+		/// </summary>
+		protected virtual void OnResetRequested(EventArgs e)
+		{
+			this.ResetRequested?.Invoke(this, e);
+		}
+
+		/// <summary>
+		/// Raises <see cref="RestoreRequested"/>.
+		/// </summary>
+		protected virtual void OnRestoreRequested(GridWidgetKindEventArgs e)
+		{
+			this.RestoreRequested?.Invoke(this, e);
 		}
 
 		/// <summary>
@@ -578,7 +703,9 @@ namespace GridKrafter.WisejDemo.Controls
 			if (e.Control is GridWidget widget)
 			{
 				this.removedIds.Remove(widget.EffectiveId);
+				this.removedItems.Remove(widget.EffectiveId);
 				PerformLayout();
+				Update();
 			}
 		}
 
@@ -597,6 +724,12 @@ namespace GridKrafter.WisejDemo.Controls
 		#endregion
 
 		#region Implementation
+
+		/// <summary>The title of a section without one, as the original's "section.untitled".</summary>
+		private const string UntitledSection = "New section";
+
+		/// <summary>The title of a widget without one, as the original's "widget.untitled".</summary>
+		private const string UntitledWidget = "Untitled";
 
 		/// <summary>Whether this board runs inside the Visual Studio designer.</summary>
 		internal bool IsDesignMode => ((IWisejComponent)this).DesignMode;
@@ -937,10 +1070,14 @@ namespace GridKrafter.WisejDemo.Controls
 					OnChanged(new GridBoardChangedEventArgs("color", widget.EffectiveId, section, CurrentLayout, widget));
 					break;
 
-				case "edit":
+				case "rename":
 					if ((widget.Buttons & WidgetButtons.Edit) == 0)
 						return;
-					OnChanged(new GridBoardChangedEventArgs("edit", widget.EffectiveId, section, CurrentLayout, widget));
+					string title = string.IsNullOrWhiteSpace(color) ? UntitledWidget : color.Trim();
+					if (title == widget.Title)
+						return;
+					widget.Title = title;
+					OnChanged(new GridBoardChangedEventArgs("renamed", widget.EffectiveId, section, CurrentLayout, widget));
 					break;
 
 				case "delete":
@@ -1011,6 +1148,93 @@ namespace GridKrafter.WisejDemo.Controls
 			OnChanged(new GridBoardChangedEventArgs("section-added", null, section.Id, CurrentLayout, null));
 		}
 
+		private void ProcessSectionRenameWebEvent(WisejEventArgs e)
+		{
+			if (!this.editMode || !this.Enabled)
+				return;
+
+			dynamic data = e.Parameters.Data;
+			if (data == null)
+				return;
+
+			RenameSection(Convert.ToString((object)data.id, CultureInfo.InvariantCulture), Convert.ToString((object)data.title, CultureInfo.InvariantCulture));
+		}
+
+		private void ProcessSectionActionWebEvent(WisejEventArgs e)
+		{
+			if (!this.editMode || !this.Enabled)
+				return;
+
+			dynamic data = e.Parameters.Data;
+			if (data == null)
+				return;
+
+			string id = Convert.ToString((object)data.id, CultureInfo.InvariantCulture);
+			string action = Convert.ToString((object)data.action, CultureInfo.InvariantCulture);
+			var section = FindSection(id);
+			if (section == null)
+				return;
+
+			switch (action)
+			{
+				case "up":
+					MoveSection(id, -1);
+					break;
+
+				case "down":
+					MoveSection(id, 1);
+					break;
+
+				case "delete":
+					if (this.Sections.Count < 2)
+						return;
+
+					// the original asks first; its widgets are not lost, they move to the neighbouring section
+					string label = string.IsNullOrEmpty(section.Title) ? UntitledSection : section.Title;
+					if (MessageBox.Show(
+						"Its widgets move to another section.",
+						"Delete \u201c" + label + "\u201d?",
+						MessageBoxButtons.YesNo,
+						MessageBoxIcon.Warning) == DialogResult.Yes)
+					{
+						RemoveSection(id);
+					}
+					break;
+			}
+		}
+
+		private void ProcessResetLayoutWebEvent(WisejEventArgs e)
+		{
+			if (!this.editMode || !this.Enabled)
+				return;
+
+			if (MessageBox.Show(
+				"Widgets go back to where they started, with their original titles, colours and settings. Anything you added is removed.",
+				"Reset the dashboard?",
+				MessageBoxButtons.YesNo,
+				MessageBoxIcon.Warning) == DialogResult.Yes)
+			{
+				OnResetRequested(EventArgs.Empty);
+			}
+		}
+
+		private void ProcessWidgetRestoreWebEvent(WisejEventArgs e)
+		{
+			string id = Convert.ToString((object)e.Parameters.Data, CultureInfo.InvariantCulture);
+			DashboardItem item;
+			if (string.IsNullOrEmpty(id) || !this.removedIds.Contains(id) || FindWidget(id) != null)
+				return;
+
+			this.removedItems.TryGetValue(id, out item);
+			var kind = new GridWidgetKind();
+			kind.Name = id;
+			kind.Kind = item?.Kind ?? "";
+			kind.Text = item?.Title ?? id;
+			kind.Icon = item?.Icon ?? "";
+			kind.Color = item?.Color ?? "";
+			OnRestoreRequested(new GridWidgetKindEventArgs(kind));
+		}
+
 		private void ProcessAreaResizeWebEvent(WisejEventArgs e)
 		{
 			int width = ToInt((object)e.Parameters.Data, 0);
@@ -1060,6 +1284,10 @@ namespace GridKrafter.WisejDemo.Controls
 
 			// the collections: plain values only
 			config.sections = this.Sections.Select(i => new { name = i.Name, id = i.Id, title = i.Title, icon = i.Icon, count = SectionCount(i.Id) }).ToArray();
+			config.removed = this.removedIds
+				.OrderBy(id => { long n; return this.removedOrder.TryGetValue(id, out n) ? n : 0; })
+				.Select(id => { DashboardItem i; this.removedItems.TryGetValue(id, out i); return new { id, title = i?.Title ?? id, icon = i?.Icon ?? "", color = i?.Color ?? "" }; })
+				.ToArray();
 			config.catalog = this.Catalog.Select(i => new { name = i.Name, text = i.DisplayName, kind = i.Kind, description = i.Description, icon = i.Icon, color = i.Color, w = i.W, h = i.H, minW = i.MinW, minH = i.MinH, maxW = i.MaxW, maxH = i.MaxH, autoHeight = i.AutoHeight, refresh = i.Refresh }).ToArray();
 
 			// state and geometry
@@ -1089,6 +1317,10 @@ namespace GridKrafter.WisejDemo.Controls
 			config.wiredEvents.Add("areaResize(Data)");
 			config.wiredEvents.Add("collapseAll");
 			config.wiredEvents.Add("expandAll");
+			config.wiredEvents.Add("resetLayout");
+			config.wiredEvents.Add("sectionRename(Data)");
+			config.wiredEvents.Add("sectionAction(Data)");
+			config.wiredEvents.Add("widgetRestore(Data)");
 		}
 
 		/// <summary>
@@ -1132,6 +1364,22 @@ namespace GridKrafter.WisejDemo.Controls
 
 				case "expandAll":
 					ProcessCollapseAllWebEvent(false);
+					break;
+
+				case "resetLayout":
+					ProcessResetLayoutWebEvent(e);
+					break;
+
+				case "sectionRename":
+					ProcessSectionRenameWebEvent(e);
+					break;
+
+				case "sectionAction":
+					ProcessSectionActionWebEvent(e);
+					break;
+
+				case "widgetRestore":
+					ProcessWidgetRestoreWebEvent(e);
 					break;
 
 				default:

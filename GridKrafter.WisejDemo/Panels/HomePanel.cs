@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using GridKrafter.Models;
 using GridKrafter.WisejDemo.Controls;
@@ -21,21 +22,92 @@ namespace GridKrafter.WisejDemo.Panels
 
 		private void HomePanel_Load(object sender, EventArgs e)
 		{
-			var model = DemoBoard.Create();
 			var saved = BoardStore.Load();
+			ShowBoard(saved);
+			BoardEvents.Status ??= saved == null
+				? "This is the page's own board. Change something and it's saved on the server."
+				: "This is the board saved on the server.";
+			CenterBoard();
+		}
+
+		// The page's own board, with a saved one applied over it when there is one.
+		private void ShowBoard(DashboardBoard saved)
+		{
+			var model = DemoBoard.Create();
 			if (saved != null)
 			{
 				// Widgets added from the catalog stay as long as their kind is still offered.
 				BoardMerge.Apply(model, saved, item => this.board.Catalog.Any(k => k.Kind == item.Kind));
 			}
 
+			this.board.SuspendLayout();
+			this.board.Controls.Clear(true);
+			// catalog widgets saved by an earlier build of this demo, which took the pencil away, get it back
+			var own = new HashSet<string>(DemoBoard.Create().Items.Select(i => i.Id));
 			foreach (var item in model.Items.Where(i => !i.Hidden))
+			{
+				if (!own.Contains(item.Id) && item.Chrome != WidgetChrome.Plain && item.Buttons.HasValue)
+					item.Buttons |= WidgetButtons.Edit;
 				this.board.Controls.Add(CreateWidget(item));
+			}
 
 			this.board.LoadBoard(model);
-			BoardEvents.Status ??= saved == null
-				? "This is the page's own board. Change something and it's saved on the server."
-				: "This is the board saved on the server.";
+			this.board.ResumeLayout(true);
+		}
+
+		// The board is a centred column at most 1080 pixels wide, as on the MVC page.
+		private void CenterBoard()
+		{
+			const int MAX_WIDTH = 1080, SIDE = 24;
+			int extra = Math.Max(0, (this.Width - 2 * SIDE - MAX_WIDTH) / 2);
+			this.Padding = new Padding(SIDE + extra, 12, SIDE + extra, 20);
+		}
+
+		private void HomePanel_Resize(object sender, EventArgs e)
+		{
+			CenterBoard();
+		}
+
+		private void board_ResetRequested(object sender, EventArgs e)
+		{
+			BoardStore.Reset();
+			this.timerSave.Stop();
+			ShowBoard(null);
+			BoardEvents.Write("reset", "the page's own board");
+			BoardEvents.Status = "This is the page's own board. Change something and it's saved on the server.";
+		}
+
+		// A deleted widget brought back from the catalog: the page's own definition when it has one,
+		// otherwise a widget of its kind with the same id.
+		private void board_RestoreRequested(object sender, GridWidgetKindEventArgs e)
+		{
+			string id = e.Item.Name;
+			var item = DemoBoard.Create().Find(id);
+			GridWidget widget;
+			if (item != null)
+			{
+				item.Section = null;
+				widget = CreateWidget(item);
+			}
+			else
+			{
+				// a kind the catalog no longer offers still comes back, as a card of that kind
+				var kind = this.board.Catalog.FirstOrDefault(k => k.Kind == e.Kind)
+					?? new GridWidgetKind { Kind = e.Kind, Text = e.Item.Text, Icon = e.Item.Icon, Color = e.Item.Color };
+				widget = CreateCatalogWidget(kind);
+				widget.ItemId = id;
+			}
+
+			// as it was when deleted: its title and colour
+			if (!string.IsNullOrEmpty(e.Item.Text))
+				widget.Title = e.Item.Text;
+			if (!string.IsNullOrEmpty(e.Item.Color))
+				widget.Color = e.Item.Color;
+
+			// it comes back at a free place of the section on show, as in the original
+			widget.GridX = -1;
+			widget.GridY = -1;
+			this.board.AddWidget(widget);
 		}
 
 		private static GridWidget CreateWidget(DashboardItem item)
@@ -49,8 +121,9 @@ namespace GridKrafter.WisejDemo.Panels
 				Icon = item.Icon ?? "",
 				Color = item.Color ?? "",
 				Chrome = item.Chrome == WidgetChrome.Plain ? GridWidgetChrome.Plain : GridWidgetChrome.Card,
-				// Refresh shows on every widget that refreshes, as in the MVC demo; renaming isn't offered here.
-				Buttons = ((item.Buttons ?? GridWidget.DefaultButtons) | ((item.Refresh ?? 0) > 0 ? WidgetButtons.Refresh : WidgetButtons.None)) & ~WidgetButtons.Edit,
+				// the original's buttons (colour, edit, full screen, collapse, delete), and Refresh on every
+				// widget that refreshes, as in the MVC demo
+				Buttons = (item.Buttons ?? WidgetButtons.Default) | ((item.Refresh ?? 0) > 0 ? WidgetButtons.Refresh : WidgetButtons.None),
 				GridW = item.W ?? 4,
 				GridH = item.H ?? 3,
 				MinW = item.MinW ?? 0,
@@ -81,28 +154,34 @@ namespace GridKrafter.WisejDemo.Panels
 
 		private void board_AddWidgetRequested(object sender, GridWidgetKindEventArgs e)
 		{
+			this.board.AddWidget(CreateCatalogWidget(e.Item));
+		}
+
+		// A new widget of a catalog kind, with its body.
+		private static GridWidget CreateCatalogWidget(GridWidgetKind kind)
+		{
 			var widget = new GridWidget
 			{
-				Kind = e.Kind,
-				Title = e.Item.DisplayName,
-				Icon = e.Item.Icon,
-				Color = e.Item.Color,
-				GridW = e.Item.W,
-				GridH = e.Item.H,
-				MinW = e.Item.MinW,
-				MinH = e.Item.MinH,
-				MaxW = e.Item.MaxW,
-				MaxH = e.Item.MaxH,
-				AutoHeight = e.Item.AutoHeight,
-				RefreshInterval = e.Item.Refresh,
+				Buttons = WidgetButtons.Default,
+				Kind = kind.Kind,
+				Title = kind.DisplayName,
+				Icon = kind.Icon,
+				Color = kind.Color,
+				GridW = kind.W,
+				GridH = kind.H,
+				MinW = kind.MinW,
+				MinH = kind.MinH,
+				MaxW = kind.MaxW,
+				MaxH = kind.MaxH,
+				AutoHeight = kind.AutoHeight,
+				RefreshInterval = kind.Refresh,
 			};
 
-			if (e.Item.Refresh > 0)
+			if (kind.Refresh > 0)
 				widget.Buttons |= WidgetButtons.Refresh;
-			widget.Buttons &= ~WidgetButtons.Edit;
 
-			Fill(widget, WidgetBodies.Create(e.Kind, "", widget.Title), e.Kind == "orders");
-			this.board.AddWidget(widget);
+			Fill(widget, WidgetBodies.Create(kind.Kind, "", widget.Title), kind.Kind == "orders");
+			return widget;
 		}
 
 		private void board_Changed(object sender, GridBoardChangedEventArgs e)
