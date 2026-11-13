@@ -1,0 +1,271 @@
+{
+  "name": "CrushMarginGauge",
+  "namespace": "GridKrafter.WisejDemo",
+  "fullName": "GridKrafter.WisejDemo.CrushMarginGauge",
+  "language": "csharp",
+  "files": [
+    "Controls/CrushMarginGauge/CrushMarginGauge.cs",
+    "Controls/CrushMarginGauge/gridkrafter.wisejdemo.CrushMarginGauge.js",
+    "Controls/CrushMarginGauge/CrushMarginGauge.mixin.theme",
+    "Controls/CrushMarginGauge/CrushMarginGauge.bmp",
+    "GridKrafter.WisejDemo.csproj"
+  ],
+  "saved": "2026-11-13T11:08:21.1687905Z",
+  "sketch": {
+    "schema": "wisej-component-sketch/1",
+    "name": "CrushMarginGauge",
+    "namespace": "",
+    "description": "An ethanol crush margin widget: today's margin in $/gal with its change, a trend line inside its high-low band, and the breakdown of revenues (ethanol, DDGS, corn oil) against costs (corn, natural gas).",
+    "size": [
+      440,
+      320
+    ],
+    "html": "<div class=\"cm\">\n  <div class=\"top\">\n    <div class=\"headline\">\n      <div class=\"label\"></div>\n      <div class=\"valuerow\"><span class=\"value\"></span><span class=\"unit\"></span><span class=\"change\"></span></div>\n    </div>\n    <div class=\"ranges\"></div>\n  </div>\n  <div class=\"chart\"></div>\n  <div class=\"legend\"></div>\n  <div class=\"breakdown\"></div>\n</div>",
+    "css": ".cm{box-sizing:border-box;width:100%;height:100%;display:flex;flex-direction:column;gap:8px;padding:12px 14px;background:var(--window);color:var(--text);font:13px/1.4 \"Segoe UI\",system-ui,sans-serif;overflow:hidden}\n.cm *{box-sizing:border-box}\n.top{display:flex;justify-content:space-between;align-items:flex-start}\n.label{color:var(--muted);font-size:12.5px;font-weight:500}\n.valuerow{display:flex;align-items:baseline;gap:6px}\n.value{font-size:28px;font-weight:700;letter-spacing:-.02em;line-height:1.2}\n.unit{color:var(--muted);font-size:12.5px}\n.change{font-size:12px;font-weight:600;padding:1px 7px;border-radius:10px}\n.change.up{color:var(--positive);background:color-mix(in srgb,var(--positive) 14%,transparent)}\n.change.down{color:var(--negative);background:color-mix(in srgb,var(--negative) 14%,transparent)}\n.ranges{display:flex;gap:2px;background:var(--background);border-radius:8px;padding:2px}\n.range{padding:3px 9px;border-radius:6px;font-size:12px;font-weight:500;color:var(--muted);cursor:pointer}\n.range:hover{color:var(--text)}\n.range.selected{background:var(--window);color:var(--accent);box-shadow:0 1px 2px rgba(20,20,50,.1)}\n.chart{flex:1;min-height:70px;position:relative}\n.chart svg{display:block;width:100%;height:100%}\n.band{fill:color-mix(in srgb,var(--accent) 10%,transparent)}\n.avg{stroke:var(--muted);stroke-width:1;stroke-dasharray:3 3;opacity:.6}\n.line{fill:none;stroke:var(--accent);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}\n.area{fill:url(#cmgrad)}\n.dot{fill:var(--window);stroke:var(--accent);stroke-width:2}\n.legend{display:flex;gap:12px;color:var(--muted);font-size:11.5px}\n.legend b{color:var(--text);font-weight:600}\n.breakdown{display:flex;flex-direction:column;gap:3px;border-top:1px solid var(--border);padding-top:8px}\n.item{display:grid;grid-template-columns:78px 1fr 58px;align-items:center;gap:8px;font-size:12px;padding:1px 4px;border-radius:5px;cursor:pointer}\n.item:hover{background:var(--hover)}\n.item .name{color:var(--muted)}\n.track{position:relative;height:8px}\n.track:before{content:\"\";position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:var(--border)}\n.bar{position:absolute;top:0;height:8px;border-radius:3px}\n.bar.rev{background:var(--positive)}\n.bar.cost{background:var(--negative)}\n.item .amt{text-align:right;font-weight:600;font-variant-numeric:tabular-nums}\n.item .amt.cost{color:var(--negative)}\n.empty{color:var(--muted);font-size:12px;padding:20px 0;text-align:center}",
+    "js": "function render(root, props, fire) {\n  const esc = s => String(s == null ? '' : s).replace(/[&<>\"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]));\n  const money = v => (v < 0 ? '−$' : '$') + Math.abs(v).toFixed(2);\n  const host = root.querySelector('.cm');\n  if (props.positiveColor) host.style.setProperty('--positive', props.positiveColor); else host.style.removeProperty('--positive');\n  if (props.negativeColor) host.style.setProperty('--negative', props.negativeColor); else host.style.removeProperty('--negative');\n\n  // headline\n  root.querySelector('.label').textContent = props.title || 'Crush margin';\n  root.querySelector('.value').textContent = money(props.margin || 0);\n  root.querySelector('.unit').textContent = props.unit || '/gal';\n  const ch = root.querySelector('.change'), c = props.change || 0;\n  ch.className = 'change ' + (c >= 0 ? 'up' : 'down');\n  ch.textContent = (c >= 0 ? '▲ ' : '▼ ') + Math.abs(c).toFixed(2);\n\n  // range selector\n  const RANGES = ['7D', '30D', '90D'];\n  const rg = root.querySelector('.ranges');\n  rg.innerHTML = RANGES.map(r => '<span class=\"range' + (r === props.range ? ' selected' : '') + '\" data-r=\"' + r + '\">' + r + '</span>').join('');\n  rg.querySelectorAll('.range').forEach(el => el.onclick = () => fire('rangeChanged', { range: el.dataset.r }));\n\n  // trend chart with high-low band and average\n  const chart = root.querySelector('.chart');\n  const n = { '7D': 7, '30D': 30, '90D': 90 }[props.range] || 30;\n  const pts = (props.history || []).map(h => +h.value).filter(v => !isNaN(v)).slice(-n);\n  const legend = root.querySelector('.legend');\n  if (pts.length < 2) {\n    chart.innerHTML = '<div class=\"empty\">No history</div>'; legend.innerHTML = '';\n  } else {\n    const W = 400, H = 100, pad = 6;\n    const lo = Math.min.apply(null, pts), hi = Math.max.apply(null, pts);\n    const avg = pts.reduce((a, b) => a + b, 0) / pts.length;\n    const min = lo - (hi - lo) * .15, max = hi + (hi - lo) * .15 || hi + 1;\n    const x = i => pad + i * (W - 2 * pad) / (pts.length - 1);\n    const y = v => H - pad - (v - min) * (H - 2 * pad) / (max - min);\n    const d = pts.map((v, i) => (i ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(v).toFixed(1)).join(' ');\n    const last = pts.length - 1;\n    chart.innerHTML = '<svg viewBox=\"0 0 ' + W + ' ' + H + '\" preserveAspectRatio=\"none\">' +\n      '<defs><linearGradient id=\"cmgrad\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"var(--accent)\" stop-opacity=\".22\"/><stop offset=\"1\" stop-color=\"var(--accent)\" stop-opacity=\"0\"/></linearGradient></defs>' +\n      '<rect class=\"band\" x=\"0\" y=\"' + y(hi) + '\" width=\"' + W + '\" height=\"' + (y(lo) - y(hi)) + '\"/>' +\n      '<line class=\"avg\" x1=\"0\" x2=\"' + W + '\" y1=\"' + y(avg) + '\" y2=\"' + y(avg) + '\"/>' +\n      '<path class=\"area\" d=\"' + d + ' L' + x(last) + ' ' + H + ' L' + x(0) + ' ' + H + 'Z\"/>' +\n      '<path class=\"line\" d=\"' + d + '\" vector-effect=\"non-scaling-stroke\"/>' +\n      '<circle class=\"dot\" cx=\"' + x(last) + '\" cy=\"' + y(pts[last]) + '\" r=\"3.5\" vector-effect=\"non-scaling-stroke\"/></svg>';\n    legend.innerHTML = '<span>High <b>' + money(hi) + '</b></span><span>Low <b>' + money(lo) + '</b></span><span>Avg <b>' + money(avg) + '</b></span>';\n  }\n\n  // breakdown: revenues to the right, costs to the left of the centre line\n  const bd = root.querySelector('.breakdown');\n  const items = props.breakdown || [];\n  bd.style.display = props.showBreakdown === false || !items.length ? 'none' : '';\n  const peak = Math.max.apply(null, items.map(i => Math.abs(+i.value || 0)).concat([0.01]));\n  bd.innerHTML = items.map(i => {\n    const v = +i.value || 0, w = Math.abs(v) / peak * 50, cost = v < 0;\n    return '<div class=\"item\" data-name=\"' + esc(i.name) + '\"><span class=\"name\">' + esc(i.name) + '</span>' +\n      '<span class=\"track\"><span class=\"bar ' + (cost ? 'cost' : 'rev') + '\" style=\"' + (cost ? 'right:50%' : 'left:50%') + ';width:' + w + '%\"></span></span>' +\n      '<span class=\"amt' + (cost ? ' cost' : '') + '\">' + money(v) + '</span></div>';\n  }).join('');\n  bd.querySelectorAll('.item').forEach(el => el.onclick = () => fire('componentClicked', { name: el.dataset.name }));\n}",
+    "props": [
+      {
+        "name": "title",
+        "type": "string",
+        "default": "Crush margin",
+        "description": "The label above the margin."
+      },
+      {
+        "name": "margin",
+        "type": "number",
+        "default": 0.67,
+        "description": "Today's crush margin."
+      },
+      {
+        "name": "change",
+        "type": "number",
+        "default": 0.04,
+        "description": "Change in the margin since the previous close."
+      },
+      {
+        "name": "unit",
+        "type": "string",
+        "default": "/gal",
+        "description": "Unit shown after the margin."
+      },
+      {
+        "name": "range",
+        "type": "enum",
+        "default": "30D",
+        "description": "How many days of history the trend shows.",
+        "values": [
+          "7D",
+          "30D",
+          "90D"
+        ]
+      },
+      {
+        "name": "showBreakdown",
+        "type": "bool",
+        "default": true,
+        "description": "Shows the revenue and cost breakdown under the trend."
+      },
+      {
+        "name": "positiveColor",
+        "type": "color",
+        "default": "",
+        "description": "Colour of revenues and a rising margin; the theme's when empty."
+      },
+      {
+        "name": "negativeColor",
+        "type": "color",
+        "default": "",
+        "description": "Colour of costs and a falling margin; the theme's when empty."
+      },
+      {
+        "name": "history",
+        "type": "rows",
+        "default": [
+          {
+            "date": "2026-10-02",
+            "value": 0.52
+          },
+          {
+            "date": "2026-10-03",
+            "value": 0.55
+          },
+          {
+            "date": "2026-10-06",
+            "value": 0.51
+          },
+          {
+            "date": "2026-10-07",
+            "value": 0.49
+          },
+          {
+            "date": "2026-10-08",
+            "value": 0.53
+          },
+          {
+            "date": "2026-10-09",
+            "value": 0.58
+          },
+          {
+            "date": "2026-10-10",
+            "value": 0.6
+          },
+          {
+            "date": "2026-10-13",
+            "value": 0.57
+          },
+          {
+            "date": "2026-10-14",
+            "value": 0.55
+          },
+          {
+            "date": "2026-10-15",
+            "value": 0.59
+          },
+          {
+            "date": "2026-10-16",
+            "value": 0.62
+          },
+          {
+            "date": "2026-10-17",
+            "value": 0.61
+          },
+          {
+            "date": "2026-10-20",
+            "value": 0.58
+          },
+          {
+            "date": "2026-10-21",
+            "value": 0.56
+          },
+          {
+            "date": "2026-10-22",
+            "value": 0.54
+          },
+          {
+            "date": "2026-10-23",
+            "value": 0.57
+          },
+          {
+            "date": "2026-10-24",
+            "value": 0.6
+          },
+          {
+            "date": "2026-10-27",
+            "value": 0.64
+          },
+          {
+            "date": "2026-10-28",
+            "value": 0.66
+          },
+          {
+            "date": "2026-10-29",
+            "value": 0.63
+          },
+          {
+            "date": "2026-10-30",
+            "value": 0.61
+          },
+          {
+            "date": "2026-10-31",
+            "value": 0.65
+          },
+          {
+            "date": "2026-11-03",
+            "value": 0.68
+          },
+          {
+            "date": "2026-11-04",
+            "value": 0.7
+          },
+          {
+            "date": "2026-11-05",
+            "value": 0.66
+          },
+          {
+            "date": "2026-11-06",
+            "value": 0.62
+          },
+          {
+            "date": "2026-11-07",
+            "value": 0.6
+          },
+          {
+            "date": "2026-11-10",
+            "value": 0.63
+          },
+          {
+            "date": "2026-11-11",
+            "value": 0.63
+          },
+          {
+            "date": "2026-11-12",
+            "value": 0.67
+          }
+        ],
+        "description": "Daily margins, oldest first: { date, value }."
+      },
+      {
+        "name": "breakdown",
+        "type": "rows",
+        "default": [
+          {
+            "name": "Ethanol",
+            "value": 1.78
+          },
+          {
+            "name": "DDGS",
+            "value": 0.48
+          },
+          {
+            "name": "Corn oil",
+            "value": 0.09
+          },
+          {
+            "name": "Corn",
+            "value": -1.56
+          },
+          {
+            "name": "Natural gas",
+            "value": -0.12
+          }
+        ],
+        "description": "What makes up the margin, in $/gal: revenues positive, costs negative: { name, value }."
+      }
+    ],
+    "events": [
+      {
+        "name": "rangeChanged",
+        "payload": {
+          "range": "string"
+        },
+        "sets": [
+          "range"
+        ]
+      },
+      {
+        "name": "componentClicked",
+        "payload": {
+          "name": "string"
+        }
+      }
+    ],
+    "tokens": {
+      "accent": "#6d4dff",
+      "positive": "#1fb57a",
+      "negative": "#e5484d",
+      "window": "#ffffff",
+      "background": "#f3f4f7",
+      "text": "#171a21",
+      "muted": "#5f6878",
+      "border": "#e1e4ea",
+      "hover": "#eeeaff"
+    },
+    "dependencies": [],
+    "notes": "Simple control (no items or collections): history and breakdown are data rows. Trend drawn as SVG in an Html embed. Colours follow the GridKrafter palette (same tokens as GridBoard/StatTile). Margin = ethanol + DDGS + corn oil − corn − natural gas, per gallon. Meant to sit in a GridBoard card about 5 columns × 5 rows.",
+    "filledByAgent": true,
+    "icon": {
+      "rgba": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACIzrcYVcKZOlfCmjuMz7kZAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA3+fnAUzAlFsyuoXQIrZ8/x+1ev8ftXr/IrZ8/zK6hdF2yqxb3+fnAQAAAAAAAAAAAAAAAAAAAAAAAAAAhc60CDK6hasftXr/H7V6/x+1ev8ftXr/H7V6/x+1ev9ScdH/fX/n/+Hk6qrh5OoIAAAAAAAAAAAAAAAA3+fnAS24gqwftXr/H7V6/x+1evAgtXuQI7Z8WSO2fFlEhbjAbU3//413+f/h5Or/4eTqrN/n5wEAAAAAAAAAAEC9jVsftXr/H7V6/yC1e8ojtnwaAAAAAAAAAABtTf8NbU3/5W1N//vJxO7L4eTq/+Hk6v/h5OpaAAAAAAAAAAAsuIHSH7V6/yG1e+4quIEXAAAAAAAAAAAAAAAAbU3/jG1N//9tTf+M4eTqEuHk6urh5Or/4eTq0AAAAABOwJUaILV6/x+1ev8ktn2JAAAAAAAAAABuTf8JbU3/f21N//ttTf/lbU3/DQAAAADh5OqB4eTq/+Hk6v/h5OoYMrmFPR+1ev8ftXr/LbiCUQAAAAAAAAAAbU3/fW1N//9tTf//bU3/jQAAAAAAAAAA4eTqS+Hk6v/h5Or/4eTqOTW6hyUhtXv5IbV7+TO6hiMAAAAAAAAAAG1N/31tTf//bU3//21N/30AAAAAAAAAAOHk6iDh5Or34eTq9+Hk6h8AAAAAM7qGJDK5hSMAAAAAAAAAAAAAAABuTf8JbU3/fW1N/31uTf8JAAAAAAAAAAAAAAAA4eTqIOHk6iAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 16 16\"><path d=\"M2 13 A6 6 0 0 1 14 13\" fill=\"none\" stroke=\"#e1e4ea\" stroke-width=\"2.5\" stroke-linecap=\"round\"/><path d=\"M2 13 A6 6 0 0 1 10.5 7.6\" fill=\"none\" stroke=\"#1fb57a\" stroke-width=\"2.5\" stroke-linecap=\"round\"/><path d=\"M8 13 L11 8\" stroke=\"#6d4dff\" stroke-width=\"1.8\" stroke-linecap=\"round\"/><circle cx=\"8\" cy=\"13\" r=\"1.6\" fill=\"#6d4dff\"/></svg>"
+    }
+  }
+}

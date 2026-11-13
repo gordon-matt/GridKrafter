@@ -1,0 +1,74 @@
+{
+	"name": "EthanolPriceBoard.mixin",
+
+	// rises and falls are the GridKrafter palette the Light and Dark themes both define (green, red);
+	// surfaces, text, borders and the selection are the theme's own colours.
+
+	"fonts": {
+		"ethanol-price-board-small": { "size": 11, "family": ["Segoe UI", "system-ui", "Roboto", "Helvetica Neue", "Arial", "sans-serif"] },
+		"ethanol-price-board-label": { "size": 11.5, "family": ["Segoe UI", "system-ui", "Roboto", "Helvetica Neue", "Arial", "sans-serif"] },
+		"ethanol-price-board-strong": { "size": 11.5, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] },
+		"ethanol-price-board-hub": { "size": 12, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] },
+		"ethanol-price-board-bench": { "size": 13, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] },
+		"ethanol-price-board-price": { "size": 22, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] },
+		"ethanol-price-board-tag": { "size": 9.5, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] }
+	},
+
+	"appearances": {
+
+		"ethanol-price-board": {
+			"inherit": "widget",
+			"states": {
+				"default": {
+					"properties": {
+						"themeUpColor": "green",
+						"themeDownColor": "red",
+						"padding": [12, 14],
+						"font": "ethanol-price-board-label",
+						"textColor": "windowText",
+						"backgroundColor": "window",
+						"opacity": 1
+					},
+					"styles": { "width": 0 }
+				},
+				"disabled": { "properties": { "opacity": 0.55 } }
+			},
+			"components": {
+
+				"benchmark": {
+					"inherit": "widget",
+					"states": { "default": { "properties": { "padding": [6, 10] }, "styles": { "backgroundColor": "appWorkspace", "radius": 8 } } }
+				},
+				"benchmark-name": { "inherit": "label", "states": { "default": { "properties": { "font": "ethanol-price-board-label", "textColor": "grayText" } } } },
+				"benchmark-price": { "inherit": "label", "states": { "default": { "properties": { "font": "ethanol-price-board-bench", "textColor": "windowText" } } } },
+				"benchmark-unit": { "inherit": "label", "states": { "default": { "properties": { "font": "ethanol-price-board-small", "textColor": "grayText" } } } },
+				"benchmark-change": { "inherit": "label", "states": { "default": { "properties": { "font": "ethanol-price-board-strong" } } } },
+
+				"tile": {
+					"inherit": "widget",
+					"states": {
+						"default": {
+							"properties": { "padding": [10, 12, 8, 12] },
+							"styles": { "backgroundColor": "transparent", "width": 1, "style": "solid", "color": "windowFrame", "radius": 10 }
+						},
+						"hovered": { "styles": { "backgroundColor": "menuHighlight" } },
+						"selected": { "styles": { "backgroundColor": "menuHighlight", "width": 2, "color": "highlight" } }
+					}
+				},
+				"hub": { "inherit": "label", "states": { "default": { "properties": { "font": "ethanol-price-board-hub", "textColor": "grayText" } } } },
+				"ref": { "inherit": "label", "states": { "default": { "properties": { "font": "ethanol-price-board-tag", "textColor": "grayText" } } } },
+				"price": { "inherit": "label", "states": { "default": { "properties": { "font": "ethanol-price-board-price", "textColor": "windowText" } } } },
+				"change": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "ethanol-price-board-strong", "padding": [0, 6] }, "styles": { "radius": 9 } } }
+				},
+				"basis": { "inherit": "label", "states": { "default": { "properties": { "font": "ethanol-price-board-small", "textColor": "grayText" } } } },
+				"basis-value": { "inherit": "label", "states": { "default": { "properties": { "font": "ethanol-price-board-strong", "textColor": "grayText" } } } },
+
+				"foot": { "inherit": "label", "states": { "default": { "properties": { "font": "ethanol-price-board-small", "textColor": "grayText" } } } },
+
+				"empty": { "inherit": "label", "states": { "default": { "properties": { "textColor": "grayText", "padding": [30, 0] } } } }
+			}
+		}
+	}
+}

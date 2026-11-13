@@ -1,0 +1,14 @@
+{
+  "id": "railcar-fleet-tracker",
+  "name": "Railcar fleet tracker",
+  "purpose": "A railcar fleet widget for ethanol shipments: the fleet split by status in one bar you can filter by, totals and overdue cars, a route map, and the unit trains and manifest moves grouped by terminal, with route progress, days out, car count, ETA and expandable car numbers.",
+  "keywords": [
+    "railcar fleet tracker",
+    "railcarfleettracker"
+  ],
+  "control": "RailcarFleetTracker",
+  "type": "GridKrafter.WisejDemo.RailcarFleetTracker",
+  "extends": null,
+  "component": null,
+  "preview": "<div data-wisej-pattern=\"railcar-fleet-tracker\"><div class=\"rf\">\n  <div class=\"summary\">\n    <div class=\"kpis\"></div>\n    <div class=\"statusbar\"></div>\n    <div class=\"statuslegend\"></div>\n  </div>\n  <div class=\"main\">\n    <div class=\"listpane\">\n      <div class=\"listhead\">\n        <span class=\"lh-title\">Shipments</span>\n        <div class=\"groupby\"></div>\n      </div>\n      <div class=\"list\"></div>\n    </div>\n    <div class=\"map\"></div>\n  </div>\n</div></div>"
+}

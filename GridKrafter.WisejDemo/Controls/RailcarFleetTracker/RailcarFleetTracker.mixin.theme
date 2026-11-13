@@ -1,0 +1,154 @@
+{
+	"name": "RailcarFleetTracker.mixin",
+
+	// status colours are the GridKrafter palette the Light and Dark themes both define (amber, violet,
+	// green, sky, red); surfaces, text and borders are the theme's own colours.
+
+	"fonts": {
+		"railcar-fleet-tracker-small": { "size": 11.5, "family": ["Segoe UI", "system-ui", "Roboto", "Helvetica Neue", "Arial", "sans-serif"] },
+		"railcar-fleet-tracker-text": { "size": 12, "family": ["Segoe UI", "system-ui", "Roboto", "Helvetica Neue", "Arial", "sans-serif"] },
+		"railcar-fleet-tracker-strong": { "size": 12, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] },
+		"railcar-fleet-tracker-title": { "size": 13, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] },
+		"railcar-fleet-tracker-tag": { "size": 10.5, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] },
+		"railcar-fleet-tracker-kpi": { "size": 20, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] },
+		"railcar-fleet-tracker-mono": { "size": 11, "family": ["Consolas", "Cascadia Mono", "monospace"] }
+	},
+
+	"appearances": {
+
+		"railcar-fleet-tracker": {
+			"inherit": "widget",
+			"states": {
+				"default": {
+					"properties": {
+						"themeLoadingColor": "amber",
+						"themeTransitColor": "violet",
+						"themeDestinationColor": "green",
+						"themeEmptyColor": "sky",
+						"themeBadOrderColor": "red",
+						"themeAlertColor": "red",
+						"padding": [12, 14],
+						"font": "railcar-fleet-tracker-text",
+						"textColor": "windowText",
+						"backgroundColor": "window",
+						"opacity": 1
+					},
+					"styles": { "width": 0 }
+				},
+				"disabled": { "properties": { "opacity": 0.55 } }
+			},
+			"components": {
+
+				"kpi-label": { "inherit": "label", "states": { "default": { "properties": { "font": "railcar-fleet-tracker-small", "textColor": "grayText" } } } },
+				"kpi-value": { "inherit": "label", "states": { "default": { "properties": { "font": "railcar-fleet-tracker-kpi", "textColor": "windowText" } } } },
+
+				"statusbar": {
+					"inherit": "widget",
+					"states": { "default": { "styles": { "backgroundColor": "appWorkspace", "radius": 5 } } }
+				},
+
+				"segment": {
+					"inherit": "widget",
+					"states": { "default": { "styles": { "radius": 2 } } }
+				},
+
+				"legend-item": {
+					"inherit": "widget",
+					"states": {
+						"default": { "properties": { "padding": [1, 6] }, "styles": { "backgroundColor": "transparent", "radius": 10 } },
+						"hovered": { "styles": { "backgroundColor": "menuHighlight" } },
+						"selected": { "styles": { "backgroundColor": "menuHighlight" } }
+					}
+				},
+				"swatch": { "inherit": "widget", "states": { "default": { "styles": { "radius": 2 } } } },
+				"legend-text": { "inherit": "label", "states": { "default": { "properties": { "font": "railcar-fleet-tracker-small", "textColor": "grayText" } } } },
+				"legend-count": { "inherit": "label", "states": { "default": { "properties": { "font": "railcar-fleet-tracker-strong", "textColor": "windowText" } } } },
+
+				"listpane": {
+					"inherit": "widget",
+					"states": { "default": { "styles": { "widthTop": 1, "styleTop": "solid", "colorTop": "windowFrame" } } }
+				},
+				"list-title": { "inherit": "label", "states": { "default": { "properties": { "font": "railcar-fleet-tracker-title", "textColor": "windowText" } } } },
+
+				"groupby": {
+					"inherit": "widget",
+					"states": { "default": { "properties": { "padding": 2 }, "styles": { "backgroundColor": "appWorkspace", "radius": 8 } } }
+				},
+				"group-button": {
+					"inherit": "label",
+					"states": {
+						"default": {
+							"properties": { "font": "railcar-fleet-tracker-small", "textColor": "grayText", "padding": [2, 9] },
+							"styles": { "backgroundColor": "transparent", "radius": 6, "shadowBlurRadius": 0, "shadowLength": 0 }
+						},
+						"hovered": { "properties": { "textColor": "windowText" } },
+						"selected": {
+							"properties": { "textColor": "highlight" },
+							"styles": { "backgroundColor": "window", "radius": 6, "shadowColor": "rgba(20,20,50,0.12)", "shadowBlurRadius": 2, "shadowLength": 1 }
+						}
+					}
+				},
+
+				"group": {
+					"inherit": "widget",
+					"states": { "default": { "properties": { "padding": [8, 6, 4, 6] }, "styles": { "widthBottom": 1, "styleBottom": "solid", "colorBottom": "windowFrame" } } }
+				},
+				"group-title": { "inherit": "label", "states": { "default": { "properties": { "font": "railcar-fleet-tracker-tag", "textColor": "grayText" } } } },
+				"group-total": { "inherit": "label", "states": { "default": { "properties": { "font": "railcar-fleet-tracker-small", "textColor": "grayText" } } } },
+
+				"row": {
+					"inherit": "widget",
+					"states": {
+						"default": {
+							"properties": { "padding": [7, 6] },
+							"styles": { "backgroundColor": "transparent", "radius": 6, "widthBottom": 1, "styleBottom": "solid", "colorBottom": "windowFrame", "widthLeft": 0 }
+						},
+						"hovered": { "styles": { "backgroundColor": "menuHighlight" } },
+						"selected": { "styles": { "backgroundColor": "menuHighlight", "widthLeft": 3, "styleLeft": "solid", "colorLeft": "highlight" } }
+					}
+				},
+				"chevron": {
+					"inherit": "label",
+					"states": {
+						"default": { "properties": { "textColor": "grayText" }, "styles": { "backgroundColor": "transparent", "radius": 4 } },
+						"hovered": { "properties": { "textColor": "highlight" }, "styles": { "backgroundColor": "appWorkspace" } }
+					}
+				},
+				"id": { "inherit": "label", "states": { "default": { "properties": { "font": "railcar-fleet-tracker-title", "textColor": "windowText" } } } },
+				"kind": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "railcar-fleet-tracker-tag", "textColor": "grayText", "padding": [0, 6] }, "styles": { "backgroundColor": "appWorkspace", "radius": 8 } } }
+				},
+				"route": { "inherit": "label", "states": { "default": { "properties": { "font": "railcar-fleet-tracker-text", "textColor": "grayText" } } } },
+				"track": { "inherit": "widget", "states": { "default": { "properties": { "backgroundColor": "transparent" } } } },
+				"fill": { "inherit": "widget", "states": { "default": { "styles": { "radius": 3 } } } },
+				"train": { "inherit": "widget", "states": { "default": { "properties": { "backgroundColor": "window" } } } },
+				"status": { "inherit": "label", "states": { "default": { "properties": { "font": "railcar-fleet-tracker-strong" } } } },
+				"days": { "inherit": "label", "states": { "default": { "properties": { "font": "railcar-fleet-tracker-strong", "textColor": "windowText" } } } },
+				"days-of": { "inherit": "label", "states": { "default": { "properties": { "font": "railcar-fleet-tracker-small", "textColor": "grayText" } } } },
+				"cars": { "inherit": "label", "states": { "default": { "properties": { "font": "railcar-fleet-tracker-title", "textColor": "windowText" } } } },
+				"eta": { "inherit": "label", "states": { "default": { "properties": { "font": "railcar-fleet-tracker-small", "textColor": "grayText" } } } },
+
+				"carlist": {
+					"inherit": "widget",
+					"states": { "default": { "properties": { "padding": [6, 6, 9, 32] }, "styles": { "backgroundColor": "appWorkspace", "widthBottom": 1, "styleBottom": "solid", "colorBottom": "windowFrame" } } }
+				},
+				"car": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "railcar-fleet-tracker-mono", "textColor": "windowText", "padding": [1, 6] }, "styles": { "backgroundColor": "window", "width": 1, "style": "solid", "color": "windowFrame", "radius": 5 } } }
+				},
+				"car-more": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "railcar-fleet-tracker-small", "textColor": "grayText", "padding": [1, 6] }, "styles": { "width": 1, "style": "dashed", "color": "windowFrame", "radius": 5 } } }
+				},
+
+				"map": {
+					"inherit": "widget",
+					"states": { "default": { "styles": { "backgroundColor": "appWorkspace", "width": 1, "style": "solid", "color": "windowFrame", "radius": 10 } } }
+				},
+
+				"empty": { "inherit": "label", "states": { "default": { "properties": { "textColor": "grayText", "padding": [24, 0] } } } }
+			}
+		}
+	}
+}

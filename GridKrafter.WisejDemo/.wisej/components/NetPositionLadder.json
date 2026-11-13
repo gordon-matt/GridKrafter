@@ -1,0 +1,151 @@
+{
+  "name": "NetPositionLadder",
+  "namespace": "GridKrafter.WisejDemo",
+  "fullName": "GridKrafter.WisejDemo.NetPositionLadder",
+  "language": "csharp",
+  "files": [
+    "Controls/NetPositionLadder/NetPositionLadder.cs",
+    "Controls/NetPositionLadder/gridkrafter.wisejdemo.NetPositionLadder.js",
+    "Controls/NetPositionLadder/NetPositionLadder.mixin.theme",
+    "Controls/NetPositionLadder/NetPositionLadder.bmp",
+    "GridKrafter.WisejDemo.csproj"
+  ],
+  "saved": "2026-11-13T11:39:33.1319726Z",
+  "sketch": {
+    "schema": "wisej-component-sketch/1",
+    "name": "NetPositionLadder",
+    "namespace": "",
+    "description": "An ethanol position ladder: for each delivery month, physical purchases and sales against futures hedges, with the net open position highlighted and checked against the desk's limit.",
+    "size": [
+      620,
+      400
+    ],
+    "html": "<div class=\"np\">\n  <div class=\"head\">\n    <div class=\"totals\"></div>\n    <div class=\"views\"></div>\n  </div>\n  <div class=\"legend\"></div>\n  <div class=\"ladder\"></div>\n</div>",
+    "css": ".np{box-sizing:border-box;width:100%;height:100%;display:flex;flex-direction:column;gap:8px;padding:12px 14px;background:var(--window);color:var(--text);font:13px/1.4 \"Segoe UI\",system-ui,sans-serif;overflow:hidden}\n.np *{box-sizing:border-box}\n.head{display:flex;justify-content:space-between;align-items:flex-start}\n.totals{display:flex;gap:20px}\n.tot .tl{color:var(--muted);font-size:11.5px;font-weight:500}\n.tot .tv{font-size:20px;font-weight:700;letter-spacing:-.01em;line-height:1.2}\n.tot .tv small{font-size:12px;font-weight:500;color:var(--muted);margin-left:3px}\n.tot.long .tv{color:var(--green)}\n.tot.short .tv{color:var(--red)}\n.tot.alert .tv{color:var(--red)}\n.views{display:flex;gap:2px;background:var(--background);border-radius:8px;padding:2px}\n.view{padding:2px 9px;border-radius:6px;font-size:11.5px;font-weight:500;color:var(--muted);cursor:pointer}\n.view:hover{color:var(--text)}\n.view.selected{background:var(--window);color:var(--accent);box-shadow:0 1px 2px rgba(20,20,50,.1)}\n.legend{display:flex;gap:14px;font-size:11.5px;color:var(--muted)}\n.legend i{display:inline-block;width:10px;height:8px;border-radius:2px;margin-right:5px;vertical-align:middle;background:var(--c)}\n.legend i.dash{height:0;border-top:1.5px dashed var(--red);background:none}\n.ladder{flex:1;overflow:auto;border-top:1px solid var(--border)}\n.colhead,.row{display:grid;grid-template-columns:58px 1fr 76px 52px;gap:10px;align-items:center}\n.colhead{font-size:11px;font-weight:600;color:var(--muted);padding:6px 6px 4px;text-transform:uppercase;letter-spacing:.03em}\n.colhead .r{text-align:right}\n.row{padding:5px 6px;border-radius:6px;cursor:pointer}\n.row:hover{background:var(--hover)}\n.row.selected{background:var(--hover);box-shadow:inset 3px 0 0 var(--accent)}\n.month{font-weight:600}\n.bars{position:relative;height:26px}\n.axis{position:absolute;left:50%;top:-5px;bottom:-5px;width:1px;background:var(--border)}\n.limit{position:absolute;top:-5px;bottom:-5px;width:0;border-left:1.5px dashed color-mix(in srgb,var(--red) 70%,transparent)}\n.bar{position:absolute;border-radius:3px}\n.bar.long{top:2px;height:9px;background:var(--green)}\n.bar.short{top:2px;height:9px;background:var(--red)}\n.bar.hedge{top:14px;height:7px;background:var(--accent);opacity:.8}\n.bar.net{top:5px;height:16px}\n.bar.net.pos{background:var(--green)}\n.bar.net.neg{background:var(--red)}\n.tick{position:absolute;top:0;bottom:0;width:3px;margin-left:-1.5px;border-radius:2px;background:var(--text)}\n.net{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}\n.net.pos{color:var(--green)}\n.net.neg{color:var(--red)}\n.net.over{text-decoration:underline wavy var(--red);text-underline-offset:3px}\n.ratio{text-align:right;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}\n.total{border-top:1px solid var(--border);margin-top:4px;padding-top:7px;cursor:default}\n.total:hover{background:none}\n.empty{color:var(--muted);text-align:center;padding:30px 0}",
+    "js": "function render(root, props, fire) {\n  const esc = s => String(s == null ? '' : s).replace(/[&<>\"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]));\n  const unit = props.unit || 'kgal';\n  const view = props.view || 'gross';\n  const limit = Math.abs(+props.limit || 0);\n  const rows = (props.months || []).map(m => {\n    const L = +m.physicalLong || 0, S = +m.physicalShort || 0, F = +m.futures || 0;\n    return { month: m.month, L: L, S: S, F: F, net: L - S + F, ratio: Math.abs(L - S) ? Math.min(999, Math.abs(F) / Math.abs(L - S) * 100) : 0 };\n  });\n  const fmt = v => (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(Math.round(v)).toLocaleString();\n\n  // totals\n  const net = rows.reduce((a, r) => a + r.net, 0), phys = rows.reduce((a, r) => a + r.L - r.S, 0), fut = rows.reduce((a, r) => a + r.F, 0);\n  const breaches = rows.filter(r => limit && Math.abs(r.net) > limit).length;\n  root.querySelector('.totals').innerHTML =\n    '<div class=\"tot ' + (net >= 0 ? 'long' : 'short') + '\"><div class=\"tl\">Net open position</div><div class=\"tv\">' + fmt(net) + '<small>' + esc(unit) + '</small></div></div>' +\n    '<div class=\"tot\"><div class=\"tl\">Physical net</div><div class=\"tv\">' + fmt(phys) + '</div></div>' +\n    '<div class=\"tot\"><div class=\"tl\">Futures hedge</div><div class=\"tv\">' + fmt(fut) + '</div></div>' +\n    '<div class=\"tot' + (breaches ? ' alert' : '') + '\"><div class=\"tl\">Limit breaches</div><div class=\"tv\">' + breaches + '</div></div>';\n\n  const vs = root.querySelector('.views');\n  vs.innerHTML = [['gross', 'Gross'], ['net', 'Net']].map(v => '<span class=\"view' + (v[0] === view ? ' selected' : '') + '\" data-v=\"' + v[0] + '\">' + v[1] + '</span>').join('');\n  vs.querySelectorAll('.view').forEach(el => el.onclick = () => { if (el.dataset.v !== view) fire('viewChanged', { view: el.dataset.v }); });\n\n  root.querySelector('.legend').innerHTML = view === 'gross'\n    ? '<span><i style=\"--c:var(--green)\"></i>Purchases</span><span><i style=\"--c:var(--red)\"></i>Sales</span>' + (props.showHedges === false ? '' : '<span><i style=\"--c:var(--accent)\"></i>Futures</span>') + '<span><i style=\"--c:var(--text);width:3px\"></i>Net</span>'\n    : '<span><i style=\"--c:var(--green)\"></i>Net long</span><span><i style=\"--c:var(--red)\"></i>Net short</span>' + (limit ? '<span><i class=\"dash\"></i>Limit ±' + limit.toLocaleString() + '</span>' : '');\n\n  const box = root.querySelector('.ladder');\n  if (!rows.length) { box.innerHTML = '<div class=\"empty\">No positions</div>'; return; }\n\n  // one scale for every month: gross uses the largest leg, net the largest net or the limit\n  const scale = view === 'gross'\n    ? Math.max.apply(null, rows.map(r => Math.max(r.L, r.S, Math.abs(r.F))).concat([1]))\n    : Math.max.apply(null, rows.map(r => Math.abs(r.net)).concat([limit * 1.15, 1]));\n  const pos = v => 50 + v / scale * 50;          // value -> % from left\n  const span = (a, b, cls) => '<span class=\"bar ' + cls + '\" style=\"left:' + Math.min(pos(a), pos(b)) + '%;width:' + Math.abs(pos(b) - pos(a)) + '%\"></span>';\n\n  const rowHtml = r => {\n    let bars = '<span class=\"axis\"></span>';\n    if (view === 'gross') {\n      bars += span(0, r.L, 'long') + span(0, -r.S, 'short');\n      if (props.showHedges !== false) bars += span(0, r.F, 'hedge');\n      bars += '<span class=\"tick\" style=\"left:' + pos(r.net) + '%\" title=\"Net ' + fmt(r.net) + '\"></span>';\n    } else {\n      if (limit) bars += '<span class=\"limit\" style=\"left:' + pos(limit) + '%\"></span><span class=\"limit\" style=\"left:' + pos(-limit) + '%\"></span>';\n      bars += span(0, r.net, 'net ' + (r.net >= 0 ? 'pos' : 'neg'));\n    }\n    const over = limit && Math.abs(r.net) > limit;\n    return '<div class=\"row' + (r.month === props.selected ? ' selected' : '') + '\" data-m=\"' + esc(r.month) + '\">' +\n      '<span class=\"month\">' + esc(r.month) + '</span><div class=\"bars\">' + bars + '</div>' +\n      '<span class=\"net ' + (r.net >= 0 ? 'pos' : 'neg') + (over ? ' over' : '') + '\">' + fmt(r.net) + '</span>' +\n      '<span class=\"ratio\">' + Math.round(r.ratio) + '%</span></div>';\n  };\n  box.innerHTML = '<div class=\"colhead\"><span>Month</span><span style=\"text-align:center\">Short ← → Long</span><span class=\"r\">Net</span><span class=\"r\">Hedged</span></div>' +\n    rows.map(rowHtml).join('');\n  box.querySelectorAll('.row').forEach(el => el.onclick = () => fire('monthSelected', { month: el.dataset.m, selected: el.dataset.m }));\n}",
+    "props": [
+      {
+        "name": "unit",
+        "type": "string",
+        "default": "kgal",
+        "description": "The unit the volumes are in, shown after the totals."
+      },
+      {
+        "name": "view",
+        "type": "enum",
+        "default": "gross",
+        "description": "Gross shows purchases, sales and futures per month; Net shows the net open position against the limit.",
+        "values": [
+          "gross",
+          "net"
+        ]
+      },
+      {
+        "name": "limit",
+        "type": "number",
+        "default": 1500,
+        "description": "The desk's net position limit per month (either way), in the unit; 0 for none."
+      },
+      {
+        "name": "showHedges",
+        "type": "bool",
+        "default": true,
+        "description": "Shows the futures hedge bar in the gross view."
+      },
+      {
+        "name": "selected",
+        "type": "string",
+        "default": "Feb 27",
+        "description": "The selected delivery month."
+      },
+      {
+        "name": "months",
+        "type": "rows",
+        "default": [
+          {
+            "month": "Dec 26",
+            "physicalLong": 8400,
+            "physicalShort": 7900,
+            "futures": -420
+          },
+          {
+            "month": "Jan 27",
+            "physicalLong": 7600,
+            "physicalShort": 5200,
+            "futures": -1680
+          },
+          {
+            "month": "Feb 27",
+            "physicalLong": 7100,
+            "physicalShort": 3900,
+            "futures": -1260
+          },
+          {
+            "month": "Mar 27",
+            "physicalLong": 6800,
+            "physicalShort": 2600,
+            "futures": -2520
+          },
+          {
+            "month": "Apr 27",
+            "physicalLong": 5200,
+            "physicalShort": 4100,
+            "futures": -840
+          },
+          {
+            "month": "May 27",
+            "physicalLong": 3900,
+            "physicalShort": 5600,
+            "futures": 1260
+          },
+          {
+            "month": "Jun 27",
+            "physicalLong": 2400,
+            "physicalShort": 1200,
+            "futures": 0
+          }
+        ],
+        "description": "Delivery months, nearest first: { month, physicalLong (purchases), physicalShort (sales), futures (+ long / − short) }."
+      }
+    ],
+    "events": [
+      {
+        "name": "viewChanged",
+        "payload": {
+          "view": "string"
+        },
+        "sets": [
+          "view"
+        ]
+      },
+      {
+        "name": "monthSelected",
+        "payload": {
+          "month": "string",
+          "selected": "string"
+        },
+        "sets": [
+          "selected"
+        ]
+      }
+    ],
+    "tokens": {
+      "accent": "#6d4dff",
+      "green": "#1fb57a",
+      "red": "#e5484d",
+      "window": "#ffffff",
+      "background": "#f3f4f7",
+      "text": "#171a21",
+      "muted": "#5f6878",
+      "border": "#e1e4ea",
+      "hover": "#eeeaff"
+    },
+    "dependencies": [],
+    "notes": "Simple control (no designer-edited items): months are data rows. Net = purchases − sales + futures. Hedged % = |futures| / |physical net|. Every month shares one scale (gross: the largest leg; net: the largest net or 115% of the limit). Bars diverge from a centre zero line: short to the left, long to the right. Gross view: purchases (green) and sales (red) on top, futures (violet) below, a dark tick at the net. Net view: one bar per month coloured by sign, dashed ±limit lines; a net over the limit is underlined red and counted in Limit breaches. Colours from the GridKrafter palette (green, red, violet). Meant for a GridBoard card about 6 columns x 6 rows.",
+    "filledByAgent": true,
+    "icon": {
+      "rgba": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABfaHi/X2h4vwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAX2h4v0iDed4ftXqAH7V6gB+1eoAftXqAH7V6TgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAF9oeL8gs3r/H7V6/x+1ev8ftXr/H7V6/x+1evoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABfaHi/LaV5/h+1ev8ftXr/H7V6/x+1ev8ftXrIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAX2h4v19oeL8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA5UhNHeVITUDlSE1A5UhNQHJkcs9faHi/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOVITevlSE3/5UhN/+VITf/aS1D/X2h4vwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADlSE3r5UhN/+VITf/lSE3/2ktQ/19oeL8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA5UhNHeVITUDlSE1A5UhNQHJkcs9faHi/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABfaHi/X2h4vwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAX2h4vy2lef4ftXr/H7V6/x+1esgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAF9oeL8gs3r/H7V6/x+1ev8ftXr6AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABfaHi/SIN53h+1eoAftXqAH7V6TgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAX2h4v19oeL8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 16 16\"><path d=\"M8 1V15\" stroke=\"#5f6878\" stroke-width=\"1.5\"/><rect x=\"8\" y=\"2.5\" width=\"6\" height=\"2.5\" rx=\"1\" fill=\"#1fb57a\"/><rect x=\"3\" y=\"6.75\" width=\"5\" height=\"2.5\" rx=\"1\" fill=\"#e5484d\"/><rect x=\"8\" y=\"11\" width=\"4\" height=\"2.5\" rx=\"1\" fill=\"#1fb57a\"/></svg>"
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "id": "ethanol-price-board",
+  "name": "Ethanol price board",
+  "purpose": "An ethanol price board: spot prices at the trading hubs in $/gal, each with its change on the day, a 10-day trend line and its basis to Chicago, under a strip of benchmarks (CBOT corn, RBOB, Chicago ethanol futures).",
+  "keywords": [
+    "ethanol price board",
+    "ethanolpriceboard"
+  ],
+  "control": "EthanolPriceBoard",
+  "type": "GridKrafter.WisejDemo.EthanolPriceBoard",
+  "extends": null,
+  "component": null,
+  "preview": "<div data-wisej-pattern=\"ethanol-price-board\"><div class=\"pb\">\n  <div class=\"strip\"></div>\n  <div class=\"tiles\"></div>\n  <div class=\"foot\"></div>\n</div></div>"
+}

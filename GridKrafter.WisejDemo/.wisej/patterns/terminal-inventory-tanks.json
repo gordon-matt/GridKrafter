@@ -1,0 +1,14 @@
+{
+  "id": "terminal-inventory-tanks",
+  "name": "Terminal inventory tanks",
+  "purpose": "An ethanol terminal inventory widget: one tank per terminal showing its fill level against low and high alarm lines, with barrels on hand, days of cover and today's net flow, plus fleet-wide totals.",
+  "keywords": [
+    "terminal inventory tanks",
+    "terminalinventorytanks"
+  ],
+  "control": "TerminalInventoryTanks",
+  "type": "GridKrafter.WisejDemo.TerminalInventoryTanks",
+  "extends": null,
+  "component": null,
+  "preview": "<div data-wisej-pattern=\"terminal-inventory-tanks\"><div class=\"ti\">\n  <div class=\"head\">\n    <div class=\"totals\"></div>\n    <div class=\"units\"></div>\n  </div>\n  <div class=\"tanks\"></div>\n</div></div>"
+}

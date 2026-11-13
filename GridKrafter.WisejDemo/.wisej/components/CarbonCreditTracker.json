@@ -1,0 +1,201 @@
+{
+  "name": "CarbonCreditTracker",
+  "namespace": "GridKrafter.WisejDemo",
+  "fullName": "GridKrafter.WisejDemo.CarbonCreditTracker",
+  "language": "csharp",
+  "files": [
+    "Controls/CarbonCreditTracker/CarbonCreditTracker.cs",
+    "Controls/CarbonCreditTracker/gridkrafter.wisejdemo.CarbonCreditTracker.js",
+    "Controls/CarbonCreditTracker/CarbonCreditTracker.mixin.theme",
+    "Controls/CarbonCreditTracker/CarbonCreditTracker.bmp",
+    "GridKrafter.WisejDemo.csproj"
+  ],
+  "saved": "2026-11-13T12:07:34.1333049Z",
+  "sketch": {
+    "schema": "wisej-component-sketch/1",
+    "name": "CarbonCreditTracker",
+    "namespace": "",
+    "description": "A RIN and low-carbon-fuel credit widget: D6 and D4 RIN, California LCFS, Oregon CFP and Washington CFS prices with their change and trend, the credits held and their value, and what each adds to a gallon of ethanol.",
+    "size": [
+      680,
+      340
+    ],
+    "html": "<div class=\"cc\">\n  <div class=\"totals\"></div>\n  <div class=\"table\">\n    <div class=\"colhead\"><span>Credit</span><span class=\"r\">Price</span><span>30-day trend</span><span class=\"r\">Held</span><span class=\"r\">Value</span><span class=\"r\">¢/gal</span></div>\n    <div class=\"rows\"></div>\n  </div>\n</div>",
+    "css": ".cc{box-sizing:border-box;width:100%;height:100%;display:flex;flex-direction:column;gap:10px;padding:12px 14px;background:var(--window);color:var(--text);font:13px/1.4 \"Segoe UI\",system-ui,sans-serif;overflow:hidden}\n.cc *{box-sizing:border-box}\n.totals{display:flex;gap:22px}\n.tot .tl{color:var(--muted);font-size:11.5px;font-weight:500}\n.tot .tv{font-size:20px;font-weight:700;letter-spacing:-.01em;line-height:1.2}\n.tot .tv small{font-size:12px;font-weight:500;color:var(--muted);margin-left:3px}\n.tot.good .tv{color:var(--green)}\n.table{flex:1;display:flex;flex-direction:column;min-height:0;border-top:1px solid var(--border)}\n.colhead,.row{display:grid;grid-template-columns:1.4fr 96px 1fr 72px 80px 52px;gap:10px;align-items:center}\n.colhead{font-size:11px;font-weight:600;color:var(--muted);padding:6px 8px 4px;text-transform:uppercase;letter-spacing:.03em}\n.r{text-align:right}\n.rows{flex:1;overflow:auto}\n.row{padding:6px 8px;border-radius:6px;cursor:pointer;border-bottom:1px solid var(--border)}\n.row:hover{background:var(--hover)}\n.row.selected{background:var(--hover);box-shadow:inset 3px 0 0 var(--accent)}\n.name{display:flex;align-items:center;gap:7px;min-width:0}\n.name b{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.prog{font-size:10px;font-weight:700;padding:0 6px;border-radius:8px;color:var(--c);background:color-mix(in srgb,var(--c) 14%,transparent);flex:none}\n.price{text-align:right;line-height:1.2}\n.price b{font-weight:700;font-variant-numeric:tabular-nums}\n.price small{display:block;font-size:11px;font-weight:600}\n.up{color:var(--green)}\n.down{color:var(--red)}\n.flat{color:var(--muted)}\n.spark{height:24px}\n.spark svg{display:block;width:100%;height:100%}\n.held,.value,.uplift{text-align:right;font-variant-numeric:tabular-nums;font-size:12px}\n.held{color:var(--muted)}\n.value{font-weight:600}\n.uplift{font-weight:700;color:var(--green)}\n.empty{color:var(--muted);text-align:center;padding:30px 0}",
+    "js": "function render(root, props, fire) {\n  const esc = s => String(s == null ? '' : s).replace(/[&<>\"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]));\n  const cls = v => v > 0 ? 'up' : v < 0 ? 'down' : 'flat';\n  const PROG = { RFS: 'var(--violet)', LCFS: 'var(--sky)', CFP: 'var(--green)', CFS: 'var(--amber)' };\n  const money = v => v >= 1e6 ? '$' + (v / 1e6).toFixed(2) + 'M' : v >= 1e3 ? '$' + Math.round(v / 1e3) + 'k' : '$' + Math.round(v);\n  const qty = v => v >= 1e6 ? (v / 1e6).toFixed(2) + 'M' : v >= 1e3 ? Math.round(v / 1e3) + 'k' : String(Math.round(v));\n  // a price in cents shows as 104.5¢, in dollars as $72.50\n  const price = c => c.unit === '¢' ? (+c.price || 0).toFixed(2) + '¢' : '$' + (+c.price || 0).toFixed(2);\n  const credits = props.credits || [];\n\n  // totals: holdings at market (cents converted to dollars) and the uplift a gallon earns in the selected market\n  let value = 0;\n  credits.forEach(c => value += (+c.held || 0) * (+c.price || 0) / (c.unit === '¢' ? 100 : 1));\n  const rin = credits.find(c => c.id === 'd6');\n  const sel = credits.find(c => c.id === props.selected);\n  const uplift = (rin ? +rin.perGallon || 0 : 0) + (sel && sel !== rin ? +sel.perGallon || 0 : 0);\n  root.querySelector('.totals').innerHTML =\n    '<div class=\"tot\"><div class=\"tl\">Credits held, at market</div><div class=\"tv\">' + money(value) + '</div></div>' +\n    '<div class=\"tot good\"><div class=\"tl\">Uplift per gallon' + (sel && sel !== rin ? ' (D6 + ' + esc(sel.name) + ')' : '') + '</div><div class=\"tv\">' + uplift.toFixed(1) + '<small>¢/gal</small></div></div>' +\n    (props.rvo ? '<div class=\"tot\"><div class=\"tl\">RVO coverage</div><div class=\"tv\">' + Math.round((rin ? +rin.held || 0 : 0) / props.rvo * 100) + '<small>%</small></div></div>' : '');\n\n  const box = root.querySelector('.rows');\n  root.querySelector('.colhead').style.display = credits.length ? '' : 'none';\n  if (!credits.length) { box.innerHTML = '<div class=\"empty\">No credits</div>'; return; }\n  box.innerHTML = credits.map(c => {\n    const ch = +c.change || 0, hist = (c.history || []).map(Number).filter(v => !isNaN(v));\n    let spark = '';\n    if (hist.length > 1) {\n      const lo = Math.min.apply(null, hist), hi = Math.max.apply(null, hist), r = hi - lo || 1;\n      const pts = hist.map((v, i) => (i / (hist.length - 1) * 100).toFixed(1) + ',' + (22 - (v - lo) / r * 20).toFixed(1)).join(' ');\n      spark = '<svg viewBox=\"0 0 100 24\" preserveAspectRatio=\"none\"><polyline points=\"' + pts + '\" fill=\"none\" stroke=\"' + (hist[hist.length - 1] >= hist[0] ? 'var(--green)' : 'var(--red)') + '\" stroke-width=\"1.6\" stroke-linejoin=\"round\" vector-effect=\"non-scaling-stroke\"/></svg>';\n    }\n    const v = (+c.held || 0) * (+c.price || 0) / (c.unit === '¢' ? 100 : 1);\n    return '<div class=\"row' + (c.id === props.selected ? ' selected' : '') + '\" data-id=\"' + esc(c.id) + '\" style=\"--c:' + (PROG[c.program] || 'var(--accent)') + '\">' +\n      '<div class=\"name\"><span class=\"prog\">' + esc(c.program) + '</span><b>' + esc(c.name) + '</b></div>' +\n      '<div class=\"price\"><b>' + price(c) + '</b><small class=\"' + cls(ch) + '\">' + (ch > 0 ? '▲ ' : ch < 0 ? '▼ ' : '■ ') + Math.abs(ch).toFixed(2) + '</small></div>' +\n      '<div class=\"spark\">' + spark + '</div>' +\n      '<div class=\"held\">' + qty(+c.held || 0) + '</div>' +\n      '<div class=\"value\">' + money(v) + '</div>' +\n      '<div class=\"uplift\">' + (+c.perGallon || 0).toFixed(1) + '</div></div>';\n  }).join('');\n  box.querySelectorAll('.row').forEach(el => el.onclick = () => fire('creditSelected', { id: el.dataset.id, selected: el.dataset.id }));\n}",
+    "props": [
+      {
+        "name": "selected",
+        "type": "string",
+        "default": "lcfs",
+        "description": "Id of the selected credit; the uplift per gallon adds it to the D6 RIN."
+      },
+      {
+        "name": "rvo",
+        "type": "number",
+        "default": 4200000,
+        "description": "The renewable volume obligation in RINs, for the RVO coverage total; 0 hides it."
+      },
+      {
+        "name": "credits",
+        "type": "rows",
+        "default": [
+          {
+            "id": "d6",
+            "name": "D6 RIN",
+            "program": "RFS",
+            "price": 104.5,
+            "unit": "¢",
+            "change": 2.25,
+            "held": 3150000,
+            "perGallon": 104.5,
+            "history": [
+              96,
+              97.5,
+              96.8,
+              98.2,
+              99,
+              98.4,
+              100.1,
+              101.3,
+              100.6,
+              102,
+              102.25,
+              104.5
+            ]
+          },
+          {
+            "id": "d4",
+            "name": "D4 RIN",
+            "program": "RFS",
+            "price": 112,
+            "unit": "¢",
+            "change": 1.5,
+            "held": 420000,
+            "perGallon": 0,
+            "history": [
+              105,
+              106.2,
+              105.8,
+              107.5,
+              108.1,
+              107.6,
+              109,
+              110.2,
+              109.7,
+              110.5,
+              110.5,
+              112
+            ]
+          },
+          {
+            "id": "lcfs",
+            "name": "California LCFS",
+            "program": "LCFS",
+            "price": 72.5,
+            "unit": "$",
+            "change": -1.25,
+            "held": 18500,
+            "perGallon": 9.8,
+            "history": [
+              76,
+              75.5,
+              76.2,
+              75,
+              74.6,
+              75.1,
+              74.2,
+              73.8,
+              74,
+              73.5,
+              73.75,
+              72.5
+            ]
+          },
+          {
+            "id": "cfp",
+            "name": "Oregon CFP",
+            "program": "CFP",
+            "price": 118,
+            "unit": "$",
+            "change": 0.75,
+            "held": 6200,
+            "perGallon": 14.6,
+            "history": [
+              112,
+              113.1,
+              112.6,
+              114,
+              115.2,
+              114.8,
+              116,
+              116.6,
+              116.1,
+              117,
+              117.25,
+              118
+            ]
+          },
+          {
+            "id": "cfs",
+            "name": "Washington CFS",
+            "program": "CFS",
+            "price": 61,
+            "unit": "$",
+            "change": 0,
+            "held": 3100,
+            "perGallon": 7.4,
+            "history": [
+              60.2,
+              60.8,
+              60.5,
+              61.1,
+              60.9,
+              61.3,
+              61,
+              60.7,
+              61,
+              61.2,
+              61,
+              61
+            ]
+          }
+        ],
+        "description": "Credits: { id, name, program (RFS, LCFS, CFP, CFS), price, unit (¢ or $), change, held (credits), perGallon (¢ a gallon of ethanol earns), history (oldest first) }."
+      }
+    ],
+    "events": [
+      {
+        "name": "creditSelected",
+        "payload": {
+          "id": "string",
+          "selected": "string"
+        },
+        "sets": [
+          "selected"
+        ]
+      }
+    ],
+    "tokens": {
+      "accent": "#6d4dff",
+      "violet": "#6d4dff",
+      "sky": "#0ea5e9",
+      "green": "#1fb57a",
+      "amber": "#f2a516",
+      "red": "#e5484d",
+      "window": "#ffffff",
+      "background": "#f3f4f7",
+      "text": "#171a21",
+      "muted": "#5f6878",
+      "border": "#e1e4ea",
+      "hover": "#eeeaff"
+    },
+    "dependencies": [],
+    "notes": "Simple control (no designer-edited items): credits are data rows. RINs priced in cents per RIN, state credits in dollars per tonne CO2e; holdings value converts cents to dollars. Uplift per gallon = the D6 RIN's ¢/gal plus the selected state program's (a gallon earns one D6 RIN and, in a low-carbon market, the credits its CI generates). RVO coverage = D6 RINs held / rvo. Program chips: RFS violet, LCFS sky, CFP green, CFS amber; trends green up / red down. Sparklines as small SVGs; rows as native widgets. Meant for a GridBoard card about 7 columns x 5 rows.",
+    "filledByAgent": true,
+    "icon": {
+      "rgba": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAftXoiH7V6IAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAftXo0H7V65B+1euMftXozAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB+1ehUftXqGH7V6+B+1ev8ftXr/H7V6+R+1eogftXoVAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH7V6SR+1eroftXr5H7V6/x+1ev8ftXr/H7V6/x+1ev8ftXr/H7V6+h+1eroftXpKAAAAAAAAAAAAAAAAAAAAAB+1eo4ftXr/H7V6/x+1ev8ftXr/H7V6/x+1ev8ftXr/cdCr/0TBkP8ftXr/H7V6jwAAAAAAAAAAAAAAAAAAAAAftXqLH7V6/x+1ev8ftXr/H7V6/x+1ev8ftXr/jNm7//////+Q2r3/H7V6/x+1eosAAAAAAAAAAAAAAAAAAAAAH7V6bB+1ev8uuoP/l93B/zS8h/8ftXr/gdW0///////E7Nz/Jrd+/x+1ev8ftXpsAAAAAAAAAAAAAAAAAAAAAB+1ejAftXr/RsKR//z+/f/c8+r/h9e4//7//v/O7+L/KbiA/x+1ev8ftXr/H7V6LgAAAAAAAAAAAAAAAAAAAAAgt3gBH7V6zh+1ev9sz6j//P79///////V8eb/LbqC/x+1ev8ftXr/H7V6zgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB+1ekYftXr/H7V6/2nOpv+86df/MbuF/x+1ev8ftXr/H7V6/x+1ekYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH7V6jB+1ev8ftXr/H7V6/x+1ev8ftXr/H7V6/x+1eo4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB61egIftXqbH7V6/x+1ev8ftXr/H7V6/x+1epwetXoCAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAILd4AR+1enQftXr5H7V6+h+1enQgs3wBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH7V6MR+1ejEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 16 16\"><path d=\"M8 14.5C4 12 2 9 2.5 4.5C5.5 4 7 2.5 8 1.5C9 2.5 10.5 4 13.5 4.5C14 9 12 12 8 14.5Z\" fill=\"#1fb57a\"/><path d=\"M5.5 8.2L7.3 10L10.8 6.3\" fill=\"none\" stroke=\"#ffffff\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"
+    }
+  }
+}

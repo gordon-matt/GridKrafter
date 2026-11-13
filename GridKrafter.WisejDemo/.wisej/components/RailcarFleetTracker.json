@@ -1,0 +1,292 @@
+{
+  "name": "RailcarFleetTracker",
+  "namespace": "GridKrafter.WisejDemo",
+  "fullName": "GridKrafter.WisejDemo.RailcarFleetTracker",
+  "language": "csharp",
+  "files": [
+    "Controls/RailcarFleetTracker/RailcarFleetTracker.cs",
+    "Controls/RailcarFleetTracker/gridkrafter.wisejdemo.RailcarFleetTracker.js",
+    "Controls/RailcarFleetTracker/RailcarFleetTracker.mixin.theme",
+    "Controls/RailcarFleetTracker/RailcarFleetTracker.bmp",
+    "GridKrafter.WisejDemo.csproj"
+  ],
+  "saved": "2026-11-13T11:21:40.2926803Z",
+  "sketch": {
+    "schema": "wisej-component-sketch/1",
+    "name": "RailcarFleetTracker",
+    "namespace": "",
+    "description": "A railcar fleet widget for ethanol shipments: the fleet split by status in one bar you can filter by, totals and overdue cars, a route map, and the unit trains and manifest moves grouped by terminal, with route progress, days out, car count, ETA and expandable car numbers.",
+    "size": [
+      840,
+      500
+    ],
+    "html": "<div class=\"rf\">\n  <div class=\"summary\">\n    <div class=\"kpis\"></div>\n    <div class=\"statusbar\"></div>\n    <div class=\"statuslegend\"></div>\n  </div>\n  <div class=\"main\">\n    <div class=\"listpane\">\n      <div class=\"listhead\">\n        <span class=\"lh-title\">Shipments</span>\n        <div class=\"groupby\"></div>\n      </div>\n      <div class=\"list\"></div>\n    </div>\n    <div class=\"map\"></div>\n  </div>\n</div>",
+    "css": ".rf{box-sizing:border-box;width:100%;height:100%;display:flex;flex-direction:column;gap:10px;padding:12px 14px;background:var(--window);color:var(--text);font:13px/1.4 \"Segoe UI\",system-ui,sans-serif;overflow:hidden}\n.rf *{box-sizing:border-box}\n.kpis{display:flex;gap:18px;margin-bottom:8px}\n.kpi .kl{color:var(--muted);font-size:11.5px;font-weight:500}\n.kpi .kv{font-size:20px;font-weight:700;letter-spacing:-.01em;line-height:1.2}\n.kpi.alert .kv{color:var(--red)}\n.statusbar{display:flex;height:10px;border-radius:5px;overflow:hidden;gap:2px;background:var(--background)}\n.seg{height:100%;cursor:pointer;transition:opacity .15s}\n.statusbar.filtered .seg{opacity:.3}\n.statusbar.filtered .seg.selected{opacity:1}\n.statuslegend{display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:6px}\n.lg{display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--muted);cursor:pointer;padding:1px 6px;border-radius:10px}\n.lg:hover{background:var(--hover)}\n.lg.selected{background:var(--hover);color:var(--text)}\n.lg i{width:8px;height:8px;border-radius:2px;background:var(--c)}\n.lg b{color:var(--text);font-weight:600}\n.main{flex:1;display:flex;gap:12px;min-height:0}\n.listpane{flex:1;display:flex;flex-direction:column;min-width:0;border-top:1px solid var(--border)}\n.listhead{display:flex;justify-content:space-between;align-items:center;padding:6px 2px}\n.lh-title{font-weight:600}\n.groupby{display:flex;gap:2px;background:var(--background);border-radius:8px;padding:2px}\n.gb{padding:2px 9px;border-radius:6px;font-size:11.5px;font-weight:500;color:var(--muted);cursor:pointer}\n.gb:hover{color:var(--text)}\n.gb.selected{background:var(--window);color:var(--accent);box-shadow:0 1px 2px rgba(20,20,50,.1)}\n.list{flex:1;overflow:auto}\n.group{display:flex;justify-content:space-between;padding:8px 6px 4px;font-size:11.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;border-bottom:1px solid var(--border)}\n.group span{text-transform:none;letter-spacing:0;font-weight:500}\n.row{display:grid;grid-template-columns:16px 1fr 116px 64px 66px;gap:10px;align-items:center;padding:7px 6px;border-bottom:1px solid var(--border);cursor:pointer;border-radius:6px}\n.row:hover{background:var(--hover)}\n.row.selected{background:var(--hover);box-shadow:inset 3px 0 0 var(--accent)}\n.chev{width:16px;height:16px;color:var(--muted);border-radius:4px;transition:transform .15s}\n.chev:hover{background:var(--background);color:var(--accent)}\n.row.expanded .chev{transform:rotate(90deg)}\n.chev svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}\n.id{display:flex;align-items:center;gap:6px;font-weight:600}\n.kind{font-size:10.5px;font-weight:600;padding:0 6px;border-radius:8px;color:var(--muted);background:var(--background)}\n.route{color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.track{position:relative;height:6px;border-radius:3px;background:var(--background)}\n.fill{position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:var(--c)}\n.train{position:absolute;top:50%;width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;background:var(--window);border:2px solid var(--c)}\n.chip{display:inline-block;font-size:11px;font-weight:600;color:var(--c);margin-top:4px}\n.days{font-size:12px;text-align:center}\n.days b{font-weight:600}\n.days small{display:block;color:var(--muted);font-size:11px}\n.days.over b{color:var(--red)}\n.right{text-align:right}\n.cars{font-weight:600}\n.eta{color:var(--muted);font-size:11.5px}\n.late{color:var(--red);font-weight:600}\n.carlist{display:flex;flex-wrap:wrap;gap:4px;padding:6px 6px 9px 32px;border-bottom:1px solid var(--border);background:color-mix(in srgb,var(--hover) 45%,transparent)}\n.car{font:11px/1.6 Consolas,\"Cascadia Mono\",monospace;padding:0 6px;border-radius:5px;background:var(--window);border:1px solid var(--border)}\n.car.more{font-family:inherit;color:var(--muted);border-style:dashed}\n.map{width:280px;flex:none;border:1px solid var(--border);border-radius:10px;background:var(--background);position:relative;overflow:hidden}\n.map svg{display:block;width:100%;height:100%}\n.land{fill:var(--window);stroke:var(--border);stroke-width:1}\n.arc{fill:none;stroke:var(--c);stroke-width:1.6;opacity:.45;stroke-dasharray:4 3;cursor:pointer}\n.arc.done{stroke-dasharray:none;opacity:.9}\n.arc.selected{opacity:1;stroke-width:2.6}\n.pin{fill:var(--window);stroke:var(--muted);stroke-width:1.4}\n.pin.term{fill:var(--text);stroke:none}\n.pos{fill:var(--c);stroke:var(--window);stroke-width:1.6;cursor:pointer}\n.pos.selected{stroke:var(--text)}\n.place{font-size:9px;fill:var(--muted)}\n.maptitle{position:absolute;left:10px;top:8px;font-size:11.5px;font-weight:600;color:var(--muted)}\n.empty{color:var(--muted);text-align:center;padding:24px 0}",
+    "js": "function render(root, props, fire) {\n  const STATUS = [\n    { key: 'loading', text: 'Loading', c: 'var(--amber)' },\n    { key: 'transit', text: 'In transit', c: 'var(--accent)' },\n    { key: 'destination', text: 'At destination', c: 'var(--green)' },\n    { key: 'empty', text: 'Empty return', c: 'var(--sky)' },\n    { key: 'badorder', text: 'Bad order', c: 'var(--red)' }\n  ];\n  const GROUPS = [{ key: 'none', text: 'All' }, { key: 'destination', text: 'Terminal' }, { key: 'origin', text: 'Plant' }];\n  const esc = s => String(s == null ? '' : s).replace(/[&<>\"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]));\n  const st = k => STATUS.find(s => s.key === k) || STATUS[1];\n  const ships = props.shipments || [];\n  const filter = props.statusFilter && props.statusFilter !== 'all' ? props.statusFilter : '';\n  const groupBy = props.groupBy || 'destination';\n  const maxCars = props.carNumbersShown || 12;\n\n  // fleet totals by status: the cars of every shipment\n  const counts = {}; let total = 0, late = 0;\n  STATUS.forEach(s => counts[s.key] = 0);\n  ships.forEach(s => { const n = +s.cars || 0; counts[st(s.status).key] += n; total += n; if ((+s.daysOut || 0) > (+s.expectedDays || 0)) late += n; });\n\n  root.querySelector('.kpis').innerHTML =\n    '<div class=\"kpi\"><div class=\"kl\">Fleet</div><div class=\"kv\">' + total.toLocaleString() + '</div></div>' +\n    '<div class=\"kpi\"><div class=\"kl\">In transit</div><div class=\"kv\">' + counts.transit.toLocaleString() + '</div></div>' +\n    '<div class=\"kpi' + (late ? ' alert' : '') + '\"><div class=\"kl\">Overdue cars</div><div class=\"kv\">' + late + '</div></div>' +\n    '<div class=\"kpi\"><div class=\"kl\">Shipments</div><div class=\"kv\">' + ships.length + '</div></div>';\n\n  const bar = root.querySelector('.statusbar');\n  bar.classList.toggle('filtered', !!filter);\n  bar.innerHTML = STATUS.filter(s => counts[s.key]).map(s => '<span class=\"seg' + (s.key === filter ? ' selected' : '') + '\" data-k=\"' + s.key + '\" title=\"' + s.text + '\" style=\"flex:' + counts[s.key] + ';background:' + s.c + '\"></span>').join('');\n  root.querySelector('.statuslegend').innerHTML = STATUS.map(s => '<span class=\"lg' + (s.key === filter ? ' selected' : '') + '\" data-k=\"' + s.key + '\" style=\"--c:' + s.c + '\"><i></i>' + s.text + ' <b>' + counts[s.key] + '</b></span>').join('');\n  root.querySelectorAll('.seg,.lg').forEach(el => el.onclick = () => fire('statusFilterChanged', { statusFilter: el.dataset.k === filter ? 'all' : el.dataset.k }));\n\n  // group switch\n  const gb = root.querySelector('.groupby');\n  gb.innerHTML = GROUPS.map(g => '<span class=\"gb' + (g.key === groupBy ? ' selected' : '') + '\" data-g=\"' + g.key + '\">' + g.text + '</span>').join('');\n  gb.querySelectorAll('.gb').forEach(el => el.onclick = () => fire('groupByChanged', { groupBy: el.dataset.g }));\n\n  // shipments of the filtered status, grouped\n  const shown = ships.filter(s => !filter || st(s.status).key === filter);\n  const list = root.querySelector('.list');\n  const rowHtml = s => {\n    const S = st(s.status), p = Math.max(0, Math.min(100, +s.progress || 0));\n    const out = +s.daysOut || 0, exp = +s.expectedDays || 0, over = out - exp;\n    const open = s.id === props.expanded;\n    let h = '<div class=\"row' + (s.id === props.selected ? ' selected' : '') + (open ? ' expanded' : '') + '\" data-id=\"' + esc(s.id) + '\" style=\"--c:' + S.c + '\">' +\n      '<span class=\"chev\" data-x=\"' + esc(s.id) + '\"><svg viewBox=\"0 0 24 24\"><path d=\"M9 6l6 6-6 6\"/></svg></span>' +\n      '<div style=\"min-width:0\"><div class=\"id\">' + esc(s.id) + '<span class=\"kind\">' + (s.unitTrain ? 'Unit train' : 'Manifest') + '</span></div>' +\n      '<div class=\"route\">' + esc(s.origin) + ' → ' + esc(s.destination) + '</div></div>' +\n      '<div><div class=\"track\"><span class=\"fill\" style=\"width:' + p + '%\"></span><span class=\"train\" style=\"left:' + p + '%\"></span></div><span class=\"chip\">' + S.text + '</span></div>' +\n      '<div class=\"days' + (over > 0 ? ' over' : '') + '\"><b>Day ' + out + '</b><small>of ' + exp + '</small></div>' +\n      '<div class=\"right\"><div class=\"cars\">' + (+s.cars || 0) + ' cars</div>' +\n      (over > 0 ? '<div class=\"eta late\">+' + over + 'd late</div>' : '<div class=\"eta\">ETA ' + esc(s.eta) + '</div>') + '</div></div>';\n    if (open) {\n      const nums = s.carNumbers || [];\n      const rest = Math.max(0, (+s.cars || 0) - Math.min(nums.length, maxCars));\n      h += '<div class=\"carlist\">' + nums.slice(0, maxCars).map(n => '<span class=\"car\">' + esc(n) + '</span>').join('') +\n        (rest ? '<span class=\"car more\">+' + rest + ' more</span>' : '') + '</div>';\n    }\n    return h;\n  };\n  if (!shown.length) list.innerHTML = '<div class=\"empty\">No shipments</div>';\n  else if (groupBy === 'none') list.innerHTML = shown.map(rowHtml).join('');\n  else {\n    const keys = []; const by = {};\n    shown.forEach(s => { const k = s[groupBy] || '—'; if (!by[k]) { by[k] = []; keys.push(k); } by[k].push(s); });\n    list.innerHTML = keys.map(k => '<div class=\"group\">' + esc(k) + '<span>' + by[k].length + ' shipment' + (by[k].length > 1 ? 's' : '') + ' · ' +\n      by[k].reduce((a, s) => a + (+s.cars || 0), 0) + ' cars</span></div>' + by[k].map(rowHtml).join('')).join('');\n  }\n  list.querySelectorAll('.row').forEach(el => el.onclick = () => fire('shipmentSelected', { id: el.dataset.id, selected: el.dataset.id }));\n  list.querySelectorAll('.chev').forEach(el => el.onclick = e => {\n    e.stopPropagation();\n    const id = el.dataset.x;\n    fire('shipmentExpanded', { id: id, expanded: id === props.expanded ? '' : id });\n  });\n\n  // route map: the lower 48 in a plain lon/lat projection, an arc per shipment, the train on it\n  const map = root.querySelector('.map');\n  map.style.display = props.showMap === false ? 'none' : '';\n  if (props.showMap === false) return;\n  const W = 280, H = 190, L = -125.5, R = -66, T = 50, B = 24;\n  const px = lon => (lon - L) / (R - L) * W, py = lat => (T - lat) / (T - B) * H;\n  const US = [[-124.7,48.4],[-124.1,46.2],[-124.4,42],[-123.8,39.8],[-122.4,37.2],[-120.6,34.6],[-117.1,32.5],[-114.7,32.7],[-111,31.3],[-108.2,31.3],[-106.5,31.8],[-104.5,29.6],[-103,29],[-101.4,29.8],[-99.5,27.5],[-97.4,25.9],[-97.2,27.7],[-94,29.6],[-90,29.1],[-89.4,30.2],[-85,29.7],[-83,29],[-82.6,27.5],[-81,25.2],[-80.1,26.5],[-80.6,28.5],[-81.4,30.7],[-79,33.5],[-75.5,35.2],[-76,37],[-74,39.5],[-71,41.5],[-70,41.8],[-70.7,43],[-67,44.8],[-67.8,47.1],[-69.2,47.4],[-71.5,45],[-74.9,45],[-76.5,44],[-79.2,43.4],[-82.5,41.7],[-82.7,45],[-84.6,46.5],[-88,48],[-95.2,49],[-123,49]];\n  const land = 'M' + US.map(p => px(p[0]).toFixed(1) + ' ' + py(p[1]).toFixed(1)).join(' L') + 'Z';\n  const places = {};\n  let arcs = '', trains = '';\n  ships.filter(s => !filter || st(s.status).key === filter).forEach(s => {\n    if (s.originLon == null || s.destLon == null) return;\n    const S = st(s.status), sel = s.id === props.selected;\n    const x1 = px(s.originLon), y1 = py(s.originLat), x2 = px(s.destLon), y2 = py(s.destLat);\n    const mx = (x1 + x2) / 2, my = (y1 + y2) / 2 - Math.hypot(x2 - x1, y2 - y1) * .18;\n    const t = Math.max(0, Math.min(100, +s.progress || 0)) / 100;\n    const tx = (1 - t) * (1 - t) * x1 + 2 * (1 - t) * t * mx + t * t * x2, ty = (1 - t) * (1 - t) * y1 + 2 * (1 - t) * t * my + t * t * y2;\n    arcs += '<path class=\"arc' + (t >= 1 ? ' done' : '') + (sel ? ' selected' : '') + '\" data-id=\"' + esc(s.id) + '\" style=\"--c:' + S.c + '\" d=\"M' + x1.toFixed(1) + ' ' + y1.toFixed(1) + ' Q' + mx.toFixed(1) + ' ' + my.toFixed(1) + ' ' + x2.toFixed(1) + ' ' + y2.toFixed(1) + '\"/>';\n    trains += '<circle class=\"pos' + (sel ? ' selected' : '') + '\" data-id=\"' + esc(s.id) + '\" style=\"--c:' + S.c + '\" cx=\"' + tx.toFixed(1) + '\" cy=\"' + ty.toFixed(1) + '\" r=\"' + (sel ? 5 : 4) + '\"><title>' + esc(s.id) + '</title></circle>';\n    places[s.origin] = places[s.origin] || { x: x1, y: y1, term: false };\n    places[s.destination] = { x: x2, y: y2, term: true };\n  });\n  const pins = Object.keys(places).map(n => { const p = places[n]; return '<circle class=\"pin' + (p.term ? ' term' : '') + '\" cx=\"' + p.x.toFixed(1) + '\" cy=\"' + p.y.toFixed(1) + '\" r=\"2.6\"><title>' + esc(n) + '</title></circle>' +\n    (p.term ? '<text class=\"place\" x=\"' + (p.x + 4).toFixed(1) + '\" y=\"' + (p.y + 3).toFixed(1) + '\">' + esc(n.split(',')[0]) + '</text>' : ''); }).join('');\n  map.innerHTML = '<span class=\"maptitle\">Routes</span><svg viewBox=\"-6 -24 ' + (W + 12) + ' ' + (H + 34) + '\" preserveAspectRatio=\"xMidYMid meet\"><path class=\"land\" d=\"' + land + '\"/>' + arcs + pins + trains + '</svg>';\n  map.querySelectorAll('.arc,.pos').forEach(el => el.onclick = () => fire('shipmentSelected', { id: el.dataset.id, selected: el.dataset.id }));\n}",
+    "props": [
+      {
+        "name": "statusFilter",
+        "type": "enum",
+        "default": "all",
+        "description": "Shows only the shipments of one status; all shows every shipment.",
+        "values": [
+          "all",
+          "loading",
+          "transit",
+          "destination",
+          "empty",
+          "badorder"
+        ]
+      },
+      {
+        "name": "groupBy",
+        "type": "enum",
+        "default": "destination",
+        "description": "Groups the list by destination terminal, by origin plant, or not at all.",
+        "values": [
+          "none",
+          "destination",
+          "origin"
+        ]
+      },
+      {
+        "name": "selected",
+        "type": "string",
+        "default": "UTX-4421",
+        "description": "Id of the selected shipment, highlighted in the list and on the map."
+      },
+      {
+        "name": "expanded",
+        "type": "string",
+        "default": "UTX-4433",
+        "description": "Id of the shipment whose car numbers show; empty for none."
+      },
+      {
+        "name": "showMap",
+        "type": "bool",
+        "default": true,
+        "description": "Shows the route map beside the list."
+      },
+      {
+        "name": "carNumbersShown",
+        "type": "int",
+        "default": 12,
+        "description": "How many car numbers an expanded shipment lists before '+N more'."
+      },
+      {
+        "name": "shipments",
+        "type": "rows",
+        "default": [
+          {
+            "id": "UTX-4421",
+            "unitTrain": true,
+            "origin": "Aberdeen, SD",
+            "originLat": 45.46,
+            "originLon": -98.49,
+            "destination": "Port Arthur, TX",
+            "destLat": 29.9,
+            "destLon": -93.93,
+            "cars": 96,
+            "status": "transit",
+            "progress": 62,
+            "eta": "Nov 15",
+            "daysOut": 6,
+            "expectedDays": 9,
+            "carNumbers": [
+              "UTLX 205114",
+              "UTLX 205131",
+              "UTLX 205167",
+              "TILX 290455",
+              "TILX 290462",
+              "TILX 290478",
+              "GATX 221306",
+              "GATX 221319"
+            ]
+          },
+          {
+            "id": "UTX-4433",
+            "unitTrain": true,
+            "origin": "Jewell, IA",
+            "originLat": 42.31,
+            "originLon": -93.64,
+            "destination": "Carteret, NJ",
+            "destLat": 40.58,
+            "destLon": -74.23,
+            "cars": 98,
+            "status": "transit",
+            "progress": 35,
+            "eta": "Nov 18",
+            "daysOut": 11,
+            "expectedDays": 10,
+            "carNumbers": [
+              "TILX 291004",
+              "TILX 291017",
+              "TILX 291023",
+              "TILX 291048",
+              "UTLX 206602",
+              "UTLX 206615",
+              "UTLX 206639",
+              "PROX 44120",
+              "PROX 44137",
+              "PROX 44151",
+              "GATX 222780",
+              "GATX 222794",
+              "GATX 222801"
+            ]
+          },
+          {
+            "id": "MAN-2107",
+            "unitTrain": false,
+            "origin": "Mitchell, SD",
+            "originLat": 43.71,
+            "originLon": -98.03,
+            "destination": "Stockton, CA",
+            "destLat": 37.96,
+            "destLon": -121.29,
+            "cars": 18,
+            "status": "loading",
+            "progress": 0,
+            "eta": "Nov 22",
+            "daysOut": 0,
+            "expectedDays": 12,
+            "carNumbers": [
+              "UTLX 207301",
+              "UTLX 207318",
+              "UTLX 207322"
+            ]
+          },
+          {
+            "id": "UTX-4398",
+            "unitTrain": true,
+            "origin": "Hudson, SD",
+            "originLat": 43.13,
+            "originLon": -96.45,
+            "destination": "Watson, CA",
+            "destLat": 33.84,
+            "destLon": -118.25,
+            "cars": 94,
+            "status": "destination",
+            "progress": 100,
+            "eta": "Nov 12",
+            "daysOut": 10,
+            "expectedDays": 11,
+            "carNumbers": [
+              "GATX 223410",
+              "GATX 223427"
+            ]
+          },
+          {
+            "id": "EMP-0871",
+            "unitTrain": true,
+            "origin": "Port Arthur, TX",
+            "originLat": 29.9,
+            "originLon": -93.93,
+            "destination": "Aberdeen, SD",
+            "destLat": 45.46,
+            "destLon": -98.49,
+            "cars": 96,
+            "status": "empty",
+            "progress": 48,
+            "eta": "Nov 16",
+            "daysOut": 4,
+            "expectedDays": 8,
+            "carNumbers": [
+              "TILX 290455"
+            ]
+          },
+          {
+            "id": "MAN-2093",
+            "unitTrain": false,
+            "origin": "Watertown, SD",
+            "originLat": 44.9,
+            "originLon": -97.11,
+            "destination": "Tampa, FL",
+            "destLat": 27.95,
+            "destLon": -82.46,
+            "cars": 12,
+            "status": "badorder",
+            "progress": 71,
+            "eta": "—",
+            "daysOut": 14,
+            "expectedDays": 10,
+            "carNumbers": [
+              "UTLX 208806",
+              "UTLX 208813",
+              "UTLX 208820",
+              "UTLX 208837",
+              "UTLX 208844",
+              "UTLX 208851",
+              "UTLX 208868",
+              "UTLX 208875",
+              "UTLX 208882",
+              "UTLX 208899",
+              "UTLX 208903",
+              "UTLX 208910"
+            ]
+          }
+        ],
+        "description": "Shipments: { id, unitTrain, origin, originLat, originLon, destination, destLat, destLon, cars, status (loading, transit, destination, empty, badorder), progress 0-100, eta, daysOut, expectedDays, carNumbers [] }."
+      }
+    ],
+    "events": [
+      {
+        "name": "statusFilterChanged",
+        "payload": {
+          "statusFilter": "string"
+        },
+        "sets": [
+          "statusFilter"
+        ]
+      },
+      {
+        "name": "groupByChanged",
+        "payload": {
+          "groupBy": "string"
+        },
+        "sets": [
+          "groupBy"
+        ]
+      },
+      {
+        "name": "shipmentSelected",
+        "payload": {
+          "id": "string",
+          "selected": "string"
+        },
+        "sets": [
+          "selected"
+        ]
+      },
+      {
+        "name": "shipmentExpanded",
+        "payload": {
+          "id": "string",
+          "expanded": "string"
+        },
+        "sets": [
+          "expanded"
+        ]
+      }
+    ],
+    "tokens": {
+      "accent": "#6d4dff",
+      "green": "#1fb57a",
+      "amber": "#f2a516",
+      "sky": "#0ea5e9",
+      "red": "#e5484d",
+      "window": "#ffffff",
+      "background": "#f3f4f7",
+      "text": "#171a21",
+      "muted": "#5f6878",
+      "border": "#e1e4ea",
+      "hover": "#eeeaff"
+    },
+    "dependencies": [],
+    "notes": "Simple control (no designer-edited items): shipments are data rows. Fleet totals and overdue cars (daysOut > expectedDays) are computed from the rows. Status colours from the GridKrafter palette (theme colours amber, highlight, green, sky, red). Clicking a status segment or legend entry filters; clicking it again clears. List grouped by destination terminal (or origin plant, or none) with per-group shipment and car totals; the chevron expands a row to its car numbers (first carNumbersShown, then '+N more'). Days-out column: 'Day N of M', red when over. Route map: simplified lower-48 outline in an equirectangular lon/lat projection drawn as SVG (no map library), a curved arc per shipment (dashed while moving, solid when arrived), the train's position on the arc at its progress, plants as hollow pins and terminals as filled labelled pins; clicking an arc or train selects the shipment. Meant for a GridBoard card about 8 columns x 7 rows.",
+    "filledByAgent": true,
+    "icon": {
+      "rgba": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAbU3/gG1N/4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAG1N//9tTf//AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAbU3/P21N/89tTf/9bU3//21N//9tTf//bU3//21N//9tTf//bU3//W1N/89tTf8/AAAAAAAAAAAAAAAAbU3/H21N//RtTf//bU3//21N//9tTf//bU3//21N//9tTf//bU3//21N//9tTf//bU3/9G1N/x8AAAAAAAAAAG1N/3FtTf//bU3//21N//9tTf//bU3//21N//9tTf//bU3//21N//9tTf//bU3//21N//9tTf9xAAAAAAAAAABtTf9xbU3//21N//9tTf//bU3//21N//9tTf//bU3//21N//9tTf//bU3//21N//9tTf//bU3/cQAAAAAAAAAAbU3/H21N//RtTf//bU3//21N//9tTf//bU3//21N//9tTf//bU3//21N//9tTf//bU3/9G1N/x8AAAAAAAAAAAAAAABtTf8/bU3/z21N//1tTf//bU3//21N//9tTf//bU3//21N//9tTf/9bU3/z21N/z8AAAAAAAAAAAAAAAAAAAAAAAAAAB+1ej0ftXqSH7V6PQAAAAAAAAAAAAAAAAAAAAAftXo8H7V6kh+1ejwAAAAAAAAAAAAAAAAAAAAAAAAAAB+1egoftXrzH7V6/x+1evMftXoKAAAAAAAAAAAetnoKH7V68x+1ev8ftXrzHrZ6CgAAAAAAAAAAAAAAAAAAAAAftXoKH7V68x+1ev8ftXrzH7V6CgAAAAAAAAAAHrZ6Ch+1evMftXr/H7V68x62egoAAAAAAAAAAF9oeCBfaHhAX2h4QECOeX0ynnnSQI55fV9oeEBfaHhAX2h4QF9oeEBAjXl8Mp550kCNeXxfaHhAX2h4QF9oeCBfaHiAX2h4/19oeP9faHj/X2h4/19oeP9faHj/X2h4/19oeP9faHj/X2h4/19oeP9faHj/X2h4/19oeP9faHiAX2h4IF9oeEBfaHhAX2h4QF9oeEBfaHhAX2h4QF9oeEBfaHhAX2h4QF9oeEBfaHhAX2h4QF9oeEBfaHhAX2h4IA==",
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 16 16\"><rect x=\"1.5\" y=\"4\" width=\"13\" height=\"6\" rx=\"3\" fill=\"#6d4dff\"/><rect x=\"7\" y=\"2.5\" width=\"2\" height=\"2\" fill=\"#6d4dff\"/><circle cx=\"4.5\" cy=\"12\" r=\"1.6\" fill=\"#1fb57a\"/><circle cx=\"11.5\" cy=\"12\" r=\"1.6\" fill=\"#1fb57a\"/><path d=\"M0.5 14.5H15.5\" stroke=\"#5f6878\" stroke-width=\"1.5\"/></svg>"
+    }
+  }
+}

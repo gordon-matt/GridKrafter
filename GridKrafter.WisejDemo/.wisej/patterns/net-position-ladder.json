@@ -1,0 +1,14 @@
+{
+  "id": "net-position-ladder",
+  "name": "Net position ladder",
+  "purpose": "An ethanol position ladder: for each delivery month, physical purchases and sales against futures hedges, with the net open position highlighted and checked against the desk's limit.",
+  "keywords": [
+    "net position ladder",
+    "netpositionladder"
+  ],
+  "control": "NetPositionLadder",
+  "type": "GridKrafter.WisejDemo.NetPositionLadder",
+  "extends": null,
+  "component": null,
+  "preview": "<div data-wisej-pattern=\"net-position-ladder\"><div class=\"np\">\n  <div class=\"head\">\n    <div class=\"totals\"></div>\n    <div class=\"views\"></div>\n  </div>\n  <div class=\"legend\"></div>\n  <div class=\"ladder\"></div>\n</div></div>"
+}

@@ -1,0 +1,238 @@
+{
+  "name": "EthanolPriceBoard",
+  "namespace": "GridKrafter.WisejDemo",
+  "fullName": "GridKrafter.WisejDemo.EthanolPriceBoard",
+  "language": "csharp",
+  "files": [
+    "Controls/EthanolPriceBoard/EthanolPriceBoard.cs",
+    "Controls/EthanolPriceBoard/gridkrafter.wisejdemo.EthanolPriceBoard.js",
+    "Controls/EthanolPriceBoard/EthanolPriceBoard.mixin.theme",
+    "Controls/EthanolPriceBoard/EthanolPriceBoard.bmp",
+    "GridKrafter.WisejDemo.csproj"
+  ],
+  "saved": "2026-11-13T12:00:47.6562746Z",
+  "sketch": {
+    "schema": "wisej-component-sketch/1",
+    "name": "EthanolPriceBoard",
+    "namespace": "",
+    "description": "An ethanol price board: spot prices at the trading hubs in $/gal, each with its change on the day, a 10-day trend line and its basis to Chicago, under a strip of benchmarks (CBOT corn, RBOB, Chicago ethanol futures).",
+    "size": [
+      660,
+      340
+    ],
+    "html": "<div class=\"pb\">\n  <div class=\"strip\"></div>\n  <div class=\"tiles\"></div>\n  <div class=\"foot\"></div>\n</div>",
+    "css": ".pb{box-sizing:border-box;width:100%;height:100%;display:flex;flex-direction:column;gap:10px;padding:12px 14px;background:var(--window);color:var(--text);font:13px/1.4 \"Segoe UI\",system-ui,sans-serif;overflow:hidden}\n.pb *{box-sizing:border-box}\n.strip{display:flex;gap:6px}\n.bench{flex:1;display:flex;align-items:baseline;gap:6px;padding:6px 10px;border-radius:8px;background:var(--background);white-space:nowrap;overflow:hidden}\n.bench .bn{color:var(--muted);font-size:11.5px;font-weight:500}\n.bench .bp{font-weight:700;font-variant-numeric:tabular-nums}\n.bench .bu{color:var(--muted);font-size:11px}\n.bench .bc{margin-left:auto;font-size:11.5px;font-weight:600}\n.up{color:var(--green)}\n.down{color:var(--red)}\n.flat{color:var(--muted)}\n.tiles{flex:1;display:grid;grid-template-columns:repeat(var(--cols),1fr);gap:8px;min-height:0}\n.tile{position:relative;display:flex;flex-direction:column;padding:10px 12px 8px;border:1px solid var(--border);border-radius:10px;cursor:pointer;overflow:hidden;min-width:0}\n.tile:hover{background:var(--hover)}\n.tile.selected{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);background:var(--hover)}\n.tile.ref:after{content:\"REF\";position:absolute;right:10px;top:10px;font-size:9.5px;font-weight:700;color:var(--muted);letter-spacing:.05em}\n.hub{color:var(--muted);font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:26px}\n.price{display:flex;align-items:baseline;gap:6px}\n.price b{font-size:22px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums}\n.chg{font-size:11.5px;font-weight:600;padding:0 6px;border-radius:9px}\n.chg.up{background:color-mix(in srgb,var(--green) 14%,transparent)}\n.chg.down{background:color-mix(in srgb,var(--red) 14%,transparent)}\n.spark{flex:1;min-height:22px;margin:4px 0 2px}\n.spark svg{display:block;width:100%;height:100%}\n.basis{display:flex;justify-content:space-between;font-size:11px;color:var(--muted)}\n.basis b{font-weight:600;font-variant-numeric:tabular-nums}\n.foot{display:flex;justify-content:space-between;font-size:11px;color:var(--muted)}\n.empty{grid-column:1/-1;color:var(--muted);text-align:center;padding:30px 0}",
+    "js": "function render(root, props, fire) {\n  const esc = s => String(s == null ? '' : s).replace(/[&<>\"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]));\n  const cls = v => v > 0 ? 'up' : v < 0 ? 'down' : 'flat';\n  const sign = (v, d) => (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v).toFixed(d);\n  const arrow = v => v > 0 ? '▲' : v < 0 ? '▼' : '■';\n\n  // benchmarks strip\n  const strip = root.querySelector('.strip');\n  const bench = props.benchmarks || [];\n  strip.style.display = props.showBenchmarks === false || !bench.length ? 'none' : '';\n  strip.innerHTML = bench.map(b => {\n    const c = +b.change || 0, d = +b.decimals >= 0 ? +b.decimals : 4;\n    return '<div class=\"bench\"><span class=\"bn\">' + esc(b.name) + '</span><span class=\"bp\">' + (+b.price || 0).toFixed(d) + '</span><span class=\"bu\">' + esc(b.unit) + '</span>' +\n      '<span class=\"bc ' + cls(c) + '\">' + arrow(c) + ' ' + Math.abs(c).toFixed(d) + '</span></div>';\n  }).join('');\n\n  // hub tiles\n  const tiles = root.querySelector('.tiles');\n  const hubs = props.hubs || [];\n  tiles.style.setProperty('--cols', Math.max(1, props.columns || 3));\n  if (!hubs.length) { tiles.innerHTML = '<div class=\"empty\">No prices</div>'; return; }\n  const ref = hubs.find(h => h.id === props.referenceHub) || hubs[0];\n  tiles.innerHTML = hubs.map(h => {\n    const p = +h.price || 0, c = +h.change || 0, hist = (h.history || []).map(Number).filter(v => !isNaN(v));\n    const basis = p - (+ref.price || 0), isRef = h.id === ref.id;\n    let spark = '';\n    if (hist.length > 1) {\n      const lo = Math.min.apply(null, hist), hi = Math.max.apply(null, hist), W = 100, H = 30, r = hi - lo || 1;\n      const pts = hist.map((v, i) => (i / (hist.length - 1) * W).toFixed(1) + ',' + (H - 2 - (v - lo) / r * (H - 4)).toFixed(1)).join(' ');\n      const col = hist[hist.length - 1] >= hist[0] ? 'var(--green)' : 'var(--red)';\n      spark = '<svg viewBox=\"0 0 100 30\" preserveAspectRatio=\"none\"><polyline points=\"' + pts + '\" fill=\"none\" stroke=\"' + col + '\" stroke-width=\"1.6\" stroke-linejoin=\"round\" vector-effect=\"non-scaling-stroke\"/></svg>';\n    }\n    return '<div class=\"tile' + (h.id === props.selected ? ' selected' : '') + (isRef && props.showBasis !== false ? ' ref' : '') + '\" data-id=\"' + esc(h.id) + '\">' +\n      '<div class=\"hub\">' + esc(h.hub) + '</div>' +\n      '<div class=\"price\"><b>$' + p.toFixed(4) + '</b><span class=\"chg ' + cls(c) + '\">' + arrow(c) + ' ' + Math.abs(c).toFixed(4) + '</span></div>' +\n      '<div class=\"spark\">' + spark + '</div>' +\n      (props.showBasis === false ? '' : '<div class=\"basis\"><span>Basis to ' + esc(ref.hub.split(' ')[0]) + '</span><b class=\"' + (isRef ? 'flat' : cls(basis)) + '\">' + (isRef ? '—' : sign(basis, 4)) + '</b></div>') +\n      '</div>';\n  }).join('');\n  tiles.querySelectorAll('.tile').forEach(el => el.onclick = () => fire('hubSelected', { id: el.dataset.id, selected: el.dataset.id }));\n\n  root.querySelector('.foot').innerHTML = '<span>Spot, $/gal · 10-day trend</span><span>' + esc(props.asOf || '') + '</span>';\n}",
+    "props": [
+      {
+        "name": "columns",
+        "type": "int",
+        "default": 3,
+        "description": "How many hub tiles share a row."
+      },
+      {
+        "name": "referenceHub",
+        "type": "string",
+        "default": "chi",
+        "description": "Id of the hub the basis is measured against (usually Chicago Argo)."
+      },
+      {
+        "name": "showBasis",
+        "type": "bool",
+        "default": true,
+        "description": "Shows each hub's basis to the reference hub."
+      },
+      {
+        "name": "showBenchmarks",
+        "type": "bool",
+        "default": true,
+        "description": "Shows the benchmark strip above the tiles."
+      },
+      {
+        "name": "asOf",
+        "type": "string",
+        "default": "As of 2:15 PM CT",
+        "description": "When the prices were taken, shown under the tiles."
+      },
+      {
+        "name": "selected",
+        "type": "string",
+        "default": "nyh",
+        "description": "Id of the selected hub."
+      },
+      {
+        "name": "hubs",
+        "type": "rows",
+        "default": [
+          {
+            "id": "chi",
+            "hub": "Chicago Argo",
+            "price": 1.7825,
+            "change": 0.0125,
+            "history": [
+              1.741,
+              1.748,
+              1.736,
+              1.752,
+              1.761,
+              1.757,
+              1.766,
+              1.759,
+              1.77,
+              1.7825
+            ]
+          },
+          {
+            "id": "nyh",
+            "hub": "NY Harbor",
+            "price": 1.9275,
+            "change": 0.0175,
+            "history": [
+              1.882,
+              1.889,
+              1.878,
+              1.893,
+              1.904,
+              1.899,
+              1.911,
+              1.902,
+              1.91,
+              1.9275
+            ]
+          },
+          {
+            "id": "gulf",
+            "hub": "Gulf Coast",
+            "price": 1.845,
+            "change": -0.005,
+            "history": [
+              1.861,
+              1.857,
+              1.866,
+              1.859,
+              1.852,
+              1.856,
+              1.849,
+              1.853,
+              1.85,
+              1.845
+            ]
+          },
+          {
+            "id": "la",
+            "hub": "Los Angeles",
+            "price": 2.095,
+            "change": 0.0225,
+            "history": [
+              2.041,
+              2.05,
+              2.046,
+              2.058,
+              2.066,
+              2.061,
+              2.072,
+              2.069,
+              2.0725,
+              2.095
+            ]
+          },
+          {
+            "id": "tpa",
+            "hub": "Tampa",
+            "price": 1.96,
+            "change": 0,
+            "history": [
+              1.951,
+              1.955,
+              1.949,
+              1.958,
+              1.962,
+              1.957,
+              1.963,
+              1.959,
+              1.96,
+              1.96
+            ]
+          },
+          {
+            "id": "dal",
+            "hub": "Dallas",
+            "price": 1.8125,
+            "change": -0.01,
+            "history": [
+              1.833,
+              1.829,
+              1.835,
+              1.826,
+              1.822,
+              1.828,
+              1.819,
+              1.824,
+              1.8225,
+              1.8125
+            ]
+          }
+        ],
+        "description": "Hubs: { id, hub, price ($/gal), change (on the day), history (oldest first) }."
+      },
+      {
+        "name": "benchmarks",
+        "type": "rows",
+        "default": [
+          {
+            "name": "CBOT Corn",
+            "price": 4.5325,
+            "unit": "$/bu",
+            "change": -0.0275,
+            "decimals": 4
+          },
+          {
+            "name": "RBOB",
+            "price": 2.1184,
+            "unit": "$/gal",
+            "change": 0.0213,
+            "decimals": 4
+          },
+          {
+            "name": "CBOT Ethanol",
+            "price": 1.795,
+            "unit": "$/gal",
+            "change": 0.011,
+            "decimals": 3
+          }
+        ],
+        "description": "Benchmarks: { name, price, unit, change, decimals }."
+      }
+    ],
+    "events": [
+      {
+        "name": "hubSelected",
+        "payload": {
+          "id": "string",
+          "selected": "string"
+        },
+        "sets": [
+          "selected"
+        ]
+      }
+    ],
+    "tokens": {
+      "accent": "#6d4dff",
+      "green": "#1fb57a",
+      "red": "#e5484d",
+      "window": "#ffffff",
+      "background": "#f3f4f7",
+      "text": "#171a21",
+      "muted": "#5f6878",
+      "border": "#e1e4ea",
+      "hover": "#eeeaff"
+    },
+    "dependencies": [],
+    "notes": "Simple control (no designer-edited items): hubs and benchmarks are data rows. Basis = hub price − reference hub price (the reference tile is marked REF). Sparkline green when the last point is above the first, red when below; change badges green up, red down, grey unchanged. Prices to 4 decimals. Sparklines drawn as small SVGs; tiles, strip and badges as native widgets. Colours from the GridKrafter palette (green, red, violet). Meant for a GridBoard card about 7 columns x 5 rows.",
+    "filledByAgent": true,
+    "icon": {
+      "rgba": "AAAAAAAAAABfaHgXX2h4Pl9oeEBfaHhAX2h4QF9oeEBfaHhAX2h4QF9oeEBfaHhAX2h4Pl9oeBcAAAAAAAAAAFxndwFfaHiJX2h4+19oeP9faHj/X2h4/19oeP9faHj/X2h4/19oeP9faHj/X2h4/19oeP9faHj7X2h4iVxndwFfaHhdX2h4/19oeJpfaHhDX2h4QF9oeEBfaHhAX2h4QF9oeEBfaHhAX2h4QF9oeEBfaHhDX2h4ml9oeP9faHhdX2h4sl9oeNhfaHkBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABtTf9sbU3/3m1N/m1faHjYX2h4sl9oeL9faHi/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgt3gBa1D75W1N//9tTf/eX2h4v19oeL9faHi/X2h4vwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH7V6c0CJs/9oVPbubU3/bF9oeL9faHi/X2h4v19oeL8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH7V6RB+1evwftXrsH7V6IQAAAABfaHi/X2h4v19oeL9faHi/AAAAAAAAAAAftXoEH7V6qx+1erkftXoqH7V6IB+1euwftXr8H7V6RAAAAAAAAAAAX2h4v19oeL9faHi/X2h4vwAAAAAAAAAAH7V6lh+1ev8ftXr/H7V6+x+1euIftXr/H7V6dAAAAAAAAAAAAAAAAF9oeL9faHi/X2h4v19oeL8AAAAAH7V6bB+1ev8ftXraH7V6Yh+1euUftXr/H7V6pgAAAAAAAAAAAAAAAAAAAABfaHi/X2h4v19oeL9faHi/H7V6NR+1evsftXrvH7V6JwAAAAAftXoNH7V6WB61eggAAAAAAAAAAAAAAAAAAAAAX2h4v19oeL9faHi/X2h4vx+1ejUftXrXH7V6RAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAF9oeL9faHi/X2h4sl9oeNhfaHkBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAF9oeQFfaHjYX2h4sl9oeF1faHj/X2h4ml9oeENfaHhAX2h4QF9oeEBfaHhAX2h4QF9oeEBfaHhAX2h4QF9oeENfaHiaX2h4/19oeF1cZ3cBX2h4iV9oePtfaHj/X2h4/19oeP9faHj/X2h4/19oeP9faHj/X2h4/19oeP9faHj/X2h4+19oeIlcZ3cBAAAAAAAAAABfaHgXX2h4Pl9oeEBfaHhAX2h4QF9oeEBfaHhAX2h4QF9oeEBfaHhAX2h4Pl9oeBcAAAAAAAAAAA==",
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 16 16\"><rect x=\"1\" y=\"1.5\" width=\"14\" height=\"13\" rx=\"2.5\" fill=\"none\" stroke=\"#5f6878\" stroke-width=\"1.5\"/><path d=\"M3.5 11 L6 8 L8.5 9.5 L12.5 4.5\" fill=\"none\" stroke=\"#1fb57a\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><circle cx=\"12.5\" cy=\"4.5\" r=\"1.4\" fill=\"#6d4dff\"/></svg>"
+    }
+  }
+}

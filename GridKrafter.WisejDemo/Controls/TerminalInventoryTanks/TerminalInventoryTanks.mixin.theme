@@ -1,0 +1,106 @@
+{
+	"name": "TerminalInventoryTanks.mixin",
+
+	// level colours are the GridKrafter palette the Light and Dark themes both define (sky normal,
+	// amber high, red low, green inflow, amber outflow); surfaces, text and borders are the theme's own.
+
+	"fonts": {
+		"terminal-inventory-tanks-small": { "size": 11.5, "family": ["Segoe UI", "system-ui", "Roboto", "Helvetica Neue", "Arial", "sans-serif"] },
+		"terminal-inventory-tanks-meta": { "size": 11, "family": ["Segoe UI", "system-ui", "Roboto", "Helvetica Neue", "Arial", "sans-serif"] },
+		"terminal-inventory-tanks-flow": { "size": 11, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] },
+		"terminal-inventory-tanks-text": { "size": 12, "family": ["Segoe UI", "system-ui", "Roboto", "Helvetica Neue", "Arial", "sans-serif"] },
+		"terminal-inventory-tanks-name": { "size": 12.5, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] },
+		"terminal-inventory-tanks-percent": { "size": 14, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] },
+		"terminal-inventory-tanks-total": { "size": 20, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] },
+		"terminal-inventory-tanks-tag": { "size": 10, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] },
+		"terminal-inventory-tanks-mark": { "size": 9, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] }
+	},
+
+	"appearances": {
+
+		"terminal-inventory-tanks": {
+			"inherit": "widget",
+			"states": {
+				"default": {
+					"properties": {
+						"themeNormalColor": "sky",
+						"themeHighColor": "amber",
+						"themeLowColor": "red",
+						"themeInflowColor": "green",
+						"themeOutflowColor": "amber",
+						"padding": [12, 14],
+						"font": "terminal-inventory-tanks-text",
+						"textColor": "windowText",
+						"backgroundColor": "window",
+						"opacity": 1
+					},
+					"styles": { "width": 0 }
+				},
+				"disabled": { "properties": { "opacity": 0.55 } }
+			},
+			"components": {
+
+				"total-label": { "inherit": "label", "states": { "default": { "properties": { "font": "terminal-inventory-tanks-small", "textColor": "grayText" } } } },
+				"total-value": { "inherit": "label", "states": { "default": { "properties": { "font": "terminal-inventory-tanks-total", "textColor": "windowText" } } } },
+
+				"units": {
+					"inherit": "widget",
+					"states": { "default": { "properties": { "padding": 2 }, "styles": { "backgroundColor": "appWorkspace", "radius": 8 } } }
+				},
+				"unit": {
+					"inherit": "label",
+					"states": {
+						"default": {
+							"properties": { "font": "terminal-inventory-tanks-small", "textColor": "grayText", "padding": [2, 9] },
+							"styles": { "backgroundColor": "transparent", "radius": 6, "shadowBlurRadius": 0, "shadowLength": 0 }
+						},
+						"hovered": { "properties": { "textColor": "windowText" } },
+						"selected": {
+							"properties": { "textColor": "highlight" },
+							"styles": { "backgroundColor": "window", "radius": 6, "shadowColor": "rgba(20,20,50,0.12)", "shadowBlurRadius": 2, "shadowLength": 1 }
+						}
+					}
+				},
+
+				"tank": {
+					"inherit": "widget",
+					"states": {
+						"default": {
+							"properties": { "padding": [6, 4, 8, 4] },
+							"styles": { "backgroundColor": "transparent", "radius": 10, "width": 1, "style": "solid", "color": "transparent" }
+						},
+						"hovered": { "styles": { "backgroundColor": "menuHighlight" } },
+						"selected": { "styles": { "backgroundColor": "menuHighlight", "color": "highlight" } }
+					}
+				},
+
+				"badge": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "terminal-inventory-tanks-tag", "textColor": "window", "padding": [0, 6] }, "styles": { "radius": 8 } } }
+				},
+
+				"vessel": {
+					"inherit": "widget",
+					"states": {
+						"default": {
+							"styles": {
+								"backgroundColor": "appWorkspace", "width": 2, "style": "solid", "color": "windowFrame",
+								"radiusTopLeft": 14, "radiusTopRight": 14, "radiusBottomLeft": 8, "radiusBottomRight": 8
+							}
+						}
+					}
+				},
+				"liquid": { "inherit": "widget", "states": { "default": { "properties": { "backgroundColor": "transparent" } } } },
+				"mark": { "inherit": "label", "states": { "default": { "properties": { "font": "terminal-inventory-tanks-mark" } } } },
+				"percent": { "inherit": "label", "states": { "default": { "properties": { "font": "terminal-inventory-tanks-percent", "textColor": "windowText" } } } },
+
+				"name": { "inherit": "label", "states": { "default": { "properties": { "font": "terminal-inventory-tanks-name", "textColor": "windowText" } } } },
+				"quantity": { "inherit": "label", "states": { "default": { "properties": { "font": "terminal-inventory-tanks-text", "textColor": "windowText" } } } },
+				"meta": { "inherit": "label", "states": { "default": { "properties": { "font": "terminal-inventory-tanks-meta", "textColor": "grayText" } } } },
+				"flow": { "inherit": "label", "states": { "default": { "properties": { "font": "terminal-inventory-tanks-flow" } } } },
+
+				"empty": { "inherit": "label", "states": { "default": { "properties": { "textColor": "grayText", "padding": [30, 0] } } } }
+			}
+		}
+	}
+}

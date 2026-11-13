@@ -1,0 +1,92 @@
+{
+	"name": "NetPositionLadder.mixin",
+
+	// long, short and futures are the GridKrafter palette the Light and Dark themes both define (green,
+	// red, violet); the net tick is the theme's text colour; surfaces and borders are the theme's own.
+
+	"fonts": {
+		"net-position-ladder-small": { "size": 11.5, "family": ["Segoe UI", "system-ui", "Roboto", "Helvetica Neue", "Arial", "sans-serif"] },
+		"net-position-ladder-text": { "size": 12, "family": ["Segoe UI", "system-ui", "Roboto", "Helvetica Neue", "Arial", "sans-serif"] },
+		"net-position-ladder-column": { "size": 11, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] },
+		"net-position-ladder-strong": { "size": 13, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] },
+		"net-position-ladder-total": { "size": 20, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] }
+	},
+
+	"appearances": {
+
+		"net-position-ladder": {
+			"inherit": "widget",
+			"states": {
+				"default": {
+					"properties": {
+						"themeLongColor": "green",
+						"themeShortColor": "red",
+						"themeHedgeColor": "violet",
+						"themeNetColor": "windowText",
+						"padding": [12, 14],
+						"font": "net-position-ladder-text",
+						"textColor": "windowText",
+						"backgroundColor": "window",
+						"opacity": 1
+					},
+					"styles": { "width": 0 }
+				},
+				"disabled": { "properties": { "opacity": 0.55 } }
+			},
+			"components": {
+
+				"total-label": { "inherit": "label", "states": { "default": { "properties": { "font": "net-position-ladder-small", "textColor": "grayText" } } } },
+				"total-value": { "inherit": "label", "states": { "default": { "properties": { "font": "net-position-ladder-total", "textColor": "windowText" } } } },
+
+				"views": {
+					"inherit": "widget",
+					"states": { "default": { "properties": { "padding": 2 }, "styles": { "backgroundColor": "appWorkspace", "radius": 8 } } }
+				},
+				"view": {
+					"inherit": "label",
+					"states": {
+						"default": {
+							"properties": { "font": "net-position-ladder-small", "textColor": "grayText", "padding": [2, 9] },
+							"styles": { "backgroundColor": "transparent", "radius": 6, "shadowBlurRadius": 0, "shadowLength": 0 }
+						},
+						"hovered": { "properties": { "textColor": "windowText" } },
+						"selected": {
+							"properties": { "textColor": "highlight" },
+							"styles": { "backgroundColor": "window", "radius": 6, "shadowColor": "rgba(20,20,50,0.12)", "shadowBlurRadius": 2, "shadowLength": 1 }
+						}
+					}
+				},
+
+				"swatch": { "inherit": "widget", "states": { "default": { "styles": { "radius": 2 } } } },
+				"legend": { "inherit": "label", "states": { "default": { "properties": { "font": "net-position-ladder-small", "textColor": "grayText" } } } },
+
+				"ladder": {
+					"inherit": "widget",
+					"states": { "default": { "styles": { "widthTop": 1, "styleTop": "solid", "colorTop": "windowFrame" } } }
+				},
+				"colhead": { "inherit": "widget", "states": { "default": { "properties": { "padding": [6, 6, 4, 6] } } } },
+				"column": { "inherit": "label", "states": { "default": { "properties": { "font": "net-position-ladder-column", "textColor": "grayText" } } } },
+
+				"row": {
+					"inherit": "widget",
+					"states": {
+						"default": {
+							"properties": { "padding": [5, 6] },
+							"styles": { "backgroundColor": "transparent", "radius": 6, "widthLeft": 0 }
+						},
+						"hovered": { "styles": { "backgroundColor": "menuHighlight" } },
+						"selected": { "styles": { "backgroundColor": "menuHighlight", "widthLeft": 3, "styleLeft": "solid", "colorLeft": "highlight" } }
+					}
+				},
+				"month": { "inherit": "label", "states": { "default": { "properties": { "font": "net-position-ladder-strong", "textColor": "windowText" } } } },
+				"axis": { "inherit": "widget", "states": { "default": { "properties": { "backgroundColor": "windowFrame" } } } },
+				"bar": { "inherit": "widget", "states": { "default": { "styles": { "radius": 3 } } } },
+				"tick": { "inherit": "widget", "states": { "default": { "styles": { "radius": 2 } } } },
+				"net": { "inherit": "label", "states": { "default": { "properties": { "font": "net-position-ladder-strong" } } } },
+				"ratio": { "inherit": "label", "states": { "default": { "properties": { "font": "net-position-ladder-text", "textColor": "grayText" } } } },
+
+				"empty": { "inherit": "label", "states": { "default": { "properties": { "textColor": "grayText", "padding": [30, 0] } } } }
+			}
+		}
+	}
+}

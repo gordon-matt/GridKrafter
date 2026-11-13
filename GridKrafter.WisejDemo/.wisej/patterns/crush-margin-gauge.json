@@ -1,0 +1,14 @@
+{
+  "id": "crush-margin-gauge",
+  "name": "Crush margin gauge",
+  "purpose": "An ethanol crush margin widget: today's margin in $/gal with its change, a trend line inside its high-low band, and the breakdown of revenues (ethanol, DDGS, corn oil) against costs (corn, natural gas).",
+  "keywords": [
+    "crush margin gauge",
+    "crushmargingauge"
+  ],
+  "control": "CrushMarginGauge",
+  "type": "GridKrafter.WisejDemo.CrushMarginGauge",
+  "extends": null,
+  "component": null,
+  "preview": "<div data-wisej-pattern=\"crush-margin-gauge\"><div class=\"cm\">\n  <div class=\"top\">\n    <div class=\"headline\">\n      <div class=\"label\"></div>\n      <div class=\"valuerow\"><span class=\"value\"></span><span class=\"unit\"></span><span class=\"change\"></span></div>\n    </div>\n    <div class=\"ranges\"></div>\n  </div>\n  <div class=\"chart\"></div>\n  <div class=\"legend\"></div>\n  <div class=\"breakdown\"></div>\n</div></div>"
+}

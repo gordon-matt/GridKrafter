@@ -162,4 +162,106 @@
     </EmbeddedResource>
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- CrushMarginGauge: its files, each embedded under the name Wisej.NET or the Toolbox reads it by (added by Component Studio) -->
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\CrushMarginGauge\CrushMarginGauge.mixin.theme">
+      <DependentUpon>CrushMarginGauge.cs</DependentUpon>
+      <LogicalName>$(RootNamespace).Themes.CrushMarginGauge.mixin.theme</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\CrushMarginGauge\CrushMarginGauge.bmp">
+      <DependentUpon>CrushMarginGauge.cs</DependentUpon>
+      <LogicalName>GridKrafter.WisejDemo.CrushMarginGauge.bmp</LogicalName>
+    </EmbeddedResource>
+    <None Remove="$(MSBuildThisFileDirectory)Controls\CrushMarginGauge\gridkrafter.wisejdemo.CrushMarginGauge.js" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\CrushMarginGauge\gridkrafter.wisejdemo.CrushMarginGauge.js">
+      <DependentUpon>CrushMarginGauge.cs</DependentUpon>
+      <LogicalName>$(RootNamespace).Platform.gridkrafter.wisejdemo.CrushMarginGauge.js</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- RailcarFleetTracker: its files, each embedded under the name Wisej.NET or the Toolbox reads it by (added by Component Studio) -->
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\RailcarFleetTracker\RailcarFleetTracker.mixin.theme">
+      <DependentUpon>RailcarFleetTracker.cs</DependentUpon>
+      <LogicalName>$(RootNamespace).Themes.RailcarFleetTracker.mixin.theme</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\RailcarFleetTracker\RailcarFleetTracker.bmp">
+      <DependentUpon>RailcarFleetTracker.cs</DependentUpon>
+      <LogicalName>GridKrafter.WisejDemo.RailcarFleetTracker.bmp</LogicalName>
+    </EmbeddedResource>
+    <None Remove="$(MSBuildThisFileDirectory)Controls\RailcarFleetTracker\gridkrafter.wisejdemo.RailcarFleetTracker.js" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\RailcarFleetTracker\gridkrafter.wisejdemo.RailcarFleetTracker.js">
+      <DependentUpon>RailcarFleetTracker.cs</DependentUpon>
+      <LogicalName>$(RootNamespace).Platform.gridkrafter.wisejdemo.RailcarFleetTracker.js</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- TerminalInventoryTanks: its files, each embedded under the name Wisej.NET or the Toolbox reads it by (added by Component Studio) -->
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\TerminalInventoryTanks\TerminalInventoryTanks.mixin.theme">
+      <DependentUpon>TerminalInventoryTanks.cs</DependentUpon>
+      <LogicalName>$(RootNamespace).Themes.TerminalInventoryTanks.mixin.theme</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\TerminalInventoryTanks\TerminalInventoryTanks.bmp">
+      <DependentUpon>TerminalInventoryTanks.cs</DependentUpon>
+      <LogicalName>GridKrafter.WisejDemo.TerminalInventoryTanks.bmp</LogicalName>
+    </EmbeddedResource>
+    <None Remove="$(MSBuildThisFileDirectory)Controls\TerminalInventoryTanks\gridkrafter.wisejdemo.TerminalInventoryTanks.js" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\TerminalInventoryTanks\gridkrafter.wisejdemo.TerminalInventoryTanks.js">
+      <DependentUpon>TerminalInventoryTanks.cs</DependentUpon>
+      <LogicalName>$(RootNamespace).Platform.gridkrafter.wisejdemo.TerminalInventoryTanks.js</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- NetPositionLadder: its files, each embedded under the name Wisej.NET or the Toolbox reads it by (added by Component Studio) -->
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\NetPositionLadder\NetPositionLadder.mixin.theme">
+      <DependentUpon>NetPositionLadder.cs</DependentUpon>
+      <LogicalName>$(RootNamespace).Themes.NetPositionLadder.mixin.theme</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\NetPositionLadder\NetPositionLadder.bmp">
+      <DependentUpon>NetPositionLadder.cs</DependentUpon>
+      <LogicalName>GridKrafter.WisejDemo.NetPositionLadder.bmp</LogicalName>
+    </EmbeddedResource>
+    <None Remove="$(MSBuildThisFileDirectory)Controls\NetPositionLadder\gridkrafter.wisejdemo.NetPositionLadder.js" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\NetPositionLadder\gridkrafter.wisejdemo.NetPositionLadder.js">
+      <DependentUpon>NetPositionLadder.cs</DependentUpon>
+      <LogicalName>$(RootNamespace).Platform.gridkrafter.wisejdemo.NetPositionLadder.js</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- EthanolPriceBoard: its files, each embedded under the name Wisej.NET or the Toolbox reads it by (added by Component Studio) -->
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\EthanolPriceBoard\EthanolPriceBoard.mixin.theme">
+      <DependentUpon>EthanolPriceBoard.cs</DependentUpon>
+      <LogicalName>$(RootNamespace).Themes.EthanolPriceBoard.mixin.theme</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\EthanolPriceBoard\EthanolPriceBoard.bmp">
+      <DependentUpon>EthanolPriceBoard.cs</DependentUpon>
+      <LogicalName>GridKrafter.WisejDemo.EthanolPriceBoard.bmp</LogicalName>
+    </EmbeddedResource>
+    <None Remove="$(MSBuildThisFileDirectory)Controls\EthanolPriceBoard\gridkrafter.wisejdemo.EthanolPriceBoard.js" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\EthanolPriceBoard\gridkrafter.wisejdemo.EthanolPriceBoard.js">
+      <DependentUpon>EthanolPriceBoard.cs</DependentUpon>
+      <LogicalName>$(RootNamespace).Platform.gridkrafter.wisejdemo.EthanolPriceBoard.js</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- CarbonCreditTracker: its files, each embedded under the name Wisej.NET or the Toolbox reads it by (added by Component Studio) -->
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\CarbonCreditTracker\CarbonCreditTracker.mixin.theme">
+      <DependentUpon>CarbonCreditTracker.cs</DependentUpon>
+      <LogicalName>$(RootNamespace).Themes.CarbonCreditTracker.mixin.theme</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\CarbonCreditTracker\CarbonCreditTracker.bmp">
+      <DependentUpon>CarbonCreditTracker.cs</DependentUpon>
+      <LogicalName>GridKrafter.WisejDemo.CarbonCreditTracker.bmp</LogicalName>
+    </EmbeddedResource>
+    <None Remove="$(MSBuildThisFileDirectory)Controls\CarbonCreditTracker\gridkrafter.wisejdemo.CarbonCreditTracker.js" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\CarbonCreditTracker\gridkrafter.wisejdemo.CarbonCreditTracker.js">
+      <DependentUpon>CarbonCreditTracker.cs</DependentUpon>
+      <LogicalName>$(RootNamespace).Platform.gridkrafter.wisejdemo.CarbonCreditTracker.js</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
 </Project>

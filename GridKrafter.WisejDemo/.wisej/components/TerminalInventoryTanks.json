@@ -1,0 +1,159 @@
+{
+  "name": "TerminalInventoryTanks",
+  "namespace": "GridKrafter.WisejDemo",
+  "fullName": "GridKrafter.WisejDemo.TerminalInventoryTanks",
+  "language": "csharp",
+  "files": [
+    "Controls/TerminalInventoryTanks/TerminalInventoryTanks.cs",
+    "Controls/TerminalInventoryTanks/gridkrafter.wisejdemo.TerminalInventoryTanks.js",
+    "Controls/TerminalInventoryTanks/TerminalInventoryTanks.mixin.theme",
+    "Controls/TerminalInventoryTanks/TerminalInventoryTanks.bmp",
+    "GridKrafter.WisejDemo.csproj"
+  ],
+  "saved": "2026-11-13T11:30:35.7785612Z",
+  "sketch": {
+    "schema": "wisej-component-sketch/1",
+    "name": "TerminalInventoryTanks",
+    "namespace": "",
+    "description": "An ethanol terminal inventory widget: one tank per terminal showing its fill level against low and high alarm lines, with barrels on hand, days of cover and today's net flow, plus fleet-wide totals.",
+    "size": [
+      680,
+      340
+    ],
+    "html": "<div class=\"ti\">\n  <div class=\"head\">\n    <div class=\"totals\"></div>\n    <div class=\"units\"></div>\n  </div>\n  <div class=\"tanks\"></div>\n</div>",
+    "css": ".ti{box-sizing:border-box;width:100%;height:100%;display:flex;flex-direction:column;gap:12px;padding:12px 14px;background:var(--window);color:var(--text);font:13px/1.4 \"Segoe UI\",system-ui,sans-serif;overflow:hidden}\n.ti *{box-sizing:border-box}\n.head{display:flex;justify-content:space-between;align-items:flex-start}\n.totals{display:flex;gap:20px}\n.tot .tl{color:var(--muted);font-size:11.5px;font-weight:500}\n.tot .tv{font-size:20px;font-weight:700;letter-spacing:-.01em;line-height:1.2}\n.tot .tv small{font-size:12px;font-weight:500;color:var(--muted);margin-left:3px}\n.tot.alert .tv{color:var(--red)}\n.units{display:flex;gap:2px;background:var(--background);border-radius:8px;padding:2px}\n.unit{padding:2px 9px;border-radius:6px;font-size:11.5px;font-weight:500;color:var(--muted);cursor:pointer}\n.unit:hover{color:var(--text)}\n.unit.selected{background:var(--window);color:var(--accent);box-shadow:0 1px 2px rgba(20,20,50,.1)}\n.tanks{flex:1;display:flex;gap:10px;min-height:0}\n.tank{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:5px;padding:6px 4px 8px;border-radius:10px;cursor:pointer;border:1px solid transparent}\n.tank:hover{background:var(--hover)}\n.tank.selected{background:var(--hover);border-color:var(--accent)}\n.slot{height:16px;display:flex;align-items:center}\n.badge{font-size:10px;font-weight:700;padding:0 6px;border-radius:8px;color:var(--window);background:var(--c)}\n.vessel{position:relative;flex:1;width:64px;min-height:80px;border:2px solid var(--border);border-radius:14px 14px 8px 8px;background:var(--background);overflow:hidden}\n.liquid{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(180deg,color-mix(in srgb,var(--c) 70%,white),var(--c));transition:height .3s}\n.liquid:before{content:\"\";position:absolute;left:0;right:0;top:0;height:3px;background:color-mix(in srgb,white 45%,transparent)}\n.mark{position:absolute;left:-2px;right:-2px;height:0;border-top:1.5px dashed var(--m)}\n.mark span{position:absolute;right:3px;top:-12px;font-size:9px;font-weight:600;color:var(--m)}\n.pct{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center;font-weight:700;font-size:14px;color:var(--text);text-shadow:0 0 4px var(--window)}\n.name{font-weight:600;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}\n.qty{font-size:12px;font-variant-numeric:tabular-nums;white-space:nowrap}\n.meta{display:flex;gap:6px;font-size:11px;color:var(--muted);white-space:nowrap}\n.flow.in{color:var(--green);font-weight:600}\n.flow.out{color:var(--amber);font-weight:600}\n.empty{flex:1;color:var(--muted);text-align:center;padding:30px 0}",
+    "js": "function render(root, props, fire) {\n  const esc = s => String(s == null ? '' : s).replace(/[&<>\"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]));\n  const unit = props.unit || 'bbl';\n  const f = unit === 'gal' ? 42 : 1;                     // levels are kept in barrels\n  const fmt = v => { v = v * f; return v >= 1e6 ? (v / 1e6).toFixed(2) + 'M' : v >= 1e4 ? Math.round(v / 1e3) + 'k' : Math.round(v).toLocaleString(); };\n  const tanks = props.tanks || [];\n\n  // totals\n  let onHand = 0, cap = 0, alarms = 0, cover = 0;\n  tanks.forEach(t => {\n    onHand += +t.level || 0; cap += +t.capacity || 0; cover += +t.daysCover || 0;\n    const p = t.capacity ? t.level / t.capacity * 100 : 0;\n    if (p <= (+t.low || 0) || p >= (+t.high || 100)) alarms++;\n  });\n  root.querySelector('.totals').innerHTML =\n    '<div class=\"tot\"><div class=\"tl\">On hand</div><div class=\"tv\">' + fmt(onHand) + '<small>' + unit + '</small></div></div>' +\n    '<div class=\"tot\"><div class=\"tl\">Utilization</div><div class=\"tv\">' + (cap ? Math.round(onHand / cap * 100) : 0) + '<small>%</small></div></div>' +\n    '<div class=\"tot\"><div class=\"tl\">Avg days of cover</div><div class=\"tv\">' + (tanks.length ? (cover / tanks.length).toFixed(1) : '0') + '</div></div>' +\n    '<div class=\"tot' + (alarms ? ' alert' : '') + '\"><div class=\"tl\">Alarms</div><div class=\"tv\">' + alarms + '</div></div>';\n\n  // unit switch\n  const us = root.querySelector('.units');\n  us.innerHTML = ['bbl', 'gal'].map(u => '<span class=\"unit' + (u === unit ? ' selected' : '') + '\" data-u=\"' + u + '\">' + u + '</span>').join('');\n  us.querySelectorAll('.unit').forEach(el => el.onclick = () => { if (el.dataset.u !== unit) fire('unitChanged', { unit: el.dataset.u }); });\n\n  // tanks\n  const box = root.querySelector('.tanks');\n  if (!tanks.length) { box.innerHTML = '<div class=\"empty\">No tanks</div>'; return; }\n  box.innerHTML = tanks.map(t => {\n    const p = Math.max(0, Math.min(100, t.capacity ? t.level / t.capacity * 100 : 0));\n    const low = +t.low || 0, high = +t.high || 100;\n    const state = p <= low ? 'low' : p >= high ? 'high' : 'ok';\n    const c = state === 'low' ? 'var(--red)' : state === 'high' ? 'var(--amber)' : 'var(--sky)';\n    const flow = +t.netFlow || 0;\n    const marks = props.showAlarms === false ? '' :\n      '<div class=\"mark\" style=\"--m:var(--amber);bottom:' + high + '%\"><span>H</span></div>' +\n      '<div class=\"mark\" style=\"--m:var(--red);bottom:' + low + '%\"><span>L</span></div>';\n    return '<div class=\"tank' + (t.id === props.selected ? ' selected' : '') + '\" data-id=\"' + esc(t.id) + '\" style=\"--c:' + c + '\">' +\n      '<div class=\"slot\">' + (state !== 'ok' ? '<span class=\"badge\">' + (state === 'low' ? 'LOW' : 'HIGH') + '</span>' : '') + '</div>' +\n      '<div class=\"vessel\"><div class=\"liquid\" style=\"height:' + p + '%\"></div>' + marks + '<div class=\"pct\">' + Math.round(p) + '%</div></div>' +\n      '<div class=\"name\" title=\"' + esc(t.terminal) + '\">' + esc(t.terminal) + '</div>' +\n      '<div class=\"qty\"><b>' + fmt(+t.level || 0) + '</b> / ' + fmt(+t.capacity || 0) + '</div>' +\n      '<div class=\"meta\"><span>' + (+t.daysCover || 0).toFixed(1) + 'd cover</span>' +\n      '<span class=\"flow ' + (flow >= 0 ? 'in' : 'out') + '\">' + (flow >= 0 ? '▲' : '▼') + fmt(Math.abs(flow)) + '</span></div>' +\n      '</div>';\n  }).join('');\n  box.querySelectorAll('.tank').forEach(el => el.onclick = () => fire('tankSelected', { id: el.dataset.id, selected: el.dataset.id }));\n}",
+    "props": [
+      {
+        "name": "unit",
+        "type": "enum",
+        "default": "bbl",
+        "description": "Shows quantities in barrels or gallons (levels are given in barrels).",
+        "values": [
+          "bbl",
+          "gal"
+        ]
+      },
+      {
+        "name": "showAlarms",
+        "type": "bool",
+        "default": true,
+        "description": "Draws the low and high alarm lines in each tank."
+      },
+      {
+        "name": "selected",
+        "type": "string",
+        "default": "kc",
+        "description": "Id of the selected tank."
+      },
+      {
+        "name": "tanks",
+        "type": "rows",
+        "default": [
+          {
+            "id": "kc",
+            "terminal": "Kansas City",
+            "capacity": 180000,
+            "level": 121400,
+            "low": 15,
+            "high": 90,
+            "daysCover": 6.2,
+            "netFlow": 4200
+          },
+          {
+            "id": "chi",
+            "terminal": "Chicago Argo",
+            "capacity": 250000,
+            "level": 228600,
+            "low": 15,
+            "high": 90,
+            "daysCover": 9.8,
+            "netFlow": 11800
+          },
+          {
+            "id": "ny",
+            "terminal": "NY Harbor",
+            "capacity": 320000,
+            "level": 176000,
+            "low": 15,
+            "high": 90,
+            "daysCover": 4.1,
+            "netFlow": -9600
+          },
+          {
+            "id": "hou",
+            "terminal": "Houston",
+            "capacity": 200000,
+            "level": 22500,
+            "low": 15,
+            "high": 90,
+            "daysCover": 1.3,
+            "netFlow": -6300
+          },
+          {
+            "id": "la",
+            "terminal": "Los Angeles",
+            "capacity": 150000,
+            "level": 88200,
+            "low": 15,
+            "high": 90,
+            "daysCover": 5.4,
+            "netFlow": 1500
+          },
+          {
+            "id": "tpa",
+            "terminal": "Tampa",
+            "capacity": 90000,
+            "level": 51300,
+            "low": 15,
+            "high": 90,
+            "daysCover": 3.7,
+            "netFlow": -2100
+          }
+        ],
+        "description": "Tanks: { id, terminal, capacity (bbl), level (bbl), low (%), high (%), daysCover, netFlow (bbl/day, receipts minus liftings) }."
+      }
+    ],
+    "events": [
+      {
+        "name": "unitChanged",
+        "payload": {
+          "unit": "string"
+        },
+        "sets": [
+          "unit"
+        ]
+      },
+      {
+        "name": "tankSelected",
+        "payload": {
+          "id": "string",
+          "selected": "string"
+        },
+        "sets": [
+          "selected"
+        ]
+      }
+    ],
+    "tokens": {
+      "accent": "#6d4dff",
+      "sky": "#0ea5e9",
+      "green": "#1fb57a",
+      "amber": "#f2a516",
+      "red": "#e5484d",
+      "window": "#ffffff",
+      "background": "#f3f4f7",
+      "text": "#171a21",
+      "muted": "#5f6878",
+      "border": "#e1e4ea",
+      "hover": "#eeeaff"
+    },
+    "dependencies": [],
+    "notes": "Simple control (no designer-edited items): tanks are data rows, levels in barrels (gal = bbl x 42). A tank is in alarm when its fill % is at or under low (red, LOW badge) or at or over high (amber, HIGH badge); otherwise sky. Totals: on hand, utilization (on hand / capacity), average days of cover, alarm count. Net flow: receipts minus liftings per day, green up / amber down. Tanks drawn as native widgets (vessel, liquid, alarm marks). Colours from the GridKrafter palette (sky, amber, red, green, violet). Meant for a GridBoard card about 7 columns x 5 rows.",
+    "filledByAgent": true,
+    "icon": {
+      "rgba": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABfaHgQX2h4il9oeL1faHi/X2h4sF9oeEkAAAAAAAAAAF9oeElfaHiwX2h4v19oeL1faHiKX2h4EAAAAABfaXkBX2h4xV9oePpfaHjEX2h4v19oeN5faHj9X2h4SV9oeElfaHj9X2h43l9oeL9faHjEX2h4+l9oeMVfaXkBX2h4MF9oeP9faHhmAAAAAAAAAABfaHgHX2h43l9oeLBfaHiwX2h43l9oeAcAAAAAAAAAAF9oeGZfaHj/X2h4MF9oeEBfaHj/X2h4QAAAAAAAAAAAAAAAAF9oeL9faHi/X2h4v19oeL8AAAAAAAAAAAAAAABfaHhAX2h4/19oeEBfaHhAX2h4/19oeEAAAAAAAAAAAAAAAABfaHi/X2h4v19oeL9faHi/AAAAAAAAAAAAAAAAX2h4QF9oeP9faHhAX2h4QF9oeP9faHhAAAAAAAAAAAAAAAAAX2h4v19oeL9faHi/X2h4vwAAAAAAAAAAAAAAAF9oeEBfaHj/X2h4QF9oeEBfaHj/Moq2jg6l6foOpen/DqXpyF9oeL9faHi/X2h4v19oeL8AAAAAAAAAAAAAAABfaHhAX2h4/19oeEBfaHhAX2h4/ymRw78Open/DqXp/w6l6f9faHi/X2h4v19oeL9faHi/AAAAAAAAAAAAAAAAX2h4QF9oeP9faHhAX2h4QF9oeP8pkcO/DqXp/w6l6f8Open/X2h4v19oeL9faHi/X2h4vwAAAAAAAAAAAAAAAF9oeEBfaHj/X2h4QF9oeEBfaHj/KZHDvw6l6f8Open/DqXp/19oeL9faHi/X2h4v19oeL/lSE1O5UhNgOVITXp+YG5TX2h4/19oeEBfaHhAX2h4/ymRw78Open/DqXp/w6l6f9faHi/X2h4v19oeL9faHi/5UhN+uVITf/lSE3/t1Ncul9oeP9faHhAX2h4MF9oeP88gqm0DqXp+g6l6f8Ro+XPX2h43l9oeLBfaHiwX2h43uBJT8/lSE3/5UhN+plaZbRfaHj/X2h4MF9peQFfaHjFX2h4+l9oeMRfaHi/X2h43l9oeP1faHhJX2h4SV9oeP1faHjeX2h4v19oeMRfaHj6X2h4xV9peQEAAAAAX2h4EF9oeIpfaHi9X2h4v19oeLBfaHhJAAAAAAAAAABfaHhJX2h4sF9oeL9faHi9X2h4il9oeBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 16 16\"><rect x=\"1.5\" y=\"2\" width=\"5.5\" height=\"12\" rx=\"2\" fill=\"none\" stroke=\"#5f6878\" stroke-width=\"1.5\"/><rect x=\"2.5\" y=\"7\" width=\"3.5\" height=\"6\" rx=\"1\" fill=\"#0ea5e9\"/><rect x=\"9\" y=\"2\" width=\"5.5\" height=\"12\" rx=\"2\" fill=\"none\" stroke=\"#5f6878\" stroke-width=\"1.5\"/><rect x=\"10\" y=\"10.5\" width=\"3.5\" height=\"2.5\" rx=\"1\" fill=\"#e5484d\"/></svg>"
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "id": "carbon-credit-tracker",
+  "name": "Carbon credit tracker",
+  "purpose": "A RIN and low-carbon-fuel credit widget: D6 and D4 RIN, California LCFS, Oregon CFP and Washington CFS prices with their change and trend, the credits held and their value, and what each adds to a gallon of ethanol.",
+  "keywords": [
+    "carbon credit tracker",
+    "carboncredittracker"
+  ],
+  "control": "CarbonCreditTracker",
+  "type": "GridKrafter.WisejDemo.CarbonCreditTracker",
+  "extends": null,
+  "component": null,
+  "preview": "<div data-wisej-pattern=\"carbon-credit-tracker\"><div class=\"cc\">\n  <div class=\"totals\"></div>\n  <div class=\"table\">\n    <div class=\"colhead\"><span>Credit</span><span class=\"r\">Price</span><span>30-day trend</span><span class=\"r\">Held</span><span class=\"r\">Value</span><span class=\"r\">¢/gal</span></div>\n    <div class=\"rows\"></div>\n  </div>\n</div></div>"
+}

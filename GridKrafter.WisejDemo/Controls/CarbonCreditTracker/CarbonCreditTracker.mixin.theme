@@ -1,0 +1,78 @@
+{
+	"name": "CarbonCreditTracker.mixin",
+
+	// rises, falls and the program chips are the GridKrafter palette the Light and Dark themes both define
+	// (green, red; RFS violet, LCFS sky, CFP green, CFS amber); surfaces, text and borders are the theme's own.
+
+	"fonts": {
+		"carbon-credit-tracker-small": { "size": 11.5, "family": ["Segoe UI", "system-ui", "Roboto", "Helvetica Neue", "Arial", "sans-serif"] },
+		"carbon-credit-tracker-text": { "size": 12, "family": ["Segoe UI", "system-ui", "Roboto", "Helvetica Neue", "Arial", "sans-serif"] },
+		"carbon-credit-tracker-column": { "size": 11, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] },
+		"carbon-credit-tracker-strong": { "size": 12, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] },
+		"carbon-credit-tracker-name": { "size": 13, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] },
+		"carbon-credit-tracker-tag": { "size": 10, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] },
+		"carbon-credit-tracker-total": { "size": 20, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] }
+	},
+
+	"appearances": {
+
+		"carbon-credit-tracker": {
+			"inherit": "widget",
+			"states": {
+				"default": {
+					"properties": {
+						"themeUpColor": "green",
+						"themeDownColor": "red",
+						"themeRfsColor": "violet",
+						"themeLcfsColor": "sky",
+						"themeCfpColor": "green",
+						"themeCfsColor": "amber",
+						"padding": [12, 14],
+						"font": "carbon-credit-tracker-text",
+						"textColor": "windowText",
+						"backgroundColor": "window",
+						"opacity": 1
+					},
+					"styles": { "width": 0 }
+				},
+				"disabled": { "properties": { "opacity": 0.55 } }
+			},
+			"components": {
+
+				"total-label": { "inherit": "label", "states": { "default": { "properties": { "font": "carbon-credit-tracker-small", "textColor": "grayText" } } } },
+				"total-value": { "inherit": "label", "states": { "default": { "properties": { "font": "carbon-credit-tracker-total", "textColor": "windowText" } } } },
+
+				"table": {
+					"inherit": "widget",
+					"states": { "default": { "styles": { "widthTop": 1, "styleTop": "solid", "colorTop": "windowFrame" } } }
+				},
+				"colhead": { "inherit": "widget", "states": { "default": { "properties": { "padding": [6, 8, 4, 8] } } } },
+				"column": { "inherit": "label", "states": { "default": { "properties": { "font": "carbon-credit-tracker-column", "textColor": "grayText" } } } },
+
+				"row": {
+					"inherit": "widget",
+					"states": {
+						"default": {
+							"properties": { "padding": [6, 8] },
+							"styles": { "backgroundColor": "transparent", "radius": 6, "widthBottom": 1, "styleBottom": "solid", "colorBottom": "windowFrame", "widthLeft": 0 }
+						},
+						"hovered": { "styles": { "backgroundColor": "menuHighlight" } },
+						"selected": { "styles": { "backgroundColor": "menuHighlight", "widthLeft": 3, "styleLeft": "solid", "colorLeft": "highlight" } }
+					}
+				},
+				"program": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "carbon-credit-tracker-tag", "padding": [0, 6] }, "styles": { "radius": 8 } } }
+				},
+				"name": { "inherit": "label", "states": { "default": { "properties": { "font": "carbon-credit-tracker-name", "textColor": "windowText" } } } },
+				"price": { "inherit": "label", "states": { "default": { "properties": { "font": "carbon-credit-tracker-name", "textColor": "windowText" } } } },
+				"change": { "inherit": "label", "states": { "default": { "properties": { "font": "carbon-credit-tracker-tag" } } } },
+				"held": { "inherit": "label", "states": { "default": { "properties": { "font": "carbon-credit-tracker-text", "textColor": "grayText" } } } },
+				"value": { "inherit": "label", "states": { "default": { "properties": { "font": "carbon-credit-tracker-strong", "textColor": "windowText" } } } },
+				"uplift": { "inherit": "label", "states": { "default": { "properties": { "font": "carbon-credit-tracker-strong" } } } },
+
+				"empty": { "inherit": "label", "states": { "default": { "properties": { "textColor": "grayText", "padding": [30, 0] } } } }
+			}
+		}
+	}
+}

@@ -1,0 +1,142 @@
+{
+	"name": "CrushMarginGauge.mixin",
+
+	// the GridKrafter palette: revenues and a rising margin green, costs and a falling margin red;
+	// surfaces, text, borders and the accent are the theme's own colours so it follows Light and Dark.
+	"colors": {
+		"crush-margin-gauge-positive": "#1fb57a",
+		"crush-margin-gauge-negative": "#e5484d"
+	},
+
+	"fonts": {
+		"crush-margin-gauge-small": { "size": 12, "family": ["Segoe UI", "system-ui", "Roboto", "Helvetica Neue", "Arial", "sans-serif"] },
+		"crush-margin-gauge-label": { "size": 12.5, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] },
+		"crush-margin-gauge-strong": { "size": 12, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] },
+		"crush-margin-gauge-value": { "size": 28, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] }
+	},
+
+	"appearances": {
+
+		"crush-margin-gauge": {
+			"inherit": "widget",
+			"states": {
+				"default": {
+					"properties": {
+						"themePositiveColor": "crush-margin-gauge-positive",
+						"themeNegativeColor": "crush-margin-gauge-negative",
+						"themeAccentColor": "highlight",
+						"padding": [12, 14],
+						"font": "crush-margin-gauge-small",
+						"textColor": "windowText",
+						"backgroundColor": "window",
+						"opacity": 1
+					},
+					"styles": { "width": 0 }
+				},
+				"disabled": { "properties": { "opacity": 0.55 } }
+			},
+			"components": {
+
+				"label": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "crush-margin-gauge-label", "textColor": "grayText" } } }
+				},
+
+				"value": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "crush-margin-gauge-value", "textColor": "windowText" } } }
+				},
+
+				"unit": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "crush-margin-gauge-label", "textColor": "grayText" } } }
+				},
+
+				"change": {
+					"inherit": "label",
+					"states": {
+						"default": {
+							"properties": { "font": "crush-margin-gauge-strong", "padding": [1, 7] },
+							"styles": { "radius": 10 }
+						}
+					}
+				},
+
+				"ranges": {
+					"inherit": "widget",
+					"states": {
+						"default": {
+							"properties": { "padding": 2 },
+							"styles": { "backgroundColor": "appWorkspace", "radius": 8 }
+						}
+					}
+				},
+
+				"range": {
+					"inherit": "label",
+					"states": {
+						"default": {
+							"properties": { "font": "crush-margin-gauge-small", "textColor": "grayText", "padding": [3, 9] },
+							"styles": { "backgroundColor": "transparent", "radius": 6, "shadowBlurRadius": 0, "shadowLength": 0 }
+						},
+						"hovered": { "properties": { "textColor": "windowText" } },
+						"selected": {
+							"styles": { "backgroundColor": "window", "radius": 6, "shadowColor": "rgba(20,20,50,0.12)", "shadowBlurRadius": 2, "shadowLength": 1 }
+						}
+					}
+				},
+
+				"chart": {
+					"inherit": "widget",
+					"states": { "default": { "properties": { "backgroundColor": "transparent" } } }
+				},
+
+				"legend": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "crush-margin-gauge-small", "textColor": "grayText" } } }
+				},
+
+				"breakdown": {
+					"inherit": "widget",
+					"states": {
+						"default": {
+							"properties": { "padding": [8, 0, 0, 0] },
+							"styles": { "widthTop": 1, "colorTop": "windowFrame", "styleTop": "solid" }
+						}
+					}
+				},
+
+				"item": {
+					"inherit": "widget",
+					"states": {
+						"default": {
+							"properties": { "padding": [1, 4] },
+							"styles": { "backgroundColor": "transparent", "radius": 5 }
+						},
+						"hovered": { "styles": { "backgroundColor": "menuHighlight" } }
+					}
+				},
+
+				"name": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "crush-margin-gauge-small", "textColor": "grayText" } } }
+				},
+
+				"axis": {
+					"inherit": "widget",
+					"states": { "default": { "properties": { "backgroundColor": "windowFrame" } } }
+				},
+
+				"bar": {
+					"inherit": "widget",
+					"states": { "default": { "styles": { "radius": 3 } } }
+				},
+
+				"amount": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "crush-margin-gauge-strong", "textColor": "windowText" } } }
+				}
+			}
+		}
+	}
+}
