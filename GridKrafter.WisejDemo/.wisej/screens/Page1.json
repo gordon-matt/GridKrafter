@@ -1,0 +1,53 @@
+{
+  "form": "Page1.cs",
+  "reference": "docs/superpowers/specs/2026-11-14-enterprise-shell-design.md (enterprise shell design)",
+  "saved": "2026-11-13T14:29:12.9235620Z",
+  "regions": [
+    {
+      "name": "Sidebar",
+      "describes": "Brand-green navigation with groups, icons, compact mode and collapse toggle",
+      "build": "layout",
+      "why": "Already built: the Wisej NavigationBar extension (Wisej.Web.Ext.NavigationBar) the page has used all along; restyled in the mixin."
+    },
+    {
+      "name": "Top bar",
+      "describes": "Breadcrumb, search, environment badge, alerts bell, user initials, data-as-of",
+      "build": "new-component",
+      "why": "One 48px bar with breadcrumb, search, badge and bell together; the project's AppTopBar component already draws all of it, initials included.",
+      "component": "AppTopBar",
+      "exists": false
+    },
+    {
+      "name": "User menu",
+      "describes": "Name/role header, Theme submenu, Show demo notes toggle, Reset board",
+      "build": "control",
+      "control": "ContextMenu",
+      "type": "Wisej.Web.ContextMenu"
+    },
+    {
+      "name": "Alerts popup",
+      "describes": "List of alerts with severity icons, click navigates",
+      "build": "control",
+      "control": "ContextMenu",
+      "type": "Wisej.Web.ContextMenu"
+    },
+    {
+      "name": "Search results popup",
+      "describes": "Search hits or No results, click navigates",
+      "build": "control",
+      "control": "ContextMenu",
+      "type": "Wisej.Web.ContextMenu"
+    },
+    {
+      "name": "Page header",
+      "describes": "Page title with a one-line subtitle, then the optional demo-notes row (intro, status, Reset button)",
+      "build": "layout"
+    },
+    {
+      "name": "Content host",
+      "describes": "Plain host panel that the selected page's own panel (which holds the project's GridBoard) is docked into, full width",
+      "build": "layout",
+      "why": "It is only a container; the board inside is the project's own GridBoard component, on the page panels."
+    }
+  ]
+}
