@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using GridKrafter.WisejDemo.Panels;
@@ -314,6 +314,7 @@ namespace GridKrafter.WisejDemo
 		private IEnumerable<Button> BoardActionButtons()
 		{
 			yield return this.buttonEdit;
+			yield return this.buttonDone;
 			yield return this.buttonAddWidget;
 			yield return this.buttonAddSection;
 			yield return this.buttonResetLayout;
@@ -325,13 +326,10 @@ namespace GridKrafter.WisejDemo
 			var board = CurrentBoard;
 			bool editing = board != null && board.EditMode;
 
-			this.buttonEdit.Visible = board != null;
-			this.buttonEdit.Text = editing ? "Done" : "Edit";
-			this.buttonEdit.ImageSource = editing
-				? "resource.wx/Wisej.Ext.BootstrapIcons/check-lg.svg"
-				: "resource.wx/Wisej.Ext.BootstrapIcons/pencil.svg";
-			this.buttonEdit.BackColor = editing ? System.Drawing.Color.FromName("@highlight") : System.Drawing.Color.Empty;
-			this.buttonEdit.ForeColor = editing ? System.Drawing.Color.FromName("@highlightText") : System.Drawing.Color.Empty;
+			// two buttons with colours of their own, rather than one that changes colour: an icon keeps the colour
+			// it was drawn in, so a button turned back from Done kept a white pencil on a light theme
+			this.buttonEdit.Visible = board != null && !editing;
+			this.buttonDone.Visible = editing;
 
 			this.buttonAddWidget.Visible = editing;
 			this.buttonAddSection.Visible = editing;

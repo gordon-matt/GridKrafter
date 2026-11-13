@@ -50,6 +50,7 @@
             this.panelTop = new Wisej.Web.Panel();
             this.buttonReset = new Wisej.Web.Button();
             this.buttonEdit = new Wisej.Web.Button();
+            this.buttonDone = new Wisej.Web.Button();
             this.buttonAddWidget = new Wisej.Web.Button();
             this.buttonAddSection = new Wisej.Web.Button();
             this.buttonResetLayout = new Wisej.Web.Button();
@@ -239,6 +240,7 @@
             this.panelTop.Controls.Add(this.buttonResetLayout);
             this.panelTop.Controls.Add(this.buttonAddSection);
             this.panelTop.Controls.Add(this.buttonAddWidget);
+            this.panelTop.Controls.Add(this.buttonDone);
             this.panelTop.Controls.Add(this.buttonEdit);
             this.panelTop.Controls.Add(this.buttonReset);
             this.panelTop.Controls.Add(this.labelStatus);
@@ -261,6 +263,19 @@
             this.buttonEdit.Text = "Edit";
             this.buttonEdit.Visible = false;
             this.buttonEdit.Click += new System.EventHandler(this.buttonEdit_Click);
+            //
+            // buttonDone
+            //
+            this.buttonDone.BackColor = System.Drawing.Color.FromName("@highlight");
+            this.buttonDone.ForeColor = System.Drawing.Color.FromName("@highlightText");
+            this.buttonDone.ImageSource = "resource.wx/Wisej.Ext.BootstrapIcons/check-lg.svg";
+            this.buttonDone.Location = new System.Drawing.Point(560, 14);
+            this.buttonDone.Name = "buttonDone";
+            this.buttonDone.Size = new System.Drawing.Size(80, 30);
+            this.buttonDone.TabIndex = 9;
+            this.buttonDone.Text = "Done";
+            this.buttonDone.Visible = false;
+            this.buttonDone.Click += new System.EventHandler(this.buttonEdit_Click);
             //
             // buttonAddWidget
             //
@@ -474,6 +489,7 @@
 		private Wisej.Web.Label labelIntro;
 		private Wisej.Web.Button buttonReset;
 		private Wisej.Web.Button buttonEdit;
+		private Wisej.Web.Button buttonDone;
 		private Wisej.Web.Button buttonAddWidget;
 		private Wisej.Web.Button buttonAddSection;
 		private Wisej.Web.Button buttonResetLayout;
