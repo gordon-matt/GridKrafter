@@ -273,8 +273,12 @@ namespace GridKrafter.WisejDemo.Model.Boards
 			if (body is not EthanolBody wrapper)
 				return;
 
-			wrapper.Message = any ? null : "No plants match this filter (" + filter.Describe() + ").";
-			if (!any)
+			// the book, the tanks, the liftings and the credits are gallons that move: none by a mode none moves by
+			string none = wrapper.Content is NetPositionLadder or TerminalInventoryTanks or LiftingScheduleTracker or CarbonCreditTracker
+				? TransportMix.NoneMessage(filter, this.Key, "ethanol")
+				: null;
+			wrapper.Message = !any ? "No plants match this filter (" + filter.Describe() + ")." : none;
+			if (!any || none != null)
 				return;
 
 			switch (wrapper.Content)
@@ -384,6 +388,16 @@ namespace GridKrafter.WisejDemo.Model.Boards
 
 			var s = this.data.Summary(filter, this.product, refresh);
 			string name = ProductName(this.product);
+			string mode = TransportMix.CaptionSuffix(filter);
+			string none = TransportMix.NoneMessage(filter, this.Key, "ethanol");
+			if (none != null && (tile.Tag as string) != "margin")
+			{
+				tile.Value = "—";
+				tile.Change = "";
+				tile.Caption = none.TrimEnd('.');
+				return;
+			}
+
 			switch (tile.Tag as string)
 			{
 				case "margin":
@@ -395,19 +409,19 @@ namespace GridKrafter.WisejDemo.Model.Boards
 				case "net-position":
 					tile.Value = Gallons(s.NetPositionGal, signed: true);
 					tile.Change = Gallons(s.NetPositionChange, signed: true);
-					tile.Caption = name + " · next 7 months, after futures";
+					tile.Caption = name + " · next 7 months, after futures" + mode;
 					break;
 
 				case "inventory":
 					tile.Value = Gallons(s.InventoryGal);
 					tile.Change = Signed(s.InventoryChange * 100, "0.0") + "%";
-					tile.Caption = s.DaysCover.ToString("0.0", CultureInfo.InvariantCulture) + " days of cover · " + name;
+					tile.Caption = s.DaysCover.ToString("0.0", CultureInfo.InvariantCulture) + " days of cover · " + name + mode;
 					break;
 
 				default:
 					tile.Value = Gallons(s.VolumeGal);
 					tile.Change = Signed(s.VolumeChange * 100, "0.0") + "%";
-					tile.Caption = name + " · " + s.PlantCount + (s.PlantCount == 1 ? " plant" : " plants") + " · vs last month";
+					tile.Caption = name + " · " + s.PlantCount + (s.PlantCount == 1 ? " plant" : " plants") + " · vs last month" + mode;
 					break;
 			}
 		}

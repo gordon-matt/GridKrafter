@@ -68,8 +68,25 @@ namespace GridKrafter.WisejDemo.Services.Commodities
 			("Union Pacific", "Rail · manifest cars", 0.10),
 		};
 
+		// The share of the denaturant that moves by the filter's MOT: 1 for All MOT. Gallons scale; days of
+		// supply, cost and percentages do not.
+		private static double ModeShare(PlantFilter filter) => (filter ?? PlantFilter.All).ModeShare("denaturant");
+
 		/// <inheritdoc/>
 		public IReadOnlyList<DenaturantStock> DaysOfSupply(PlantFilter filter, int refresh)
+		{
+			double share = ModeShare(filter);
+			var list = DaysOfSupplyCore(filter, refresh);
+			if (share == 1)
+				return list;
+
+			// the mode's gallons on hand and burned a day: the days they last stay
+			return list
+				.Select(s => s with { InventoryGal = TransportMix.Scale(s.InventoryGal, share), UseGalPerDay = TransportMix.Scale(s.UseGalPerDay, share) })
+				.ToList();
+		}
+
+		private static List<DenaturantStock> DaysOfSupplyCore(PlantFilter filter, int refresh)
 		{
 			var list = new List<DenaturantStock>();
 			foreach (var plant in PlantRegistry.Where(filter))
@@ -93,6 +110,10 @@ namespace GridKrafter.WisejDemo.Services.Commodities
 		/// <inheritdoc/>
 		public IReadOnlyList<DenaturantTank> Tanks(PlantFilter filter, int refresh, int max)
 		{
+			if (ModeShare(filter) <= 0)
+				return new List<DenaturantTank>();
+
+			// sized from the mode's gallons, so the tanks scale with them
 			return DaysOfSupply(filter, refresh)
 				.Take(Math.Max(0, max))
 				.Select(s =>
@@ -111,8 +132,10 @@ namespace GridKrafter.WisejDemo.Services.Commodities
 		/// <inheritdoc/>
 		public IReadOnlyList<DenaturantDelivery> Deliveries(PlantFilter filter, int refresh)
 		{
-			double monthlyUse = DaysOfSupply(filter, 0).Sum(s => s.UseGalPerDay) * 30;
-			if (monthlyUse <= 0)
+			double monthlyUse = DaysOfSupplyCore(filter, 0).Sum(s => s.UseGalPerDay) * 30;
+			// the deliveries that come by the filter's MOT
+			double share = ModeShare(filter);
+			if (monthlyUse <= 0 || share <= 0)
 				return new List<DenaturantDelivery>();
 
 			DateTime today = DateTime.Today;
@@ -123,7 +146,7 @@ namespace GridKrafter.WisejDemo.Services.Commodities
 				var rng = SampleRandom.For("denaturant-delivery:" + s.Supplier, filter, refresh);
 				double scheduled = Math.Round(monthlyUse * s.Share);
 				double received = Math.Round(scheduled * pace * (0.82 + rng.NextDouble() * 0.30));
-				return new DenaturantDelivery(s.Supplier, s.Route, scheduled, received);
+				return new DenaturantDelivery(s.Supplier, s.Route, TransportMix.Scale(scheduled, share), TransportMix.Scale(received, share));
 			}).ToList();
 		}
 

@@ -126,6 +126,9 @@ namespace GridKrafter.WisejDemo.Services.Commodities
 		/// <summary>The data the board uses unless it is given another.</summary>
 		public static IEthanolData Default { get; } = new SampleEthanolData();
 
+		// The share of the gallons that moves by the filter's MOT: 1 for All MOT.
+		private static double ModeShare(PlantFilter filter) => (filter ?? PlantFilter.All).ModeShare(BOARD);
+
 		#region Plants
 
 		// One plant's operation: the same for the plant whatever the filter.
@@ -318,6 +321,22 @@ namespace GridKrafter.WisejDemo.Services.Commodities
 		/// <inheritdoc/>
 		public EthanolPosition Position(PlantFilter filter, EthanolProduct product, int refresh)
 		{
+			double share = ModeShare(filter);
+			var p = PositionCore(filter, product, refresh);
+			if (share == 1)
+				return p;
+			if (share <= 0)
+				return new EthanolPosition(Array.Empty<EthanolPositionMonth>(), 0);
+
+			// the book of the mode: purchases and sales scale, futures stay in whole 29 kgal contracts
+			var months = p.Months
+				.Select(m => new EthanolPositionMonth(m.Month, TransportMix.Scale(m.PhysicalLong, share), TransportMix.Scale(m.PhysicalShort, share), TransportMix.Scale(m.Futures, share, 29)))
+				.ToList();
+			return new EthanolPosition(months, Math.Max(29, TransportMix.Scale(p.Limit, share, 29)));
+		}
+
+		private EthanolPosition PositionCore(PlantFilter filter, EthanolProduct product, int refresh)
+		{
 			double perDay = ProductGalPerDay(filter, product);
 			if (perDay <= 0)
 				return new EthanolPosition(Array.Empty<EthanolPositionMonth>(), 0);
@@ -390,6 +409,26 @@ namespace GridKrafter.WisejDemo.Services.Commodities
 		/// <inheritdoc/>
 		public IReadOnlyList<EthanolTank> Tanks(PlantFilter filter, EthanolProduct product, int refresh)
 		{
+			double mode = ModeShare(filter);
+			var tanks = TanksCore(filter, product, refresh);
+			if (mode == 1)
+				return tanks;
+			if (mode <= 0)
+				return Array.Empty<EthanolTank>();
+
+			// the tankage the mode's gallons take: levels, room and flows scale, the fill and the cover do not
+			return tanks
+				.Select(t => t with
+				{
+					Capacity = Math.Max(100, TransportMix.Scale(t.Capacity, mode, 100)),
+					Level = TransportMix.Scale(t.Level, mode, 10),
+					NetFlow = TransportMix.Scale(t.NetFlow, mode),
+				})
+				.ToList();
+		}
+
+		private IReadOnlyList<EthanolTank> TanksCore(PlantFilter filter, EthanolProduct product, int refresh)
+		{
 			double share = CapacityShare(filter);
 			double perDay = ProductGalPerDay(filter, product);
 			if (share <= 0 || perDay <= 0)
@@ -422,6 +461,21 @@ namespace GridKrafter.WisejDemo.Services.Commodities
 
 		/// <inheritdoc/>
 		public EthanolLiftings Liftings(PlantFilter filter, EthanolProduct product, int refresh)
+		{
+			double share = ModeShare(filter);
+			var l = LiftingsCore(filter, product, refresh);
+			if (share == 1)
+				return l;
+			if (share <= 0)
+				return new EthanolLiftings(l.Period, l.PaceRatio, Array.Empty<LiftingScheduleRow>());
+
+			var rows = l.Rows
+				.Select(row => new LiftingScheduleRow(row.Label, row.Sublabel, TransportMix.Scale(row.Planned, share), TransportMix.Scale(row.Actual, share)))
+				.ToList();
+			return new EthanolLiftings(l.Period, l.PaceRatio, rows);
+		}
+
+		private EthanolLiftings LiftingsCore(PlantFilter filter, EthanolProduct product, int refresh)
 		{
 			double perDay = ProductGalPerDay(filter, product);
 			string period = Today.ToString("MMMM") + " MTD";
@@ -468,6 +522,19 @@ namespace GridKrafter.WisejDemo.Services.Commodities
 		/// <inheritdoc/>
 		public EthanolCredits Credits(PlantFilter filter, int refresh)
 		{
+			double share = ModeShare(filter);
+			var c = CreditsCore(filter, refresh);
+			if (share == 1)
+				return c;
+			if (share <= 0)
+				return new EthanolCredits(Array.Empty<EthanolCredit>(), 0);
+
+			// the credits the mode's gallons earned: what is held scales, the prices do not
+			return new EthanolCredits(c.Credits.Select(x => x with { Held = TransportMix.Scale(x.Held, share) }).ToList(), TransportMix.Scale(c.Rvo, share));
+		}
+
+		private EthanolCredits CreditsCore(PlantFilter filter, int refresh)
+		{
 			double galPerDay = Runs(filter, 0).Sum(run => run.GalPerDay);
 			if (galPerDay <= 0)
 				return new EthanolCredits(Array.Empty<EthanolCredit>(), 0);
@@ -505,6 +572,23 @@ namespace GridKrafter.WisejDemo.Services.Commodities
 		/// <inheritdoc/>
 		public EthanolSummary Summary(PlantFilter filter, EthanolProduct product, int refresh)
 		{
+			double share = ModeShare(filter);
+			var s = SummaryCore(filter, product, refresh);
+			if (share == 1)
+				return s;
+
+			// the volumes of the mode; the margin, the pace, the inventory's change and its cover stay
+			return s with
+			{
+				VolumeGal = TransportMix.Scale(s.VolumeGal, share),
+				NetPositionGal = TransportMix.Scale(s.NetPositionGal, share),
+				NetPositionChange = TransportMix.Scale(s.NetPositionChange, share),
+				InventoryGal = TransportMix.Scale(s.InventoryGal, share),
+			};
+		}
+
+		private EthanolSummary SummaryCore(PlantFilter filter, EthanolProduct product, int refresh)
+		{
 			var runs = Runs(filter, refresh);
 			if (runs.Count == 0)
 				return new EthanolSummary(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
@@ -519,11 +603,11 @@ namespace GridKrafter.WisejDemo.Services.Commodities
 			var crush = CrushMargin(filter, refresh);
 			double margin = Math.Round(crush.Value + Premium(product) * 0.6, 3);
 
-			var position = Position(filter, product, refresh);
+			var position = PositionCore(filter, product, refresh);
 			double netKgal = position.Months.Sum(m => m.PhysicalLong - m.PhysicalShort + m.Futures);
 			double netChange = Math.Round(netKgal * (r.NextDouble() - 0.5) * 0.08);
 
-			var tanks = Tanks(filter, product, refresh);
+			var tanks = TanksCore(filter, product, refresh);
 			double inventoryGal = tanks.Sum(t => t.Level) * 42;
 			double perDay = ProductGalPerDay(filter, product);
 			double days = perDay > 0 ? inventoryGal / perDay : 0;

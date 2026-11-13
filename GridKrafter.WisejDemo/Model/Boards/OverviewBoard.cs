@@ -178,13 +178,13 @@ namespace GridKrafter.WisejDemo.Model.Boards
 				case "margin":
 					tile.Value = "$" + Compact(tiles.GrossMargin);
 					tile.Change = Percent(tiles.MarginChange);
-					tile.Caption = "MTD vs last month";
+					tile.Caption = "MTD vs last month" + TransportMix.CaptionSuffix(filter);
 					break;
 
 				case "net-position":
 					tile.Value = (tiles.NetPositionGal >= 0 ? "+" : "−") + Compact(Math.Abs(tiles.NetPositionGal));
 					tile.Change = (tiles.NetPositionChangeGal >= 0 ? "+" : "-") + Compact(Math.Abs(tiles.NetPositionChangeGal));
-					tile.Caption = (tiles.NetPositionGal >= 0 ? "long" : "short") + " · vs yesterday";
+					tile.Caption = (tiles.NetPositionGal >= 0 ? "long" : "short") + " · vs yesterday" + TransportMix.CaptionSuffix(filter);
 					break;
 
 				case "run-rate":
@@ -196,7 +196,7 @@ namespace GridKrafter.WisejDemo.Model.Boards
 				default:
 					tile.Value = Compact(tiles.VolumeGal);
 					tile.Change = Percent(tiles.VolumeChange);
-					tile.Caption = "gal vs last month";
+					tile.Caption = "gal vs last month" + TransportMix.CaptionSuffix(filter);
 					break;
 			}
 		}

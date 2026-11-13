@@ -57,5 +57,39 @@ namespace GridKrafter.WisejDemo.Services.Commodities
 
 		/// <summary>The mode's name as the filter bar shows it.</summary>
 		public static string Name(TransportMode mode) => mode == TransportMode.All ? "All MOT" : mode.ToString();
+
+		/// <summary>
+		/// A volume scaled by a mode's share, rounded to <paramref name="unit"/>; the value itself, untouched, when the
+		/// share is 1 (All MOT), so the unfiltered board keeps its exact numbers.
+		/// </summary>
+		public static double Scale(double value, double share, double unit = 1)
+		{
+			if (share == 1)
+				return value;
+			return unit <= 0 ? value * share : Math.Round(value * share / unit) * unit + 0.0; // + 0.0 turns -0 into 0
+		}
+
+		/// <summary>
+		/// What a volume widget says in place of its figures when none of the commodity moves by the filter's mode
+		/// ("No ethanol moves by Pipeline"; natural gas: "Natural gas moves by pipeline only"), or
+		/// <see langword="null"/> when some does.
+		/// </summary>
+		/// <param name="filter">The board's filter.</param>
+		/// <param name="commodity">The board's key.</param>
+		/// <param name="name">The commodity in words, lower case: "ethanol", "CO2".</param>
+		public static string NoneMessage(PlantFilter filter, string commodity, string name)
+		{
+			if (filter == null || filter.Mode == TransportMode.All || filter.ModeShare(commodity) > 0)
+				return null;
+
+			if (string.Equals(commodity, "natgas", StringComparison.OrdinalIgnoreCase))
+				return "Natural gas moves by pipeline only.";
+
+			return "No " + name + " moves by " + Name(filter.Mode).ToLowerInvariant() + ".";
+		}
+
+		/// <summary>" · Rail" for a tile's caption when a mode is chosen; "" for All MOT.</summary>
+		public static string CaptionSuffix(PlantFilter filter) =>
+			filter == null || filter.Mode == TransportMode.All ? "" : " · " + Name(filter.Mode);
 	}
 }

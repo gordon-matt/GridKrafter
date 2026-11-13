@@ -182,8 +182,12 @@ namespace GridKrafter.WisejDemo.Model.Boards
 			if (body is not PurifiedBody wrapper)
 				return;
 
-			wrapper.Message = any ? null : EmptyMessage(filter);
-			if (!any)
+			// orders and tanks are gallons that move: none by a mode none moves by
+			string none = wrapper.Content is LiftingScheduleTracker or TerminalInventoryTanks
+				? TransportMix.NoneMessage(filter, this.Key, "purified ethanol")
+				: null;
+			wrapper.Message = !any ? EmptyMessage(filter) : none;
+			if (!any || none != null)
 				return;
 
 			switch (wrapper.Content)
@@ -236,12 +240,21 @@ namespace GridKrafter.WisejDemo.Model.Boards
 
 			var s = this.data.Summary(filter, refresh);
 			var inv = CultureInfo.InvariantCulture;
+			string none = TransportMix.NoneMessage(filter, this.Key, "purified ethanol");
+			if (none != null && (tile.Tag as string) is "volume" or "orders")
+			{
+				tile.Value = "—";
+				tile.Change = "";
+				tile.Caption = none.TrimEnd('.');
+				return;
+			}
+
 			switch (tile.Tag as string)
 			{
 				case "volume":
 					tile.Value = s.VolumeGal >= 1_000_000 ? (s.VolumeGal / 1_000_000).ToString("0.00", inv) + "M" : (s.VolumeGal / 1000).ToString("0", inv) + "K";
 					tile.Change = (s.VolumeChange >= 0 ? "+" : "−") + (System.Math.Abs(s.VolumeChange) * 100).ToString("0.0", inv) + "%";
-					tile.Caption = "vs last month · " + s.Plants + (s.Plants == 1 ? " plant" : " plants");
+					tile.Caption = "vs last month · " + s.Plants + (s.Plants == 1 ? " plant" : " plants") + TransportMix.CaptionSuffix(filter);
 					break;
 				case "premium":
 					tile.Value = "+" + s.PremiumCents.ToString("0.0", inv) + "¢";
@@ -256,7 +269,7 @@ namespace GridKrafter.WisejDemo.Model.Boards
 				case "orders":
 					tile.Value = s.OpenOrders.ToString(inv);
 					tile.Change = "";
-					tile.Caption = (s.OpenGal / 1000).ToString("#,0", inv) + "K gal still to lift";
+					tile.Caption = (s.OpenGal / 1000).ToString("#,0", inv) + "K gal still to lift" + TransportMix.CaptionSuffix(filter);
 					break;
 				default:
 					tile.Value = s.Plants.ToString(inv);

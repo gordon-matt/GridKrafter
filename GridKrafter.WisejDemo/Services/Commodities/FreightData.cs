@@ -155,17 +155,42 @@ namespace GridKrafter.WisejDemo.Services.Commodities
 
 		private static readonly string[] CarPrefixes = { "UTLX", "GATX", "TILX", "PROX" };
 
+		// The freight data is per mode already, so a MOT filters it rather than scaling it: the railcars (and the
+		// demurrage they run up) are Rail's, each lane keeps the chosen mode's rate, the mix that mode's row.
+		private static TransportMode ModeOf(PlantFilter filter) => (filter ?? PlantFilter.All).Mode;
+
 		/// <inheritdoc/>
 		public FreightSummary GetSummary(PlantFilter filter, int refresh)
 		{
-			var shipments = GetShipments(filter, refresh);
+			var mode = ModeOf(filter);
+			var s = SummaryCore(filter, refresh);
+			if (mode == TransportMode.All || s.CarsInTransit == 0 && s.AvgTransitDays == 0)
+				return s;
+
+			// the chosen mode's freight cost; the railcar figures only for Rail, the lanes' transit for the others
+			var row = GetModeMix(filter, refresh).FirstOrDefault();
+			s.CostCentsPerGal = row?.CostCentsPerGal ?? 0;
+			if (mode != TransportMode.Rail)
+			{
+				var lanes = GetLanes(filter, refresh);
+				s.CarsInTransit = 0;
+				s.DemurrageMtd = 0;
+				s.AvgTransitDays = lanes.Count == 0 ? 0 : Math.Round(lanes.Average(l => (double)(l.TruckDays + l.BargeDays)), 1);
+			}
+
+			return s;
+		}
+
+		private FreightSummary SummaryCore(PlantFilter filter, int refresh)
+		{
+			var shipments = ShipmentsCore(filter, refresh);
 			if (shipments.Count == 0)
 				return new FreightSummary();
 
 			var r = SampleRandom.For(BOARD + ":summary", filter, refresh);
 			int totalCars = shipments.Sum(s => s.Cars);
 			double days = totalCars == 0 ? 0 : shipments.Sum(s => (double)s.ExpectedDays * s.Cars) / totalCars;
-			double cost = GetModeMix(filter, refresh).Sum(m => m.SharePct / 100 * m.CostCentsPerGal);
+			double cost = ModeMixCore(filter, refresh).Sum(m => m.SharePct / 100 * m.CostCentsPerGal);
 
 			return new FreightSummary
 			{
@@ -173,7 +198,7 @@ namespace GridKrafter.WisejDemo.Services.Commodities
 				CarsChangePct = Change(r, 1.5, 6),
 				AvgTransitDays = Math.Round(days, 1),
 				TransitChangePct = Change(r, 0.5, 4),
-				DemurrageMtd = GetDemurrage(filter, refresh).Sum(b => b.Amount),
+				DemurrageMtd = DemurrageCore(filter, refresh).Sum(b => b.Amount),
 				DemurrageChangePct = Change(r, 4, 18),
 				CostCentsPerGal = Math.Round(cost, 1),
 				CostChangePct = Change(r, 0.5, 3),
@@ -182,6 +207,13 @@ namespace GridKrafter.WisejDemo.Services.Commodities
 
 		/// <inheritdoc/>
 		public IReadOnlyList<FreightShipment> GetShipments(PlantFilter filter, int refresh)
+		{
+			// railcars move by rail: none for another mode
+			var mode = ModeOf(filter);
+			return mode == TransportMode.All || mode == TransportMode.Rail ? ShipmentsCore(filter, refresh) : new List<FreightShipment>();
+		}
+
+		private static List<FreightShipment> ShipmentsCore(PlantFilter filter, int refresh)
 		{
 			var list = new List<FreightShipment>();
 			DateTime today = DateTime.Today;
@@ -272,6 +304,41 @@ namespace GridKrafter.WisejDemo.Services.Commodities
 		/// <inheritdoc/>
 		public IReadOnlyList<FreightLaneRow> GetLanes(PlantFilter filter, int refresh)
 		{
+			var mode = ModeOf(filter);
+			var lanes = LanesCore(filter, refresh);
+			if (mode == TransportMode.All)
+				return lanes;
+
+			// each lane with the chosen mode's rate only; a lane that mode does not serve is left out
+			var kept = new List<FreightLaneRow>();
+			foreach (var l in lanes)
+			{
+				bool rail = mode == TransportMode.Rail, truck = mode == TransportMode.Truck, barge = mode == TransportMode.Barge;
+				var lane = new FreightLaneRow
+				{
+					Lane = l.Lane,
+					Origin = l.Origin,
+					Destination = l.Destination,
+					RailRate = rail ? l.RailRate : 0,
+					RailDays = rail ? l.RailDays : 0,
+					RailTrend = rail ? l.RailTrend : 0,
+					TruckRate = truck ? l.TruckRate : 0,
+					TruckDays = truck ? l.TruckDays : 0,
+					TruckTrend = truck ? l.TruckTrend : 0,
+					BargeRate = barge ? l.BargeRate : 0,
+					BargeDays = barge ? l.BargeDays : 0,
+					BargeTrend = barge ? l.BargeTrend : 0,
+				};
+
+				if (lane.RailRate > 0 || lane.TruckRate > 0 || lane.BargeRate > 0)
+					kept.Add(lane);
+			}
+
+			return kept;
+		}
+
+		private static List<FreightLaneRow> LanesCore(PlantFilter filter, int refresh)
+		{
 			var lanes = new List<FreightLaneRow>();
 			var regions = PlantRegistry.Where(filter).Select(p => p.Region).Distinct().ToList();
 
@@ -325,8 +392,15 @@ namespace GridKrafter.WisejDemo.Services.Commodities
 		/// <inheritdoc/>
 		public IReadOnlyList<DemurrageBucketRow> GetDemurrage(PlantFilter filter, int refresh)
 		{
+			// demurrage is what railcars standing run up: none for another mode
+			var mode = ModeOf(filter);
+			return mode == TransportMode.All || mode == TransportMode.Rail ? DemurrageCore(filter, refresh) : new List<DemurrageBucketRow>();
+		}
+
+		private static List<DemurrageBucketRow> DemurrageCore(PlantFilter filter, int refresh)
+		{
 			var buckets = new List<DemurrageBucketRow>();
-			var shipments = GetShipments(filter, refresh);
+			var shipments = ShipmentsCore(filter, refresh);
 			if (shipments.Count == 0)
 				return buckets;
 
@@ -356,6 +430,18 @@ namespace GridKrafter.WisejDemo.Services.Commodities
 
 		/// <inheritdoc/>
 		public IReadOnlyList<FreightModeShare> GetModeMix(PlantFilter filter, int refresh)
+		{
+			// the chosen mode's row, with its share of every mode's gallons; none when it moved nothing
+			var mode = ModeOf(filter);
+			var mix = ModeMixCore(filter, refresh);
+			if (mode == TransportMode.All)
+				return mix;
+
+			string name = TransportMix.Name(mode);
+			return mix.Where(m => m.Mode == name && m.MillionGallons > 0).ToList();
+		}
+
+		private static List<FreightModeShare> ModeMixCore(PlantFilter filter, int refresh)
 		{
 			double rail = 0, truck = 0, barge = 0;
 			double monthShare = Math.Max(1, DateTime.Today.Day) / 30.0;
