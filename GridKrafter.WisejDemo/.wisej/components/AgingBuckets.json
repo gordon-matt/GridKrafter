@@ -1,0 +1,113 @@
+{
+  "name": "AgingBuckets",
+  "namespace": "GridKrafter.WisejDemo",
+  "fullName": "GridKrafter.WisejDemo.AgingBuckets",
+  "language": "csharp",
+  "files": [
+    "Controls/AgingBuckets/AgingBuckets.cs",
+    "Controls/AgingBuckets/gridkrafter.wisejdemo.AgingBuckets.js",
+    "Controls/AgingBuckets/AgingBuckets.mixin.theme",
+    "Controls/AgingBuckets/AgingBuckets.bmp",
+    "GridKrafter.WisejDemo.csproj"
+  ],
+  "saved": "2026-11-13T17:35:39.2950681Z",
+  "sketch": {
+    "schema": "wisej-component-sketch/1",
+    "name": "AgingBuckets",
+    "namespace": "",
+    "description": "Receivables, payables or exposure aging: one bar per bucket (Current, 1-30, 31-60, 61-90, 90+) with amount, count and share of total, a header with the total and the past-due total and percentage, and bars that run from neutral to warning to negative.",
+    "size": [
+      480,
+      260
+    ],
+    "html": "<div class=\"ab\">\n  <div class=\"head\">\n    <span class=\"title\"></span>\n    <div class=\"sums\">\n      <span class=\"total\"></span>\n      <span class=\"past\"></span>\n    </div>\n  </div>\n  <div class=\"cols\">\n    <span class=\"c-bucket\">Bucket</span>\n    <span class=\"c-bar\"></span>\n    <span class=\"c-amt\">Amount</span>\n    <span class=\"c-cnt\">Count</span>\n    <span class=\"c-pct\">% of total</span>\n  </div>\n  <div class=\"rows\"></div>\n</div>",
+    "css": ".ab{container-type:inline-size;box-sizing:border-box;width:100%;height:100%;display:flex;flex-direction:column;gap:6px;padding:12px 14px;background:var(--window);color:var(--text);font:13px/1.4 \"Segoe UI\",system-ui,sans-serif;overflow:hidden}\n.ab *{box-sizing:border-box}\n.head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}\n.title{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}\n.sums{display:flex;align-items:baseline;gap:10px;font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}\n.sums b{color:var(--text);font-weight:700}\n.past b.pp{color:var(--negative);font-weight:700;margin-left:4px}\n.cols,.row{display:grid;grid-template-columns:62px minmax(40px,1fr) 78px 52px 46px;align-items:center;gap:8px}\n.cols{padding:2px 6px;color:var(--muted);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.03em;border-bottom:1px solid var(--border);white-space:nowrap}\n.c-amt,.c-cnt,.c-pct{text-align:right}\n.rows{flex:1;min-height:0;display:flex;flex-direction:column;gap:2px}\n.row{flex:1 1 0;min-height:22px;max-height:44px;padding:2px 6px;border-radius:6px;cursor:pointer;border:1px solid transparent}\n.row:hover{background:var(--hover)}\n.row.selected{background:var(--hover);border-color:var(--accent)}\n.bk{font-weight:600;white-space:nowrap}\n.track{position:relative;height:12px;border-radius:5px;background:var(--background)}\n.fill{position:absolute;left:0;top:0;bottom:0;border-radius:5px;background:var(--b0)}\n.b1 .fill{background:var(--b1)}\n.b2 .fill{background:var(--b2)}\n.b3 .fill,.b4 .fill{background:var(--b3)}\n.amt{text-align:right;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}\n.cnt,.pct{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted);white-space:nowrap}\n.pct{color:var(--text);font-weight:600}\n.b4 .bk,.b4 .amt{color:var(--negative)}\n.empty{color:var(--muted);font-size:12px;padding:20px 0;text-align:center}\n@container (max-width:420px){\n  .cols,.row{grid-template-columns:54px minmax(40px,1fr) 70px 42px}\n  .c-cnt,.cnt{display:none}\n}",
+    "js": "function render(root, props, fire) {\n  const esc = s => String(s == null ? '' : s).replace(/[&<>\"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]));\n  const unit = props.unit == null ? '$' : String(props.unit);\n  const compact = v => {\n    const a = Math.abs(v), sg = v < 0 ? '-' : '';\n    const f = (x, s) => {\n      let t = x >= 100 ? x.toFixed(0) : x >= 10 ? x.toFixed(1) : x.toFixed(2);\n      if (t.indexOf('.') >= 0) t = t.replace(/0+$/, '').replace(/\\.$/, '');\n      return sg + t + s;\n    };\n    if (a >= 1e9) return f(a / 1e9, 'B');\n    if (a >= 1e6) return f(a / 1e6, 'M');\n    if (a >= 1e3) return f(a / 1e3, 'K');\n    return sg + String(Math.round(a));\n  };\n  const money = v => unit + compact(v);\n  const rows = (props.buckets || []).map(r => ({\n    bucket: String(r.bucket == null ? '' : r.bucket),\n    amount: Math.max(0, +r.amount || 0), count: Math.max(0, Math.round(+r.count || 0))\n  })).filter(r => r.bucket !== '');\n  const total = rows.reduce((a, r) => a + r.amount, 0);\n  const past = rows.slice(1).reduce((a, r) => a + r.amount, 0);\n  const pastPct = total > 0 ? Math.round(past / total * 100) : 0;\n\n  root.querySelector('.title').textContent = props.title || 'Aging';\n  root.querySelector('.total').innerHTML = 'Total <b>' + esc(money(total)) + '</b>';\n  root.querySelector('.past').innerHTML = 'Past due <b>' + esc(money(past)) + '</b><b class=\"pp\">' + pastPct + '%</b>';\n\n  const box = root.querySelector('.rows');\n  if (!rows.length) { box.innerHTML = '<div class=\"empty\">No balances</div>'; return; }\n  const max = Math.max(1, ...rows.map(r => r.amount));\n  box.innerHTML = rows.map((r, i) => {\n    const pct = total > 0 ? r.amount / total * 100 : 0;\n    return '<div class=\"row b' + Math.min(i, 4) + (r.bucket === props.selected ? ' selected' : '') + '\" data-bucket=\"' + esc(r.bucket) + '\" title=\"' +\n      esc(r.bucket + ': ' + money(r.amount) + ', ' + r.count + ' item' + (r.count === 1 ? '' : 's') + ', ' + pct.toFixed(1) + '% of total') + '\">' +\n      '<span class=\"bk\">' + esc(r.bucket) + '</span>' +\n      '<div class=\"track\"><div class=\"fill\" style=\"width:' + (r.amount / max * 100).toFixed(2) + '%\"></div></div>' +\n      '<span class=\"amt\">' + esc(money(r.amount)) + '</span>' +\n      '<span class=\"cnt\">' + r.count + '</span>' +\n      '<span class=\"pct\">' + Math.round(pct) + '%</span></div>';\n  }).join('');\n  box.querySelectorAll('.row').forEach(el => el.onclick = () => fire('bucketSelected', { bucket: el.dataset.bucket, selected: el.dataset.bucket }));\n}",
+    "props": [
+      {
+        "name": "title",
+        "type": "string",
+        "default": "Receivables aging",
+        "description": "The title shown in the header."
+      },
+      {
+        "name": "unit",
+        "type": "string",
+        "default": "$",
+        "description": "Currency or unit shown before amounts, such as $ or gal."
+      },
+      {
+        "name": "selected",
+        "type": "string",
+        "default": "",
+        "description": "Name of the selected bucket; empty for none."
+      },
+      {
+        "name": "buckets",
+        "type": "rows",
+        "default": [
+          {
+            "bucket": "Current",
+            "amount": 2840000,
+            "count": 112
+          },
+          {
+            "bucket": "1–30",
+            "amount": 1120000,
+            "count": 48
+          },
+          {
+            "bucket": "31–60",
+            "amount": 610000,
+            "count": 21
+          },
+          {
+            "bucket": "61–90",
+            "amount": 240000,
+            "count": 9
+          },
+          {
+            "bucket": "90+",
+            "amount": 135000,
+            "count": 4
+          }
+        ],
+        "description": "The buckets in order, Current first: { bucket, amount, count }."
+      }
+    ],
+    "events": [
+      {
+        "name": "bucketSelected",
+        "payload": {
+          "bucket": "string",
+          "selected": "string"
+        },
+        "sets": [
+          "selected"
+        ]
+      }
+    ],
+    "tokens": {
+      "accent": "#6d4dff",
+      "positive": "#1fb57a",
+      "negative": "#e5484d",
+      "window": "#ffffff",
+      "background": "#f3f4f7",
+      "text": "#171a21",
+      "muted": "#5f6878",
+      "border": "#e1e4ea",
+      "hover": "#eeeaff",
+      "b0": "#8d95a3",
+      "b1": "#f2a516",
+      "b2": "#ff7a1a",
+      "b3": "#e5484d"
+    },
+    "dependencies": [],
+    "notes": "Simple control: one class AgingBuckets plus a plain record AgingBucket (Bucket, Amount, Count), event args for bucketSelected, client class and theme mixin. Docked in a GridBoard widget, no card chrome, fluid 300x200 to 1000x500; below ~420px the count column drops. Bars scale to the largest bucket; Past due = sum of all buckets but the first.",
+    "filledByAgent": true,
+    "icon": {
+      "rgba": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACNlaM2jZWjf42Vo4CNlaOAjZWjgI2Vo4CNlaOAjZWjgI2Vo4CNlaOAjZWjgI2Vo4CNlaN/jZWjNgAAAACRkaIAjZWj7Y2Vo/+NlaP/jZWj/42Vo/+NlaP/jZWj/42Vo/+NlaP/jZWj/42Vo/+NlaP/jZWj/42Vo+0AAAAAAAAAAI2Vo7yNlaP/jZWj/42Vo/+NlaP/jZWj/42Vo/+NlaP/jZWj/42Vo/+NlaP/jZWj/42Vo/+NlaO8AAAAAAAAAADAnV0FwJ1dMcCdXTPAnV0zwJ1dM8CdXTPAnV0zwJ1dM7+dXjKWlpccjZWjGo2VoxqNlaMYjZekAgAAAAAAAAAA8qUWvPKlFv/ypRb/8qUW//KlFv/ypRb/8qUW//KlFv/ypRb/8qUWvAAAAAAAAAAAAAAAAAAAAAAAAAAA7qIRAPKlFu3ypRb/8qUW//KlFv/ypRb/8qUW//KlFv/ypRb/8qUW//KlFu0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADypRY28qUWfvKlFoDypRaA8qUWgPKlFoDypRaA8qUWgPKlFn7ypRY2AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/3oaX/96GrL/ehqz/3oas/96GrP/ehqh/3oaFwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/3oUAP96Gvb/ehr//3oa//96Gv//ehr//3oa//96GnYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/ehqN/3oa5f96Gub/ehrm/3oa5v96GtT/ehorAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA5UhNFuVITUzlSE0740VMAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA7kRVAOVITdvlSE3/5UhN/+VITVsAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAO5EVQDlSE3b5UhN/+VITf/lSE1bAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA5UhNFuVITUzlSE0740VMAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 16 16\"><rect x=\"1\" y=\"1.5\" width=\"14\" height=\"2.6\" rx=\"1.3\" fill=\"#8d95a3\"/><rect x=\"1\" y=\"4.9\" width=\"10\" height=\"2.6\" rx=\"1.3\" fill=\"#f2a516\"/><rect x=\"1\" y=\"8.3\" width=\"6.5\" height=\"2.6\" rx=\"1.3\" fill=\"#ff7a1a\"/><rect x=\"1\" y=\"11.7\" width=\"3.5\" height=\"2.6\" rx=\"1.3\" fill=\"#e5484d\"/></svg>"
+    }
+  }
+}
