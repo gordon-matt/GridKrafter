@@ -41,7 +41,7 @@ namespace GridKrafter.WisejDemo.Panels
 			//
 			// board
 			//
-			this.board.Dock = Wisej.Web.DockStyle.Fill;
+			this.board.Dock = Wisej.Web.DockStyle.Top;
 			this.board.Location = new System.Drawing.Point(24, 54);
 			this.board.Name = "board";
 			this.board.Size = new System.Drawing.Size(1082, 600);

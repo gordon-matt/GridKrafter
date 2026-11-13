@@ -46,6 +46,7 @@
             this.navigationBarAbout = new Wisej.Web.Ext.NavigationBar.NavigationBarItem();
             this.navigationBarCollapse = new Wisej.Web.Ext.NavigationBar.NavigationBarItem();
             this.topBar = new GridKrafter.WisejDemo.AppTopBar();
+            this.panelScroll = new Wisej.Web.Panel();
             this.panelTop = new Wisej.Web.Panel();
             this.buttonReset = new Wisej.Web.Button();
             this.labelSubtitle = new Wisej.Web.Label();
@@ -63,6 +64,7 @@
             this.contextMenuAlerts = new Wisej.Web.ContextMenu(this.components);
             this.contextMenuSearch = new Wisej.Web.ContextMenu(this.components);
             this.timerAsOf = new Wisej.Web.Timer(this.components);
+            this.panelScroll.SuspendLayout();
             this.panelTop.SuspendLayout();
             this.SuspendLayout();
             //
@@ -215,6 +217,18 @@
             this.topBar.UserMenuClicked += new System.EventHandler(this.topBar_UserMenuClicked);
             this.topBar.CrumbClicked += new GridKrafter.WisejDemo.AppTopBarCrumbEventHandler(this.topBar_CrumbClicked);
             //
+            // panelScroll
+            //
+            this.panelScroll.AutoScroll = true;
+            this.panelScroll.Controls.Add(this.panelMain);
+            this.panelScroll.Controls.Add(this.panelTop);
+            this.panelScroll.Dock = Wisej.Web.DockStyle.Fill;
+            this.panelScroll.Location = new System.Drawing.Point(240, 48);
+            this.panelScroll.Name = "panelScroll";
+            this.panelScroll.Size = new System.Drawing.Size(960, 702);
+            this.panelScroll.TabIndex = 2;
+            this.panelScroll.Resize += new System.EventHandler(this.panelScroll_Resize);
+            //
             // panelTop
             //
             this.panelTop.Controls.Add(this.buttonReset);
@@ -222,14 +236,11 @@
             this.panelTop.Controls.Add(this.labelIntro);
             this.panelTop.Controls.Add(this.labelSubtitle);
             this.panelTop.Controls.Add(this.labelTitle);
-            this.panelTop.Dock = Wisej.Web.DockStyle.Top;
-            this.panelTop.Location = new System.Drawing.Point(240, 48);
+            this.panelTop.Location = new System.Drawing.Point(0, 0);
             this.panelTop.Name = "panelTop";
             this.panelTop.Padding = new Wisej.Web.Padding(24, 12, 24, 12);
-            this.panelTop.ResponsiveProfiles.Add(((Wisej.Base.ResponsiveProfile)(resources.GetObject("panelTop.ResponsiveProfiles"))));
-            this.panelTop.ResponsiveProfiles.Add(((Wisej.Base.ResponsiveProfile)(resources.GetObject("panelTop.ResponsiveProfiles1"))));
             this.panelTop.Size = new System.Drawing.Size(960, 72);
-            this.panelTop.TabIndex = 2;
+            this.panelTop.TabIndex = 0;
             //
             // buttonReset
             //
@@ -285,13 +296,10 @@
             //
             // panelMain
             //
-            this.panelMain.Dock = Wisej.Web.DockStyle.Fill;
-            this.panelMain.Location = new System.Drawing.Point(240, 120);
+            this.panelMain.Location = new System.Drawing.Point(0, 72);
             this.panelMain.Name = "panelMain";
-            this.panelMain.ResponsiveProfiles.Add(((Wisej.Base.ResponsiveProfile)(resources.GetObject("panelMain.ResponsiveProfiles"))));
-            this.panelMain.ResponsiveProfiles.Add(((Wisej.Base.ResponsiveProfile)(resources.GetObject("panelMain.ResponsiveProfiles1"))));
             this.panelMain.Size = new System.Drawing.Size(960, 630);
-            this.panelMain.TabIndex = 3;
+            this.panelMain.TabIndex = 1;
             //
             // contextMenuUser
             //
@@ -357,14 +365,14 @@
             // Page1
             //
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 19F);
-            this.Controls.Add(this.panelMain);
-            this.Controls.Add(this.panelTop);
+            this.Controls.Add(this.panelScroll);
             this.Controls.Add(this.topBar);
             this.Controls.Add(this.navigationBar);
             this.Name = "Page1";
             this.Size = new System.Drawing.Size(1200, 750);
             this.Text = "Poet Biofuels · Commodity Marketing";
             this.Load += new System.EventHandler(this.Page1_Load);
+            this.panelScroll.ResumeLayout(false);
             this.panelTop.ResumeLayout(false);
             this.panelTop.PerformLayout();
             this.ResumeLayout(false);
@@ -374,6 +382,7 @@
 		#endregion
 
 		private Wisej.Web.Ext.NavigationBar.NavigationBar navigationBar;
+		private Wisej.Web.Panel panelScroll;
 		private Wisej.Web.Panel panelTop;
 		private Wisej.Web.FlexLayoutPanel panelMain;
 		private Wisej.Web.Ext.NavigationBar.NavigationBarItem navigationBarHome;

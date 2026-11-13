@@ -15,12 +15,30 @@ namespace GridKrafter.WisejDemo.Panels
 	/// The dashboard: the page's own board with the one saved on the server applied over it. Every
 	/// change is logged and saved shortly after, as the MVC demo does.
 	/// </summary>
-	public partial class HomePanel : Wisej.Web.UserControl
+	public partial class HomePanel : Wisej.Web.UserControl, IFitsPage
 	{
+		// the board is as tall as its open tab, so the page scrolls instead of the board
+		private readonly BoardFit fit;
+
 		public HomePanel()
 		{
 			InitializeComponent();
+			this.fit = new BoardFit(this, this.board, null);
+			this.fit.Changed += (s, e) => this.ContentHeightChanged?.Invoke(this, EventArgs.Empty);
 		}
+
+		/// <inheritdoc/>
+		public int ContentHeight => this.fit.ContentHeight;
+
+		/// <inheritdoc/>
+		public int ViewportHeight
+		{
+			get => this.fit.Viewport;
+			set => this.fit.Viewport = value;
+		}
+
+		/// <inheritdoc/>
+		public event EventHandler ContentHeightChanged;
 
 		private void HomePanel_Load(object sender, EventArgs e)
 		{

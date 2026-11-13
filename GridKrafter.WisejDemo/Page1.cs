@@ -193,6 +193,50 @@ namespace GridKrafter.WisejDemo
 			}
 
 			this.panelTop.Height = bottom + 12;
+			LayoutScroll();
+		}
+
+		private void panelScroll_Resize(object sender, EventArgs e)
+		{
+			LayoutScroll();
+		}
+
+		// Everything under the top bar scrolls as one page: the header, then the page itself. A board is as
+		// tall as its open tab, so the page scrolls and the board never does; the other pages fill what is left.
+		private void LayoutScroll()
+		{
+			if (this.inLayoutScroll)
+				return;
+
+			this.inLayoutScroll = true;
+			try
+			{
+				int width = this.panelScroll.ClientSize.Width;
+				int viewport = this.panelScroll.ClientSize.Height;
+				var page = this.panelMain.Controls.Count > 0 ? this.panelMain.Controls[0] as IFitsPage : null;
+
+				this.panelTop.SetBounds(0, 0, width, this.panelTop.Height);
+
+				int height = Math.Max(0, viewport - this.panelTop.Height);
+				if (page != null)
+				{
+					page.ViewportHeight = viewport;
+					height = page.ContentHeight;
+				}
+
+				this.panelMain.SetBounds(0, this.panelTop.Height, width, height);
+			}
+			finally
+			{
+				this.inLayoutScroll = false;
+			}
+		}
+
+		private bool inLayoutScroll;
+
+		private void Page_ContentHeightChanged(object sender, EventArgs e)
+		{
+			LayoutScroll();
 		}
 
 		// Shows or hides the demo wording, and the user menu's Reset with it.
@@ -250,7 +294,11 @@ namespace GridKrafter.WisejDemo
 
 			var panel = (Control)Activator.CreateInstance(Type.GetType($"GridKrafter.WisejDemo.Panels.{panelName}"));
 			panel.Dock = DockStyle.Fill;
+			if (panel is IFitsPage fits)
+				fits.ContentHeightChanged += this.Page_ContentHeightChanged;
 			panel.Parent = this.panelMain;
+			// a new page starts at the top
+			this.panelScroll.VerticalScroll.Value = 0;
 			this.currentPanel = panelName;
 
 			var animationIn = this.animationIn.GetAnimation(panel);
