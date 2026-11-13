@@ -1,0 +1,14 @@
+{
+  "id": "forward-curve-chart",
+  "name": "Forward curve chart",
+  "purpose": "A commodity forward curve by contract month: the curve with a dashed prior curve to show the shift, the hedged price per month as markers and the hedged volume as faint columns, with the front-month price and its change in the header.",
+  "keywords": [
+    "forward curve chart",
+    "forwardcurvechart"
+  ],
+  "control": "ForwardCurveChart",
+  "type": "GridKrafter.WisejDemo.ForwardCurveChart",
+  "extends": null,
+  "component": null,
+  "preview": "<div data-wisej-pattern=\"forward-curve-chart\"><div class=\"fc\">\n  <div class=\"head\">\n    <div class=\"titles\"><span class=\"title\"></span><span class=\"unit\"></span></div>\n    <div class=\"front\"><span class=\"flabel\"></span><span class=\"fvalue\"></span><span class=\"change\"></span></div>\n  </div>\n  <div class=\"chart\"><div class=\"plot\"></div><div class=\"tip\"></div></div>\n  <div class=\"legend\"></div>\n</div></div>"
+}

@@ -32,6 +32,15 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Page1));
             this.navigationBar = new Wisej.Web.Ext.NavigationBar.NavigationBar();
             this.navigationBarHome = new Wisej.Web.Ext.NavigationBar.NavigationBarItem();
+            this.navigationBarCommodities = new Wisej.Web.Ext.NavigationBar.NavigationBarItem();
+            this.navigationBarCommodityOverview = new Wisej.Web.Ext.NavigationBar.NavigationBarItem();
+            this.navigationBarEthanol = new Wisej.Web.Ext.NavigationBar.NavigationBarItem();
+            this.navigationBarCo2 = new Wisej.Web.Ext.NavigationBar.NavigationBarItem();
+            this.navigationBarPurified = new Wisej.Web.Ext.NavigationBar.NavigationBarItem();
+            this.navigationBarDenaturant = new Wisej.Web.Ext.NavigationBar.NavigationBarItem();
+            this.navigationBarNaturalGas = new Wisej.Web.Ext.NavigationBar.NavigationBarItem();
+            this.navigationBarGrain = new Wisej.Web.Ext.NavigationBar.NavigationBarItem();
+            this.navigationBarFreight = new Wisej.Web.Ext.NavigationBar.NavigationBarItem();
             this.navigationBarEvents = new Wisej.Web.Ext.NavigationBar.NavigationBarItem();
             this.navigationBarAbout = new Wisej.Web.Ext.NavigationBar.NavigationBarItem();
             this.panelTop = new Wisej.Web.Panel();
@@ -50,6 +59,7 @@
             this.navigationBar.Dock = Wisej.Web.DockStyle.Left;
             this.navigationBar.Items.AddRange(new Wisej.Web.Ext.NavigationBar.NavigationBarItem[] {
             this.navigationBarHome,
+            this.navigationBarCommodities,
             this.navigationBarEvents,
             this.navigationBarAbout});
             this.navigationBar.Logo = "Images\\gridkrafter-icon.png";
@@ -71,6 +81,77 @@
             this.navigationBarHome.ResponsiveProfiles.Add(((Wisej.Base.ResponsiveProfile)(resources.GetObject("navigationBarHome.ResponsiveProfiles1"))));
             this.navigationBarHome.Tag = "HomePanel";
             this.navigationBarHome.Text = "Dashboard";
+            //
+            // navigationBarCommodities
+            //
+            this.navigationBarCommodities.Icon = "resource.wx/Wisej.Ext.BootstrapIcons/boxes.svg";
+            this.navigationBarCommodities.Items.AddRange(new Wisej.Web.Ext.NavigationBar.NavigationBarItem[] {
+            this.navigationBarCommodityOverview,
+            this.navigationBarEthanol,
+            this.navigationBarCo2,
+            this.navigationBarPurified,
+            this.navigationBarDenaturant,
+            this.navigationBarNaturalGas,
+            this.navigationBarGrain,
+            this.navigationBarFreight});
+            this.navigationBarCommodities.Name = "navigationBarCommodities";
+            this.navigationBarCommodities.Text = "Commodities";
+            //
+            // navigationBarCommodityOverview
+            //
+            this.navigationBarCommodityOverview.Icon = "resource.wx/Wisej.Ext.BootstrapIcons/speedometer2.svg";
+            this.navigationBarCommodityOverview.Name = "navigationBarCommodityOverview";
+            this.navigationBarCommodityOverview.Tag = "OverviewPanel";
+            this.navigationBarCommodityOverview.Text = "Overview";
+            //
+            // navigationBarEthanol
+            //
+            this.navigationBarEthanol.Icon = "resource.wx/Wisej.Ext.BootstrapIcons/droplet-half.svg";
+            this.navigationBarEthanol.Name = "navigationBarEthanol";
+            this.navigationBarEthanol.Tag = "EthanolPanel";
+            this.navigationBarEthanol.Text = "Ethanol";
+            //
+            // navigationBarCo2
+            //
+            this.navigationBarCo2.Icon = "resource.wx/Wisej.Ext.BootstrapIcons/cloud.svg";
+            this.navigationBarCo2.Name = "navigationBarCo2";
+            this.navigationBarCo2.Tag = "Co2Panel";
+            this.navigationBarCo2.Text = "CO2";
+            //
+            // navigationBarPurified
+            //
+            this.navigationBarPurified.Icon = "resource.wx/Wisej.Ext.BootstrapIcons/droplet.svg";
+            this.navigationBarPurified.Name = "navigationBarPurified";
+            this.navigationBarPurified.Tag = "PurifiedPanel";
+            this.navigationBarPurified.Text = "Purified Ethanol";
+            //
+            // navigationBarDenaturant
+            //
+            this.navigationBarDenaturant.Icon = "resource.wx/Wisej.Ext.BootstrapIcons/moisture.svg";
+            this.navigationBarDenaturant.Name = "navigationBarDenaturant";
+            this.navigationBarDenaturant.Tag = "DenaturantPanel";
+            this.navigationBarDenaturant.Text = "Denaturant";
+            //
+            // navigationBarNaturalGas
+            //
+            this.navigationBarNaturalGas.Icon = "resource.wx/Wisej.Ext.BootstrapIcons/lightning-charge.svg";
+            this.navigationBarNaturalGas.Name = "navigationBarNaturalGas";
+            this.navigationBarNaturalGas.Tag = "NaturalGasPanel";
+            this.navigationBarNaturalGas.Text = "Natural Gas";
+            //
+            // navigationBarGrain
+            //
+            this.navigationBarGrain.Icon = "resource.wx/Wisej.Ext.BootstrapIcons/flower1.svg";
+            this.navigationBarGrain.Name = "navigationBarGrain";
+            this.navigationBarGrain.Tag = "GrainPanel";
+            this.navigationBarGrain.Text = "Grain";
+            //
+            // navigationBarFreight
+            //
+            this.navigationBarFreight.Icon = "resource.wx/Wisej.Ext.BootstrapIcons/truck.svg";
+            this.navigationBarFreight.Name = "navigationBarFreight";
+            this.navigationBarFreight.Tag = "FreightPanel";
+            this.navigationBarFreight.Text = "Freight";
             //
             // navigationBarEvents
             //
@@ -197,6 +278,15 @@
 		private Wisej.Web.Panel panelTop;
 		private Wisej.Web.FlexLayoutPanel panelMain;
 		private Wisej.Web.Ext.NavigationBar.NavigationBarItem navigationBarHome;
+		private Wisej.Web.Ext.NavigationBar.NavigationBarItem navigationBarCommodities;
+		private Wisej.Web.Ext.NavigationBar.NavigationBarItem navigationBarCommodityOverview;
+		private Wisej.Web.Ext.NavigationBar.NavigationBarItem navigationBarEthanol;
+		private Wisej.Web.Ext.NavigationBar.NavigationBarItem navigationBarCo2;
+		private Wisej.Web.Ext.NavigationBar.NavigationBarItem navigationBarPurified;
+		private Wisej.Web.Ext.NavigationBar.NavigationBarItem navigationBarDenaturant;
+		private Wisej.Web.Ext.NavigationBar.NavigationBarItem navigationBarNaturalGas;
+		private Wisej.Web.Ext.NavigationBar.NavigationBarItem navigationBarGrain;
+		private Wisej.Web.Ext.NavigationBar.NavigationBarItem navigationBarFreight;
 		private Wisej.Web.Ext.NavigationBar.NavigationBarItem navigationBarEvents;
 		private Wisej.Web.Ext.NavigationBar.NavigationBarItem navigationBarAbout;
 		private Wisej.Web.Animation animationIn;

@@ -1,0 +1,191 @@
+{
+  "name": "LiftingScheduleTracker",
+  "namespace": "GridKrafter.WisejDemo",
+  "fullName": "GridKrafter.WisejDemo.LiftingScheduleTracker",
+  "language": "csharp",
+  "files": [
+    "Controls/LiftingScheduleTracker/LiftingScheduleTracker.cs",
+    "Controls/LiftingScheduleTracker/gridkrafter.wisejdemo.LiftingScheduleTracker.js",
+    "Controls/LiftingScheduleTracker/LiftingScheduleTracker.mixin.theme",
+    "Controls/LiftingScheduleTracker/LiftingScheduleTracker.bmp",
+    "GridKrafter.WisejDemo.csproj"
+  ],
+  "saved": "2026-11-13T12:47:30.2647689Z",
+  "sketch": {
+    "schema": "wisej-component-sketch/1",
+    "name": "LiftingScheduleTracker",
+    "namespace": "",
+    "description": "A planned-versus-actual tracker: each row shows a planned amount as a track, the actual as its fill and a pace marker for how far along the period is, with a computed Ahead / On pace / Behind / Over status; sortable, with a total line.",
+    "size": [
+      560,
+      360
+    ],
+    "html": "<div class=\"lt\">\n  <div class=\"head\">\n    <div class=\"titles\"><span class=\"title\"></span><span class=\"period\"></span></div>\n    <div class=\"total\"></div>\n  </div>\n  <div class=\"cols\">\n    <span class=\"col c-label\" data-sort=\"label\">Name</span>\n    <span class=\"col c-bar\"><span class=\"pacekey\"><i></i>Pace</span></span>\n    <span class=\"col c-amt\"></span>\n    <span class=\"col c-pct\" data-sort=\"percent\">%</span>\n    <span class=\"col c-chip\" data-sort=\"variance\">Status</span>\n  </div>\n  <div class=\"rows\"></div>\n</div>",
+    "css": ".lt{container-type:inline-size;box-sizing:border-box;width:100%;height:100%;display:flex;flex-direction:column;gap:6px;padding:12px 14px;background:var(--window);color:var(--text);font:13px/1.4 \"Segoe UI\",system-ui,sans-serif;overflow:hidden}\n.lt *{box-sizing:border-box}\n.head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}\n.titles{display:flex;align-items:baseline;gap:8px;min-width:0}\n.title{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.period{color:var(--muted);font-size:12px;white-space:nowrap}\n.total{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}\n.total b{color:var(--text);font-weight:700}\n.total .tpct{margin-left:6px;font-weight:700;color:var(--accent)}\n.cols,.row{display:grid;grid-template-columns:minmax(80px,125px) minmax(60px,1fr) 124px 38px 62px;align-items:center;gap:8px}\n.cols{padding:2px 6px;color:var(--muted);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.03em;border-bottom:1px solid var(--border);white-space:nowrap}\n.col[data-sort]{cursor:pointer;user-select:none}\n.col[data-sort]:hover{color:var(--text)}\n.col.sorted{color:var(--accent)}\n.c-amt,.c-pct{text-align:right}\n.c-amt{text-transform:none;letter-spacing:0;font-weight:500}\n.c-chip{text-align:center}\n.pacekey{display:inline-flex;align-items:center;gap:4px;font-weight:500;text-transform:none;letter-spacing:0}\n.pacekey i{width:2px;height:10px;background:var(--text);opacity:.55;display:inline-block}\n.rows{flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;gap:1px}\n.row{padding:4px 6px;border-radius:6px;cursor:pointer;border:1px solid transparent}\n.row:hover{background:var(--hover)}\n.row.selected{background:var(--hover);border-color:var(--accent)}\n.lbl{min-width:0;line-height:1.25}\n.lbl .name{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.lbl .sub{color:var(--muted);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.track{position:relative;height:10px;border-radius:5px;background:var(--background)}\n.planned{position:absolute;left:0;top:0;bottom:0;border-radius:5px;background:var(--border)}\n.fill{position:absolute;left:0;top:0;bottom:0;border-radius:5px;background:var(--accent)}\n.fill.ahead{background:var(--positive)}\n.fill.behind{background:var(--negative)}\n.fill.pace{background:var(--accent)}\n.fill.over{background:var(--accent)}\n.fill.over:after{content:\"\";position:absolute;top:0;bottom:0;left:var(--cap);right:0;border-radius:0 5px 5px 0;background:repeating-linear-gradient(135deg,rgba(255,255,255,.45) 0 3px,transparent 3px 6px)}\n.mark{position:absolute;top:-3px;bottom:-3px;width:2px;margin-left:-1px;background:var(--text);opacity:.55;border-radius:1px}\n.amt{text-align:right;font-variant-numeric:tabular-nums;font-size:12px;color:var(--muted);white-space:nowrap}\n.amt b{color:var(--text);font-weight:600}\n.pct{text-align:right;font-weight:600;font-variant-numeric:tabular-nums}\n.chip{justify-self:center;font-size:11px;font-weight:600;padding:1px 8px;border-radius:10px;white-space:nowrap}\n.chip.ahead{color:var(--positive);background:color-mix(in srgb,var(--positive) 14%,transparent)}\n.chip.pace{color:var(--muted);background:var(--background)}\n.chip.behind{color:var(--negative);background:color-mix(in srgb,var(--negative) 14%,transparent)}\n.chip.over{color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,transparent)}\n.empty{color:var(--muted);font-size:12px;padding:20px 0;text-align:center}\n@container (max-width:460px){\n  .cols,.row{grid-template-columns:minmax(70px,110px) minmax(60px,1fr) 40px}\n  .c-amt,.c-chip,.amt,.chip{display:none}\n}",
+    "js": "function render(root, props, fire) {\n  const esc = s => String(s == null ? '' : s).replace(/[&<>\"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]));\n  const unit = props.unit || '';\n  const compact = v => {\n    const a = Math.abs(v);\n    const f = (x, s) => (x >= 100 ? x.toFixed(0) : x >= 10 ? x.toFixed(1) : x.toFixed(2)).replace(/\\.?0+$/, '') + s;\n    if (a >= 1e9) return (v < 0 ? '-' : '') + f(a / 1e9, 'B');\n    if (a >= 1e6) return (v < 0 ? '-' : '') + f(a / 1e6, 'M');\n    if (a >= 1e3) return (v < 0 ? '-' : '') + f(a / 1e3, 'K');\n    return String(Math.round(v));\n  };\n  const pace = Math.max(0, Math.min(1, +props.paceRatio || 0));\n  const tol = isNaN(+props.tolerance) ? 0.05 : Math.max(0, +props.tolerance);\n  const rows = (props.rows || []).map(r => ({\n    label: String(r.label == null ? '' : r.label), sub: String(r.sublabel == null ? '' : r.sublabel),\n    planned: Math.max(0, +r.planned || 0), actual: Math.max(0, +r.actual || 0)\n  })).filter(r => r.label !== '');\n  rows.forEach(r => {\n    r.ratio = r.planned > 0 ? r.actual / r.planned : 0;\n    r.variance = r.actual - pace * r.planned;\n    r.status = r.actual > r.planned ? 'over'\n      : r.actual < pace * r.planned - tol * r.planned ? 'behind'\n      : r.actual > pace * r.planned + tol * r.planned ? 'ahead' : 'pace';\n  });\n  const TEXT = { over: 'Over', behind: 'Behind', ahead: 'Ahead', pace: 'On pace' };\n\n  root.querySelector('.title').textContent = props.title || 'Schedule';\n  root.querySelector('.period').textContent = props.period || '';\n  const tp = rows.reduce((a, r) => a + r.planned, 0), ta = rows.reduce((a, r) => a + r.actual, 0);\n  root.querySelector('.total').innerHTML = '<b>' + compact(ta) + '</b> / ' + compact(tp) + (unit ? ' ' + esc(unit) : '') +\n    '<span class=\"tpct\">' + (tp > 0 ? Math.round(ta / tp * 100) : 0) + '%</span>';\n\n  const sortBy = props.sortBy || 'none', desc = !!props.sortDescending;\n  root.querySelector('.c-amt').textContent = (props.actualLabel || 'Actual') + ' / ' + (props.plannedLabel || 'Planned');\n  root.querySelectorAll('.col[data-sort]').forEach(el => {\n    const k = el.dataset.sort, on = k === sortBy;\n    el.classList.toggle('sorted', on);\n    el.textContent = (k === 'label' ? 'Name' : k === 'percent' ? '%' : 'Status') + (on ? (desc ? ' ▼' : ' ▲') : '');\n    el.onclick = () => fire('sortChanged', { sortBy: k, sortDescending: on ? !desc : false });\n  });\n  if (sortBy !== 'none') {\n    const key = { label: r => r.label.toLowerCase(), percent: r => r.ratio, variance: r => r.variance }[sortBy];\n    rows.sort((a, b) => { const x = key(a), y = key(b); return (x < y ? -1 : x > y ? 1 : 0) * (desc ? -1 : 1); });\n  }\n\n  const scale = Math.max(1, rows.reduce((m, r) => Math.max(m, r.ratio), 0));\n  const pct = v => (v / scale * 100).toFixed(2) + '%';\n  const box = root.querySelector('.rows');\n  if (!rows.length) { box.innerHTML = '<div class=\"empty\">Nothing scheduled</div>'; return; }\n  box.innerHTML = rows.map(r => {\n    const fillW = Math.min(r.ratio, scale);\n    return '<div class=\"row' + (r.label === props.selected ? ' selected' : '') + '\" data-label=\"' + esc(r.label) + '\" title=\"' +\n      esc(r.label + ': ' + compact(r.actual) + ' of ' + compact(r.planned) + ' ' + unit + ' (' + (r.variance >= 0 ? '+' : '-') + compact(Math.abs(r.variance)) + ' vs pace)') + '\">' +\n      '<div class=\"lbl\"><div class=\"name\">' + esc(r.label) + '</div>' + (r.sub ? '<div class=\"sub\">' + esc(r.sub) + '</div>' : '') + '</div>' +\n      '<div class=\"track\"><div class=\"planned\" style=\"width:' + pct(1) + '\"></div>' +\n      '<div class=\"fill ' + r.status + '\" style=\"width:' + pct(fillW) + ';--cap:' + (r.ratio > 1 ? (1 / r.ratio * 100).toFixed(2) + '%' : '100%') + '\"></div>' +\n      '<div class=\"mark\" style=\"left:' + pct(pace) + '\"></div></div>' +\n      '<div class=\"amt\"><b>' + compact(r.actual) + '</b> / ' + compact(r.planned) + '</div>' +\n      '<div class=\"pct\">' + Math.round(r.ratio * 100) + '%</div>' +\n      '<span class=\"chip ' + r.status + '\">' + TEXT[r.status] + '</span></div>';\n  }).join('');\n  box.querySelectorAll('.row').forEach(el => el.onclick = () => fire('rowSelected', { label: el.dataset.label, selected: el.dataset.label }));\n}",
+    "props": [
+      {
+        "name": "title",
+        "type": "string",
+        "default": "Ethanol liftings",
+        "description": "The title of the tracker."
+      },
+      {
+        "name": "plannedLabel",
+        "type": "string",
+        "default": "Contracted",
+        "description": "Caption of the planned amount (Contracted, Scheduled, Nominated)."
+      },
+      {
+        "name": "actualLabel",
+        "type": "string",
+        "default": "Lifted",
+        "description": "Caption of the actual amount (Lifted, Received, Burned)."
+      },
+      {
+        "name": "period",
+        "type": "string",
+        "default": "November MTD",
+        "description": "The period the amounts cover."
+      },
+      {
+        "name": "unit",
+        "type": "string",
+        "default": "gal",
+        "description": "Unit of the amounts (gal, tons, MMBtu, bu)."
+      },
+      {
+        "name": "paceRatio",
+        "type": "number",
+        "default": 0.43,
+        "description": "How far along the period is, 0 to 1: the expected share of the planned amount by now."
+      },
+      {
+        "name": "tolerance",
+        "type": "number",
+        "default": 0.05,
+        "description": "Share of the planned amount a row may be off pace before it is Ahead or Behind."
+      },
+      {
+        "name": "sortBy",
+        "type": "enum",
+        "default": "none",
+        "description": "The column the rows are sorted by.",
+        "values": [
+          "none",
+          "label",
+          "percent",
+          "variance"
+        ]
+      },
+      {
+        "name": "sortDescending",
+        "type": "bool",
+        "default": false,
+        "description": "Sorts in descending order."
+      },
+      {
+        "name": "selected",
+        "type": "string",
+        "default": "",
+        "description": "Label of the selected row."
+      },
+      {
+        "name": "rows",
+        "type": "rows",
+        "default": [
+          {
+            "label": "Marathon Petroleum",
+            "sublabel": "Ethanol",
+            "planned": 5000000,
+            "actual": 2480000
+          },
+          {
+            "label": "Valero Marketing",
+            "sublabel": "Ethanol",
+            "planned": 4200000,
+            "actual": 2350000
+          },
+          {
+            "label": "Phillips 66",
+            "sublabel": "Ethanol",
+            "planned": 3600000,
+            "actual": 1200000
+          },
+          {
+            "label": "Shell Trading",
+            "sublabel": "Ethanol",
+            "planned": 3000000,
+            "actual": 1310000
+          },
+          {
+            "label": "Chevron Products",
+            "sublabel": "Ethanol",
+            "planned": 2400000,
+            "actual": 780000
+          },
+          {
+            "label": "BP Products",
+            "sublabel": "Ethanol",
+            "planned": 2000000,
+            "actual": 2060000
+          },
+          {
+            "label": "Sunoco LP",
+            "sublabel": "Ethanol",
+            "planned": 1500000,
+            "actual": 640000
+          },
+          {
+            "label": "Cenex Harvest States",
+            "sublabel": "Ethanol",
+            "planned": 1200000,
+            "actual": 610000
+          }
+        ],
+        "description": "The tracked rows: { label, sublabel, planned, actual }."
+      }
+    ],
+    "events": [
+      {
+        "name": "rowSelected",
+        "payload": {
+          "label": "string",
+          "selected": "string"
+        },
+        "sets": [
+          "selected"
+        ]
+      },
+      {
+        "name": "sortChanged",
+        "payload": {
+          "sortBy": "string",
+          "sortDescending": "bool"
+        },
+        "sets": [
+          "sortBy",
+          "sortDescending"
+        ]
+      }
+    ],
+    "tokens": {
+      "accent": "#6d4dff",
+      "positive": "#1fb57a",
+      "negative": "#e5484d",
+      "window": "#ffffff",
+      "background": "#f3f4f7",
+      "text": "#171a21",
+      "muted": "#5f6878",
+      "border": "#e1e4ea",
+      "hover": "#eeeaff"
+    },
+    "dependencies": [],
+    "notes": "Simple control, one class (LiftingScheduleTracker) plus its row data as plain records (Label, Sublabel, Planned, Actual: any list of objects or dictionaries, like the other GridKrafter components), event arguments for rowSelected and sortChanged, a sort-by enum, the client class and the theme mixin. Status: Over when actual > planned; Behind when actual < paceRatio*planned - tolerance*planned; Ahead when actual > paceRatio*planned + tolerance*planned; else On pace. Pace marker is aligned across rows (one shared scale up to the largest ratio, at least 100%). Extra props beyond the brief: tolerance, sortBy, sortDescending; extra event sortChanged. Fits a GridBoard card from about 300x200 to 1000x600: below ~420px wide the amounts and chip columns drop out.",
+    "filledByAgent": true,
+    "icon": {
+      "rgba": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHqClDMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAd8OqAAAAAAAAAAAAAAAAAAAAAAB6gpT/IL+AACS2bQAAAAAAAAAAAAAAAADMzN0AAAAAAAAAAAAAAAAAK7eBiSG1e/wftXr/H7V6/x+1ev8ftXr/eoKU/x+1ev85uYj/tMrK/8nN1v/Jzdb/yc3W+cnN1n8AAAAAc8yyASK1fPwftXr/H7V6/x+1ev8ftXr/H7V6/3qClP8ftXr/H7V6/3nCq//Jzdb/yc3W/8nN1v/Jzdb3AAAAAAAAAAAntn61H7V6/x+1ev8ftXr/H7V6/x+1ev96gpT/H7V6/yW2ff+lyMP/yc3W/8nN1v/Jzdb/yc3WrAAAAAAAAAAAYL2bBDe4hzQ1uIY7NbiGOzW4hjs1uIY7eoKU/zW4hjuCw7A1yc3WM8nN1jPJzdYzyc3WLcrN1wIAAAAAAAAAAOJXXTbkTVOa5E5TnteMk5nJzdaZyc3WmXqClP/JzdaZyc3WmcnN1pnJzdaZyc3WmcnN1pPJzdYwAAAAANaFjwDkS1Dp5UhN/+VITf/lSk//zL/H/8nN1v96gpT/yc3W/8nN1v/Jzdb/yc3W/8nN1v/Jzdb/yc3W4wAAAADWhY8A5EtQ6eVITf/lSE3/5UpP/8y/x//Jzdb/eoKU/8nN1v/Jzdb/yc3W/8nN1v/Jzdb/yc3W/8nN1uMAAAAAAAAAAOJXXTbkTVOa5E5TnteMk5nJzdaZyc3WmXqClP/JzdaZyc3WmcnN1pnJzdaZyc3WmcnN1pPJzdYwAAAAAAAAAACQfe8Eel/6NHld+jt5Xfo7eV36O3ld+jt6gpT/yc3WM8nN1jPJzdYzyc3WM8nN1jPJzdYtys3XAgAAAAAAAAAAclP9tW1N//9tTf//bU3//21N//9tTf//eoKU/7ay3//Jzdb/yc3W/8nN1v/Jzdb/yc3W/8nN1qwAAAAAmYzyAW9P/vxtTf//bU3//21N//9tTf//bU3//3qClP+eken/yc3W/8nN1v/Jzdb/yc3W/8nN1v/Jzdb3AAAAAAAAAAB0VvyJbk7//G1N//9tTf//bU3//21N//96gpT/vb3b/8nN1v/Jzdb/yc3W/8nN1v/Jzdb5yc3WfwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAeoKU/wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHqClDMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 16 16\"><rect x=\"1\" y=\"2\" width=\"14\" height=\"3.2\" rx=\"1.6\" fill=\"#c9cdd6\"/><rect x=\"1\" y=\"2\" width=\"9.5\" height=\"3.2\" rx=\"1.6\" fill=\"#1fb57a\"/><rect x=\"1\" y=\"6.4\" width=\"14\" height=\"3.2\" rx=\"1.6\" fill=\"#c9cdd6\"/><rect x=\"1\" y=\"6.4\" width=\"4.2\" height=\"3.2\" rx=\"1.6\" fill=\"#e5484d\"/><rect x=\"1\" y=\"10.8\" width=\"14\" height=\"3.2\" rx=\"1.6\" fill=\"#c9cdd6\"/><rect x=\"1\" y=\"10.8\" width=\"7.5\" height=\"3.2\" rx=\"1.6\" fill=\"#6d4dff\"/><rect x=\"7\" y=\"0.8\" width=\"1\" height=\"14.4\" fill=\"#7a8294\"/></svg>"
+    }
+  }
+}

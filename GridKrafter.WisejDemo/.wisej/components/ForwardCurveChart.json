@@ -1,0 +1,189 @@
+{
+  "name": "ForwardCurveChart",
+  "namespace": "GridKrafter.WisejDemo",
+  "fullName": "GridKrafter.WisejDemo.ForwardCurveChart",
+  "language": "csharp",
+  "files": [
+    "Controls/ForwardCurveChart/ForwardCurveChart.cs",
+    "Controls/ForwardCurveChart/gridkrafter.wisejdemo.ForwardCurveChart.js",
+    "Controls/ForwardCurveChart/ForwardCurveChart.mixin.theme",
+    "Controls/ForwardCurveChart/ForwardCurveChart.bmp",
+    "GridKrafter.WisejDemo.csproj"
+  ],
+  "saved": "2026-11-13T12:45:56.0833746Z",
+  "sketch": {
+    "schema": "wisej-component-sketch/1",
+    "name": "ForwardCurveChart",
+    "namespace": "",
+    "description": "A commodity forward curve by contract month: the curve with a dashed prior curve to show the shift, the hedged price per month as markers and the hedged volume as faint columns, with the front-month price and its change in the header.",
+    "size": [
+      560,
+      300
+    ],
+    "html": "<div class=\"fc\">\n  <div class=\"head\">\n    <div class=\"titles\"><span class=\"title\"></span><span class=\"unit\"></span></div>\n    <div class=\"front\"><span class=\"flabel\"></span><span class=\"fvalue\"></span><span class=\"change\"></span></div>\n  </div>\n  <div class=\"chart\"><div class=\"plot\"></div><div class=\"tip\"></div></div>\n  <div class=\"legend\"></div>\n</div>",
+    "css": ".fc{box-sizing:border-box;width:100%;height:100%;display:flex;flex-direction:column;gap:6px;padding:10px 12px;background:var(--window);color:var(--text);font:13px/1.4 \"Segoe UI\",system-ui,sans-serif;overflow:hidden}\n.fc *{box-sizing:border-box}\n.head{display:flex;justify-content:space-between;align-items:baseline;gap:10px}\n.titles{display:flex;align-items:baseline;gap:6px;min-width:0}\n.title{font-weight:600;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.unit{color:var(--muted);font-size:12px;white-space:nowrap}\n.front{display:flex;align-items:baseline;gap:6px;white-space:nowrap}\n.flabel{color:var(--muted);font-size:12px}\n.fvalue{font-size:20px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums}\n.change{font-size:12px;font-weight:600;padding:1px 7px;border-radius:10px}\n.change.up{color:var(--positive);background:color-mix(in srgb,var(--positive) 14%,transparent)}\n.change.down{color:var(--negative);background:color-mix(in srgb,var(--negative) 14%,transparent)}\n.chart{flex:1;min-height:90px;position:relative}\n.plot{position:absolute;inset:0}\n.plot svg{display:block;width:100%;height:100%;overflow:visible}\n.grid{stroke:var(--border);stroke-width:1}\n.axis{fill:var(--muted);font-size:11px;font-family:inherit}\n.axis.x{text-anchor:middle}\n.axis.y{text-anchor:end}\n.vol{fill:color-mix(in srgb,var(--accent) 14%,transparent)}\n.prior{fill:none;stroke:var(--muted);stroke-width:1.5;stroke-dasharray:4 3;opacity:.8}\n.line{fill:none;stroke:var(--accent);stroke-width:2.2;stroke-linejoin:round;stroke-linecap:round}\n.area{fill:color-mix(in srgb,var(--accent) 7%,transparent)}\n.dot{fill:var(--window);stroke:var(--accent);stroke-width:2}\n.hedge{stroke:var(--positive);stroke-width:3;stroke-linecap:round}\n.month{fill:transparent;cursor:pointer}\n.month:hover{fill:var(--hover);fill-opacity:.55}\n.month.selected{fill:color-mix(in srgb,var(--accent) 10%,transparent)}\n.dot.selected{fill:var(--accent);r:5}\n.tip{position:absolute;pointer-events:none;display:none;min-width:150px;background:var(--window);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 14px rgba(20,20,50,.14);padding:7px 10px;font-size:12px;z-index:2}\n.tip .tm{font-weight:600;margin-bottom:3px}\n.tip .tr{display:flex;justify-content:space-between;gap:14px;color:var(--muted)}\n.tip .tr b{color:var(--text);font-weight:600;font-variant-numeric:tabular-nums}\n.legend{display:flex;flex-wrap:wrap;gap:4px 14px;color:var(--muted);font-size:11.5px}\n.legend .k{display:inline-flex;align-items:center;gap:5px}\n.legend i{display:inline-block;width:14px;height:0;border-top:2px solid var(--accent)}\n.legend i.pr{border-top:2px dashed var(--muted)}\n.legend i.hp{border-top:3px solid var(--positive);width:10px;border-radius:2px}\n.legend i.hv{height:9px;width:9px;border:0;background:color-mix(in srgb,var(--accent) 22%,transparent);border-radius:2px}\n.empty{color:var(--muted);font-size:12px;padding:30px 0;text-align:center}",
+    "js": "function render(root, props, fire) {\n  const esc = s => String(s == null ? '' : s).replace(/[&<>\"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]));\n  const dec = props.decimals == null ? 3 : props.decimals;\n  const num = v => (v == null || isNaN(v)) ? '—' : (+v).toFixed(dec);\n  const vol = v => (v == null || isNaN(v)) ? '—' : Math.round(+v).toLocaleString('en-US');\n  const has = v => v != null && v !== '' && !isNaN(+v) && +v !== 0;\n  const pts = (props.points || []).filter(p => p && p.month != null && !isNaN(+p.price));\n  const showPrior = props.showPrior !== false;\n\n  root.querySelector('.title').textContent = props.title || '';\n  root.querySelector('.unit').textContent = props.unit || '';\n\n  // front month\n  const f = pts[0];\n  const fl = root.querySelector('.flabel'), fv = root.querySelector('.fvalue'), ch = root.querySelector('.change');\n  if (f) {\n    fl.textContent = f.month;\n    fv.textContent = num(f.price);\n    if (has(f.priorPrice)) {\n      const c = f.price - f.priorPrice;\n      ch.style.display = '';\n      ch.className = 'change ' + (c >= 0 ? 'up' : 'down');\n      ch.textContent = (c >= 0 ? '▲ ' : '▼ ') + Math.abs(c).toFixed(dec);\n    } else ch.style.display = 'none';\n  } else { fl.textContent = ''; fv.textContent = ''; ch.style.display = 'none'; }\n\n  const plot = root.querySelector('.plot'), tip = root.querySelector('.tip');\n  const legend = root.querySelector('.legend');\n  tip.style.display = 'none';\n  if (pts.length < 2) { plot.innerHTML = '<div class=\"empty\">No curve</div>'; legend.innerHTML = ''; return; }\n\n  // geometry in real pixels so text and dots never stretch\n  const W = Math.max(200, plot.clientWidth || 520), H = Math.max(80, plot.clientHeight || 200);\n  const L = 38, R = 8, T = 6, B = 18;\n  const pw = W - L - R, ph = H - T - B;\n  const vals = [];\n  pts.forEach(p => { vals.push(+p.price); if (showPrior && has(p.priorPrice)) vals.push(+p.priorPrice); if (has(p.hedgedPrice)) vals.push(+p.hedgedPrice); });\n  let lo = Math.min.apply(null, vals), hi = Math.max.apply(null, vals);\n  const span = (hi - lo) || 1; lo -= span * .12; hi += span * .08;\n  const maxVol = Math.max.apply(null, pts.map(p => +p.hedgedVolume || 0).concat([0]));\n  const step = pw / pts.length;\n  const x = i => L + step * (i + .5);\n  const y = v => T + (hi - v) * ph / (hi - lo);\n  const vh = v => maxVol > 0 ? (+v || 0) / maxVol * ph * .38 : 0;\n\n  // price grid: 4 lines\n  let s = '';\n  for (let g = 0; g <= 3; g++) {\n    const v = lo + (hi - lo) * g / 3, yy = y(v).toFixed(1);\n    s += '<line class=\"grid\" x1=\"' + L + '\" x2=\"' + (W - R) + '\" y1=\"' + yy + '\" y2=\"' + yy + '\"/>' +\n         '<text class=\"axis y\" x=\"' + (L - 6) + '\" y=\"' + (+yy + 4) + '\">' + v.toFixed(Math.min(dec, 2)) + '</text>';\n  }\n  // month hit areas (hover / selected band)\n  pts.forEach((p, i) => {\n    s += '<rect class=\"month' + (p.month === props.selected ? ' selected' : '') + '\" data-i=\"' + i + '\" x=\"' + (L + step * i).toFixed(1) + '\" y=\"' + T + '\" width=\"' + step.toFixed(1) + '\" height=\"' + ph + '\" rx=\"4\"/>';\n  });\n  // hedged volume columns (secondary scale, bottom)\n  const cw = Math.min(22, step * .55);\n  pts.forEach((p, i) => {\n    const h = vh(p.hedgedVolume);\n    if (h > 0) s += '<rect class=\"vol\" x=\"' + (x(i) - cw / 2).toFixed(1) + '\" y=\"' + (T + ph - h).toFixed(1) + '\" width=\"' + cw.toFixed(1) + '\" height=\"' + h.toFixed(1) + '\" rx=\"2\"/>';\n  });\n  // curve area, prior, curve\n  const path = key => pts.map((p, i) => (i ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(+p[key]).toFixed(1)).join(' ');\n  const d = path('price');\n  s += '<path class=\"area\" d=\"' + d + ' L' + x(pts.length - 1).toFixed(1) + ' ' + (T + ph) + ' L' + x(0).toFixed(1) + ' ' + (T + ph) + 'Z\"/>';\n  if (showPrior && pts.every(p => has(p.priorPrice))) s += '<path class=\"prior\" d=\"' + path('priorPrice') + '\"/>';\n  s += '<path class=\"line\" d=\"' + d + '\"/>';\n  // hedged price markers\n  const hw = Math.min(16, step * .5);\n  pts.forEach((p, i) => {\n    if (has(p.hedgedPrice)) { const yy = y(+p.hedgedPrice).toFixed(1); s += '<line class=\"hedge\" x1=\"' + (x(i) - hw / 2).toFixed(1) + '\" x2=\"' + (x(i) + hw / 2).toFixed(1) + '\" y1=\"' + yy + '\" y2=\"' + yy + '\"/>'; }\n  });\n  // dots and month labels (thinned when crowded)\n  const every = step < 34 ? 2 : 1;\n  pts.forEach((p, i) => {\n    const sel = p.month === props.selected;\n    s += '<circle class=\"dot' + (sel ? ' selected' : '') + '\" cx=\"' + x(i).toFixed(1) + '\" cy=\"' + y(+p.price).toFixed(1) + '\" r=\"' + (sel ? 5 : 3.2) + '\"/>';\n    if (i % every === 0 || sel) s += '<text class=\"axis x\" x=\"' + x(i).toFixed(1) + '\" y=\"' + (H - 4) + '\">' + esc(p.month) + '</text>';\n  });\n  plot.innerHTML = '<svg width=\"' + W + '\" height=\"' + H + '\">' + s + '</svg>';\n\n  // hover tooltip and click\n  plot.querySelectorAll('.month').forEach(el => {\n    const i = +el.dataset.i, p = pts[i];\n    el.onmouseenter = () => {\n      tip.innerHTML = '<div class=\"tm\">' + esc(p.month) + '</div>' +\n        '<div class=\"tr\">Price<b>' + num(p.price) + '</b></div>' +\n        (showPrior ? '<div class=\"tr\">Prior<b>' + num(p.priorPrice) + '</b></div>' : '') +\n        '<div class=\"tr\">Hedged price<b>' + (has(p.hedgedPrice) ? num(p.hedgedPrice) : '—') + '</b></div>' +\n        '<div class=\"tr\">Hedged volume<b>' + (has(p.hedgedVolume) ? vol(p.hedgedVolume) + ' ' + esc(props.volumeUnit || '') : '—') + '</b></div>';\n      tip.style.display = 'block';\n      const tw = tip.offsetWidth, th = tip.offsetHeight;\n      let tx = x(i) + 12; if (tx + tw > W) tx = x(i) - 12 - tw;\n      let ty = y(+p.price) - th / 2; ty = Math.max(0, Math.min(H - th, ty));\n      tip.style.left = tx + 'px'; tip.style.top = ty + 'px';\n    };\n    el.onmouseleave = () => { tip.style.display = 'none'; };\n    el.onclick = () => fire('monthSelected', { month: p.month });\n  });\n\n  legend.innerHTML = '<span class=\"k\"><i></i>Curve</span>' +\n    (showPrior ? '<span class=\"k\"><i class=\"pr\"></i>Prior</span>' : '') +\n    '<span class=\"k\"><i class=\"hp\"></i>Hedged price</span>' +\n    '<span class=\"k\"><i class=\"hv\"></i>Hedged volume' + (props.volumeUnit ? ' (' + esc(props.volumeUnit) + ')' : '') + '</span>';\n}",
+    "props": [
+      {
+        "name": "title",
+        "type": "string",
+        "default": "Henry Hub NG",
+        "description": "The curve's name, shown in the header."
+      },
+      {
+        "name": "unit",
+        "type": "string",
+        "default": "$/MMBtu",
+        "description": "The price unit shown after the title."
+      },
+      {
+        "name": "volumeUnit",
+        "type": "string",
+        "default": "MMBtu",
+        "description": "The unit of the hedged volume, shown in the legend and tooltip."
+      },
+      {
+        "name": "decimals",
+        "type": "int",
+        "default": 3,
+        "description": "Decimals of prices."
+      },
+      {
+        "name": "showPrior",
+        "type": "bool",
+        "default": true,
+        "description": "Shows the prior curve as a dashed line."
+      },
+      {
+        "name": "selected",
+        "type": "string",
+        "default": "",
+        "description": "The selected contract month."
+      },
+      {
+        "name": "points",
+        "type": "rows",
+        "default": [
+          {
+            "month": "Dec-26",
+            "price": 3.952,
+            "priorPrice": 3.871,
+            "hedgedPrice": 3.62,
+            "hedgedVolume": 620000
+          },
+          {
+            "month": "Jan-27",
+            "price": 4.185,
+            "priorPrice": 4.098,
+            "hedgedPrice": 3.85,
+            "hedgedVolume": 600000
+          },
+          {
+            "month": "Feb-27",
+            "price": 3.934,
+            "priorPrice": 3.866,
+            "hedgedPrice": 3.71,
+            "hedgedVolume": 540000
+          },
+          {
+            "month": "Mar-27",
+            "price": 3.548,
+            "priorPrice": 3.502,
+            "hedgedPrice": 3.44,
+            "hedgedVolume": 480000
+          },
+          {
+            "month": "Apr-27",
+            "price": 3.182,
+            "priorPrice": 3.161,
+            "hedgedPrice": 3.21,
+            "hedgedVolume": 400000
+          },
+          {
+            "month": "May-27",
+            "price": 3.118,
+            "priorPrice": 3.104,
+            "hedgedPrice": 3.15,
+            "hedgedVolume": 360000
+          },
+          {
+            "month": "Jun-27",
+            "price": 3.247,
+            "priorPrice": 3.229,
+            "hedgedPrice": 3.19,
+            "hedgedVolume": 300000
+          },
+          {
+            "month": "Jul-27",
+            "price": 3.412,
+            "priorPrice": 3.388,
+            "hedgedPrice": 3.3,
+            "hedgedVolume": 240000
+          },
+          {
+            "month": "Aug-27",
+            "price": 3.455,
+            "priorPrice": 3.431,
+            "hedgedPrice": 3.33,
+            "hedgedVolume": 180000
+          },
+          {
+            "month": "Sep-27",
+            "price": 3.381,
+            "priorPrice": 3.37,
+            "hedgedPrice": 0,
+            "hedgedVolume": 0
+          },
+          {
+            "month": "Oct-27",
+            "price": 3.476,
+            "priorPrice": 3.458,
+            "hedgedPrice": 0,
+            "hedgedVolume": 0
+          },
+          {
+            "month": "Nov-27",
+            "price": 3.826,
+            "priorPrice": 3.79,
+            "hedgedPrice": 0,
+            "hedgedVolume": 0
+          },
+          {
+            "month": "Dec-27",
+            "price": 4.118,
+            "priorPrice": 4.069,
+            "hedgedPrice": 0,
+            "hedgedVolume": 0
+          }
+        ],
+        "description": "The curve by contract month, nearest first: { month, price, priorPrice, hedgedPrice, hedgedVolume }; 0 hedged means none."
+      }
+    ],
+    "events": [
+      {
+        "name": "monthSelected",
+        "payload": {
+          "month": "string"
+        }
+      }
+    ],
+    "tokens": {
+      "accent": "#6d4dff",
+      "positive": "#1fb57a",
+      "negative": "#e5484d",
+      "window": "#ffffff",
+      "background": "#f3f4f7",
+      "text": "#171a21",
+      "muted": "#5f6878",
+      "border": "#e1e4ea",
+      "hover": "#eeeaff"
+    },
+    "dependencies": [],
+    "notes": "Simple control (no items or collections): points are data rows (ForwardCurvePoint). Chart drawn as SVG in real pixels, redrawn on resize, so it stays crisp from ~300x200 to ~1000x500 inside a GridBoard widget (no card chrome). Prior curve dashed (muted), hedged price as short green ticks, hedged volume as faint accent columns on a secondary scale (max column = 38% of plot height). Tooltip on hover; click fires monthSelected { month } and the server sets Selected to that month. Colours follow the GridKrafter palette (same tokens as CrushMarginGauge).",
+    "filledByAgent": true,
+    "icon": {
+      "rgba": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABtTf8KbU3/WG1N/wgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABtTf8vbU3/2G1N//9tTf9YbU3/CW1N/1htTf8IAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHBQ/wFtTf9ubU3/+G1N//9tTf+cbU3/CG1N/1ltTf//bU3/um1N/wkAAAAAAAAAAAAAAAAAAAAAAAAAAG1N/xRtTf+zbU3//21N//BtTf9XAAAAAAAAAABtTf8JbU3/um1N//9tTf+6bU3/CQAAAAAAAAAAbU3/Am1N/05tTf/mbU3//21N/8ZtTf8hAAAAAAAAAAAAAAAAAAAAAG1N/wltTf+6bU3//21N/7ptTf8vbU3/hW1N/+NtTf//bU3//W1N/4VtTf8EAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAbU3/CW1N/7ptTf//bU3//21N//9tTf/1bU3/pW1N/zoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABtTf8JbU3/rW1N/8NtTf9mMpubQR+1evgftXr/H7V6/x+1evgftXoxAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH7V6gB+1eswftXrMH7V6zB+1epMftXqSH7V6mR+1epkftXqSH7V6EgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB+1eoAftXrMH7V6zB+1eswftXqAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMm///LJv///yb//cgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADJv///yb///8m//4AAAAAAyb//8sm////Jv/9yAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAyb///8m////Jv/+AAAAAAMm////Jv///yb//gAAAAADJv//yyb///8m//3IAAAAAAAAAAAAAAAAAAAAAAAAAAMm///LJv///yb//cgAAAADJv//yyb///8m//3IAAAAAyb//8sm////Jv/9yAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 16 16\"><rect x=\"2\" y=\"11\" width=\"2.5\" height=\"4\" rx=\"0.5\" fill=\"#c9bfff\"/><rect x=\"6\" y=\"12\" width=\"2.5\" height=\"3\" rx=\"0.5\" fill=\"#c9bfff\"/><rect x=\"10\" y=\"13\" width=\"2.5\" height=\"2\" rx=\"0.5\" fill=\"#c9bfff\"/><path d=\"M1.5 4.5 L5 8 L9 6.5 L14.5 2.5\" fill=\"none\" stroke=\"#6d4dff\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><line x1=\"4\" y1=\"10\" x2=\"7\" y2=\"10\" stroke=\"#1fb57a\" stroke-width=\"1.6\" stroke-linecap=\"round\"/><line x1=\"8.5\" y1=\"8.8\" x2=\"11.5\" y2=\"8.8\" stroke=\"#1fb57a\" stroke-width=\"1.6\" stroke-linecap=\"round\"/></svg>"
+    }
+  }
+}

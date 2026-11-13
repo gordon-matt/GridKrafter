@@ -1,0 +1,163 @@
+{
+  "name": "HedgeCoverageMeter",
+  "namespace": "GridKrafter.WisejDemo",
+  "fullName": "GridKrafter.WisejDemo.HedgeCoverageMeter",
+  "language": "csharp",
+  "files": [
+    "Controls/HedgeCoverageMeter/HedgeCoverageMeter.cs",
+    "Controls/HedgeCoverageMeter/gridkrafter.wisejdemo.HedgeCoverageMeter.js",
+    "Controls/HedgeCoverageMeter/HedgeCoverageMeter.mixin.theme",
+    "Controls/HedgeCoverageMeter/HedgeCoverageMeter.bmp",
+    "GridKrafter.WisejDemo.csproj"
+  ],
+  "saved": "2026-11-13T12:46:16.2707548Z",
+  "sketch": {
+    "schema": "wisej-component-sketch/1",
+    "name": "HedgeCoverageMeter",
+    "namespace": "",
+    "description": "A hedge coverage meter: for each future month the percent of expected exposure that is hedged (futures plus fixed-price physical), as bars against a shaded policy band, with the weighted coverage and the months out of policy.",
+    "size": [
+      620,
+      320
+    ],
+    "html": "<div class=\"hc\">\n  <div class=\"top\">\n    <div class=\"headline\">\n      <div class=\"label\"></div>\n      <div class=\"valuerow\"><span class=\"value\"></span><span class=\"sub\">weighted, next 12 months</span></div>\n    </div>\n    <div class=\"flag\"></div>\n  </div>\n  <div class=\"legend\"></div>\n  <div class=\"chart\">\n    <div class=\"axis\"></div>\n    <div class=\"plot\"><div class=\"band\"></div><div class=\"grid\"></div><div class=\"cols\"></div></div>\n  </div>\n  <div class=\"tip\"></div>\n</div>",
+    "css": ".hc{position:relative;box-sizing:border-box;width:100%;height:100%;display:flex;flex-direction:column;gap:8px;padding:12px 14px;background:var(--window);color:var(--text);font:13px/1.4 \"Segoe UI\",system-ui,sans-serif;overflow:hidden}\n.hc *{box-sizing:border-box}\n.top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}\n.label{color:var(--muted);font-size:12.5px;font-weight:500}\n.valuerow{display:flex;align-items:baseline;gap:8px}\n.value{font-size:28px;font-weight:700;letter-spacing:-.02em;line-height:1.2}\n.sub{color:var(--muted);font-size:12px}\n.flag{font-size:12px;font-weight:600;padding:2px 9px;border-radius:10px;white-space:nowrap}\n.flag.ok{color:var(--positive);background:color-mix(in srgb,var(--positive) 14%,transparent)}\n.flag.bad{color:var(--negative);background:color-mix(in srgb,var(--negative) 14%,transparent)}\n.legend{display:flex;flex-wrap:wrap;gap:4px 14px;color:var(--muted);font-size:11.5px}\n.legend i{display:inline-block;width:10px;height:8px;border-radius:2px;margin-right:5px;vertical-align:baseline}\n.chart{flex:1;min-height:90px;display:flex;gap:6px}\n.axis{position:relative;width:30px;margin-bottom:20px;margin-top:16px;color:var(--muted);font-size:10.5px}\n.axis span{position:absolute;right:0;transform:translateY(50%)}\n.plot{position:relative;flex:1;margin-top:16px}\n.grid{position:absolute;left:0;right:0;top:0;bottom:20px;border-bottom:1px solid var(--border)}\n.grid b{position:absolute;left:0;right:0;border-top:1px dashed var(--border);opacity:.6}\n.band{position:absolute;left:0;right:0;border-top:1px dashed var(--accent);border-bottom:1px dashed var(--accent);background:color-mix(in srgb,var(--accent) 10%,transparent)}\n.cols{position:absolute;left:0;right:0;top:0;bottom:0;display:flex;gap:4px}\n.col{flex:1;min-width:0;display:flex;flex-direction:column;cursor:pointer;border-radius:5px}\n.col:hover{background:var(--hover)}\n.col.selected{background:var(--hover);box-shadow:inset 0 -3px 0 var(--accent)}\n.stack{position:relative;flex:1}\n.bar{position:absolute;left:18%;right:18%;bottom:0;display:flex;flex-direction:column-reverse;border-radius:3px 3px 0 0;overflow:hidden}\n.seg{background:var(--c)}\n.seg.phy{opacity:.45}\n.bar.in{--c:var(--accent)}\n.bar.below{--c:var(--negative)}\n.bar.above{--c:var(--warning)}\n.pct{position:absolute;left:0;right:0;text-align:center;font-size:11px;font-weight:600;font-variant-numeric:tabular-nums;padding-bottom:1px}\n.pct.below{color:var(--negative)}\n.mon{height:20px;text-align:center;color:var(--muted);font-size:11.5px;padding-top:3px;white-space:nowrap;overflow:hidden}\n.col.selected .mon{color:var(--accent);font-weight:600}\n.tip{position:absolute;display:none;pointer-events:none;z-index:5;background:var(--text);color:var(--window);border-radius:6px;padding:6px 9px;font-size:11.5px;line-height:1.5;white-space:nowrap;box-shadow:0 2px 8px rgba(20,20,50,.25)}\n.tip b{font-weight:600}\n.empty{color:var(--muted);font-size:12px;padding:30px 0;text-align:center;width:100%}",
+    "js": "function render(root, props, fire) {\n  const esc = s => String(s == null ? '' : s).replace(/[&<>\"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]));\n  const num = v => { v = +v; return isFinite(v) ? v : 0; };\n  const fmt = v => Math.round(v).toLocaleString();\n  const unit = props.unit || '';\n  const pmin = num(props.policyMin), pmax = num(props.policyMax);\n  const host = root.querySelector('.hc');\n\n  const rows = (props.months || []).filter(m => m && m.month).map(m => {\n    const exp = Math.max(0, num(m.exposure)), fut = Math.max(0, num(m.futures)), phy = Math.max(0, num(m.physical));\n    const hedged = fut + phy, pct = exp ? hedged / exp * 100 : 0;\n    const status = pct < pmin ? 'below' : pct > pmax ? 'above' : 'in';\n    return { month: String(m.month), exp, fut, phy, hedged, pct, status };\n  });\n\n  root.querySelector('.label').textContent = props.title || 'Hedge coverage';\n  const near = rows.slice(0, 12);\n  const te = near.reduce((a, r) => a + r.exp, 0), th = near.reduce((a, r) => a + r.hedged, 0);\n  root.querySelector('.value').textContent = (te ? Math.round(th / te * 100) : 0) + '%';\n  const out = rows.filter(r => r.status !== 'in').length;\n  const flag = root.querySelector('.flag');\n  flag.className = 'flag ' + (out ? 'bad' : 'ok');\n  flag.textContent = out ? out + (out === 1 ? ' month' : ' months') + ' out of policy' : 'All months in policy';\n\n  root.querySelector('.legend').innerHTML =\n    '<span><i style=\"background:var(--accent)\"></i>In policy</span>' +\n    '<span><i style=\"background:var(--negative)\"></i>Under-hedged</span>' +\n    '<span><i style=\"background:#e0a100\"></i>Over-hedged</span>' +\n    '<span><i style=\"background:var(--muted);opacity:.9\"></i>Futures</span>' +\n    '<span><i style=\"background:var(--muted);opacity:.45\"></i>Fixed-price physical</span>' +\n    '<span><i style=\"background:color-mix(in srgb,var(--accent) 18%,transparent);border:1px dashed var(--accent)\"></i>Policy ' + pmin + '–' + pmax + '%</span>';\n\n  const top = Math.max(100, Math.ceil(Math.max.apply(null, rows.map(r => r.pct).concat([0])) / 10) * 10);\n  const y = v => (v / top * 100);\n  const plot = root.querySelector('.plot');\n  const band = root.querySelector('.band');\n  band.style.display = pmax > pmin ? '' : 'none';\n  band.style.bottom = 'calc(20px + (100% - 20px) * ' + (y(pmin) / 100) + ')';\n  band.style.height = 'calc((100% - 20px) * ' + (y(Math.max(pmax, pmin) - pmin) / 100) + ')';\n\n  const ticks = [0, 25, 50, 75, 100].filter(t => t <= top);\n  root.querySelector('.axis').innerHTML = ticks.map(t => '<span style=\"bottom:calc(' + (y(t) / 100) + ' * 100%)\">' + t + '%</span>').join('');\n  root.querySelector('.grid').innerHTML = ticks.filter(t => t > 0).map(t => '<b style=\"bottom:' + y(t) + '%\"></b>').join('');\n\n  const cols = root.querySelector('.cols');\n  if (!rows.length) { cols.innerHTML = '<div class=\"empty\">No hedge data</div>'; return; }\n  cols.innerHTML = rows.map(r => {\n    const h = y(r.pct), fh = r.hedged ? r.fut / r.hedged * 100 : 0;\n    return '<div class=\"col' + (r.month === props.selected ? ' selected' : '') + '\" data-m=\"' + esc(r.month) + '\">' +\n      '<div class=\"stack\"><div class=\"bar ' + r.status + '\" style=\"height:' + h + '%\">' +\n      '<div class=\"seg fut\" style=\"height:' + fh + '%\"></div><div class=\"seg phy\" style=\"flex:1\"></div></div>' +\n      '<div class=\"pct ' + (r.status === 'below' ? 'below' : '') + '\" style=\"bottom:' + h + '%\">' + Math.round(r.pct) + '%</div></div>' +\n      '<div class=\"mon\">' + esc(r.month) + '</div></div>';\n  }).join('');\n\n  const tip = root.querySelector('.tip');\n  cols.querySelectorAll('.col').forEach((el, i) => {\n    const r = rows[i];\n    el.onclick = () => fire('monthSelected', { month: r.month });\n    el.onmouseenter = () => {\n      tip.innerHTML = '<b>' + esc(r.month) + '</b> · ' + r.pct.toFixed(0) + '% hedged<br>Hedged ' + fmt(r.hedged) + ' of ' + fmt(r.exp) + ' ' + esc(unit) +\n        '<br>Futures ' + fmt(r.fut) + ' · Physical ' + fmt(r.phy) + '<br>Policy ' + pmin + '–' + pmax + '%';\n      tip.style.display = 'block';\n    };\n    el.onmousemove = ev => {\n      const b = host.getBoundingClientRect();\n      let x = ev.clientX - b.left + 12, yy = ev.clientY - b.top + 12;\n      if (x + tip.offsetWidth > b.width - 4) x = ev.clientX - b.left - tip.offsetWidth - 12;\n      if (yy + tip.offsetHeight > b.height - 4) yy = ev.clientY - b.top - tip.offsetHeight - 12;\n      tip.style.left = Math.max(4, x) + 'px'; tip.style.top = Math.max(4, yy) + 'px';\n    };\n    el.onmouseleave = () => { tip.style.display = 'none'; };\n  });\n}",
+    "props": [
+      {
+        "name": "title",
+        "type": "string",
+        "default": "Natural gas hedge coverage",
+        "description": "The label above the weighted coverage."
+      },
+      {
+        "name": "unit",
+        "type": "string",
+        "default": "MMBtu",
+        "description": "The volume unit shown in the tooltip."
+      },
+      {
+        "name": "policyMin",
+        "type": "number",
+        "default": 50,
+        "description": "Lower edge of the policy band, in percent."
+      },
+      {
+        "name": "policyMax",
+        "type": "number",
+        "default": 80,
+        "description": "Upper edge of the policy band, in percent."
+      },
+      {
+        "name": "selected",
+        "type": "string",
+        "default": "",
+        "description": "The selected month (its Month text); empty for none."
+      },
+      {
+        "name": "months",
+        "type": "rows",
+        "default": [
+          {
+            "month": "Dec 26",
+            "exposure": 1200000,
+            "futures": 720000,
+            "physical": 300000
+          },
+          {
+            "month": "Jan 27",
+            "exposure": 1250000,
+            "futures": 700000,
+            "physical": 300000
+          },
+          {
+            "month": "Feb 27",
+            "exposure": 1150000,
+            "futures": 620000,
+            "physical": 280000
+          },
+          {
+            "month": "Mar 27",
+            "exposure": 1100000,
+            "futures": 560000,
+            "physical": 250000
+          },
+          {
+            "month": "Apr 27",
+            "exposure": 1000000,
+            "futures": 480000,
+            "physical": 200000
+          },
+          {
+            "month": "May 27",
+            "exposure": 950000,
+            "futures": 420000,
+            "physical": 170000
+          },
+          {
+            "month": "Jun 27",
+            "exposure": 950000,
+            "futures": 360000,
+            "physical": 170000
+          },
+          {
+            "month": "Jul 27",
+            "exposure": 1000000,
+            "futures": 330000,
+            "physical": 150000
+          },
+          {
+            "month": "Aug 27",
+            "exposure": 1000000,
+            "futures": 280000,
+            "physical": 120000
+          },
+          {
+            "month": "Sep 27",
+            "exposure": 950000,
+            "futures": 210000,
+            "physical": 100000
+          },
+          {
+            "month": "Oct 27",
+            "exposure": 1000000,
+            "futures": 170000,
+            "physical": 90000
+          },
+          {
+            "month": "Nov 27",
+            "exposure": 1100000,
+            "futures": 150000,
+            "physical": 70000
+          }
+        ],
+        "description": "The months, nearest first: month, exposure, futures, physical."
+      }
+    ],
+    "events": [
+      {
+        "name": "monthSelected",
+        "payload": {
+          "month": "string",
+          "selected": "string"
+        },
+        "sets": [
+          "selected"
+        ]
+      }
+    ],
+    "tokens": {
+      "accent": "#4f46e5",
+      "positive": "#1fb57a",
+      "negative": "#e5484d",
+      "warning": "#e0a100"
+    },
+    "dependencies": [],
+    "notes": "",
+    "filledByAgent": true,
+    "icon": {
+      "rgba": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8qUW//KlFv/ypRb/8qUWgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPKlFv/ypRb/8qUW//KlFoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAG1N/zjypRb/8qUW//KlFv/alUCcbU3/OG1N/zhtTf84bU3/OG1N/zhtTf84bU3/OG1N/zhtTf84bU3/OG1N/zhtTf848qUW//KlFv/ypRb/2pVAnG1N/zhtTf/XbU3//21N//9tTf/DbU3/OG1N/zhtTf84bU3/OG1N/zhtTf84bU3/OPKlFv/ypRb/8qUW/9qVQJxtTf84bU3/121N//9tTf//bU3/w21N/zhtTf84bU3/OG1N/zhtTf84bU3/OG1N/zjypRb/8qUW//KlFv/alUCcbU3/OG1N/9dtTf//bU3//21N/8NtTf84bU3/OG1N/zhtTf84bU3/OG1N/zhtTf848qUW//KlFv/ypRb/2pVAnG1N/zhtTf/XbU3//21N//9tTf/DbU3/OG1N/zhtTf84bU3/OG1N/zhtTf84AAAAAPKlFv/ypRb/8qUW//KlFoAAAAAAbU3/zG1N//9tTf//bU3/swAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADypRb/8qUW//KlFv/ypRaAAAAAAG1N/8xtTf//bU3//21N/7MAAAAA5UhNgOVITf/lSE3/5UhN/wAAAAAAAAAA8qUW//KlFv/ypRb/8qUWgAAAAABtTf/MbU3//21N//9tTf+zAAAAAOVITYDlSE3/5UhN/+VITf8AAAAAAAAAAPKlFv/ypRb/8qUW//KlFoAAAAAAbU3/zG1N//9tTf//bU3/swAAAADlSE2A5UhN/+VITf/lSE3/AAAAAAAAAADypRb/8qUW//KlFv/ypRaAAAAAAG1N/8xtTf//bU3//21N/7MAAAAA5UhNgOVITf/lSE3/5UhN/wAAAAAAAAAA8qUW//KlFv/ypRb/8qUWgAAAAABtTf/MbU3//21N//9tTf+zAAAAAOVITYDlSE3/5UhN/+VITf8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 16 16\"><rect x=\"0\" y=\"4\" width=\"16\" height=\"5\" fill=\"#6d4dff\" fill-opacity=\"0.22\"/><rect x=\"1\" y=\"2\" width=\"3.5\" height=\"13\" fill=\"#f2a516\"/><rect x=\"6.2\" y=\"5\" width=\"3.5\" height=\"10\" fill=\"#6d4dff\"/><rect x=\"11.5\" y=\"10\" width=\"3.5\" height=\"5\" fill=\"#e5484d\"/></svg>"
+    }
+  }
+}

@@ -1,0 +1,504 @@
+{
+  "name": "PlantStatusGrid",
+  "namespace": "GridKrafter.WisejDemo",
+  "fullName": "GridKrafter.WisejDemo.PlantStatusGrid",
+  "language": "csharp",
+  "files": [
+    "Controls/PlantStatusGrid/PlantStatusGrid.cs",
+    "Controls/PlantStatusGrid/gridkrafter.wisejdemo.PlantStatusGrid.js",
+    "Controls/PlantStatusGrid/PlantStatusGrid.mixin.theme",
+    "Controls/PlantStatusGrid/PlantStatusGrid.bmp",
+    "GridKrafter.WisejDemo.csproj"
+  ],
+  "saved": "2026-11-13T12:45:51.9502885Z",
+  "sketch": {
+    "schema": "wisej-component-sketch/1",
+    "name": "PlantStatusGrid",
+    "namespace": "",
+    "description": "A compact status board of ethanol plants: one tile per plant with its status, run rate against nameplate and a 3rd-party badge, grouped by region or ownership under a fleet summary.",
+    "size": [
+      640,
+      400
+    ],
+    "html": "<div class=\"psg\">\n  <div class=\"summary\"></div>\n  <div class=\"groups\"></div>\n  <div class=\"tip\"></div>\n</div>",
+    "css": ".psg{box-sizing:border-box;width:100%;height:100%;display:flex;flex-direction:column;gap:8px;padding:10px 12px;background:var(--window);color:var(--text);font:13px/1.4 \"Segoe UI\",system-ui,sans-serif;overflow:hidden;position:relative}\n.psg *{box-sizing:border-box}\n.summary{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;font-size:12px;color:var(--muted);padding-bottom:8px;border-bottom:1px solid var(--border)}\n.count{display:flex;align-items:center;gap:5px}\n.count b{color:var(--text);font-weight:600;font-variant-numeric:tabular-nums}\n.total{margin-left:auto;display:flex;align-items:baseline;gap:6px}\n.total b{color:var(--text);font-weight:700;font-size:14px;font-variant-numeric:tabular-nums}\n.total .pct{color:var(--accent);font-weight:600}\n.groups{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;gap:8px;padding-right:2px}\n.group{display:flex;flex-direction:column;gap:4px}\n.header{display:flex;align-items:baseline;gap:6px;font-size:11.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}\n.header .sub{font-weight:400;text-transform:none;letter-spacing:0}\n.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:4px}\n.tile{display:flex;flex-direction:column;gap:3px;padding:5px 7px;border:1px solid var(--border);border-radius:6px;cursor:pointer;background:var(--window);min-width:0}\n.tile:hover{background:var(--hover)}\n.tile.selected{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--window));box-shadow:inset 0 0 0 1px var(--accent)}\n.line1{display:flex;align-items:center;gap:5px;min-width:0}\n.dot{width:8px;height:8px;border-radius:50%;flex:none}\n.dot.running{background:var(--positive)}\n.dot.reduced{background:var(--warning)}\n.dot.down{background:var(--negative)}\n.dot.turnaround{background:var(--accent)}\n.name{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px;font-weight:600}\n.badge{flex:none;font-size:9.5px;font-weight:700;line-height:1;padding:2px 4px;border-radius:4px;color:var(--muted);background:var(--background);border:1px solid var(--border)}\n.line2{display:flex;align-items:center;gap:6px}\n.track{flex:1;height:4px;border-radius:2px;background:var(--background);overflow:hidden}\n.bar{height:100%;border-radius:2px}\n.bar.running{background:var(--positive)}\n.bar.reduced{background:var(--warning)}\n.bar.down,.bar.turnaround{background:transparent}\n.rate{flex:none;width:34px;text-align:right;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}\n.tile.down .rate{color:var(--negative)}\n.tile.turnaround .rate{color:var(--accent)}\n.tip{position:absolute;display:none;pointer-events:none;z-index:2;padding:6px 9px;border-radius:6px;background:var(--text);color:var(--window);font-size:11.5px;line-height:1.45;box-shadow:0 4px 12px rgba(20,20,50,.18);white-space:nowrap}\n.tip b{font-weight:600}\n.empty{color:var(--muted);font-size:12px;padding:20px 0;text-align:center}",
+    "js": "function render(root, props, fire) {\n  const esc = s => String(s == null ? '' : s).replace(/[&<>\"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]));\n  const STATUS = { running: 'Running', reduced: 'Reduced', down: 'Down', turnaround: 'Turnaround' };\n  const fmt = (v, d) => (+v || 0).toLocaleString('en-US', { minimumFractionDigits: d || 0, maximumFractionDigits: d || 0 });\n  const host = root.querySelector('.psg');\n  const plants = (props.plants || []).filter(p => p && p.id);\n  const status = p => STATUS[p.status] ? p.status : 'running';\n\n  // summary: counts by status, then the fleet's run rate against nameplate\n  const counts = { running: 0, reduced: 0, down: 0, turnaround: 0 };\n  let cap = 0, run = 0;\n  plants.forEach(p => { counts[status(p)]++; cap += +p.capacityMmgy || 0; run += (+p.capacityMmgy || 0) * (+p.runRatePct || 0) / 100; });\n  const sum = root.querySelector('.summary');\n  sum.innerHTML = ['running', 'reduced', 'down', 'turnaround'].filter(s => s !== 'turnaround' || counts[s])\n    .map(s => '<span class=\"count\"><span class=\"dot ' + s + '\"></span><b>' + counts[s] + '</b> ' + STATUS[s].toLowerCase() + '</span>').join('') +\n    '<span class=\"total\"><b>' + fmt(run) + '</b> / ' + fmt(cap) + ' MMgy <span class=\"pct\">' + (cap ? Math.round(run / cap * 100) : 0) + '%</span></span>';\n\n  // groups\n  const by = props.groupBy || 'region';\n  const groups = [];\n  const index = {};\n  plants.forEach(p => {\n    const key = by === 'none' ? '' : by === 'ownership' ? (p.owned ? 'Owned' : '3rd-party') : (p.region || 'Other');\n    if (!(key in index)) { index[key] = groups.length; groups.push({ key, plants: [] }); }\n    groups[index[key]].plants.push(p);\n  });\n  if (by === 'ownership') groups.sort((a, b) => a.key === 'Owned' ? -1 : b.key === 'Owned' ? 1 : 0);\n\n  const box = root.querySelector('.groups');\n  if (!plants.length) { box.innerHTML = '<div class=\"empty\">No plants</div>'; return; }\n  box.innerHTML = groups.map(g => {\n    let gcap = 0, grun = 0;\n    g.plants.forEach(p => { gcap += +p.capacityMmgy || 0; grun += (+p.capacityMmgy || 0) * (+p.runRatePct || 0) / 100; });\n    const head = g.key ? '<div class=\"header\">' + esc(g.key) + '<span class=\"sub\">' + g.plants.length + ' plants · ' + (gcap ? Math.round(grun / gcap * 100) : 0) + '%</span></div>' : '';\n    return '<div class=\"group\">' + head + '<div class=\"tiles\">' + g.plants.map(p => {\n      const s = status(p), r = Math.max(0, +p.runRatePct || 0);\n      return '<div class=\"tile ' + s + (p.id === props.selected ? ' selected' : '') + '\" data-id=\"' + esc(p.id) + '\">' +\n        '<div class=\"line1\"><span class=\"dot ' + s + '\"></span><span class=\"name\">' + esc(p.name) + '</span>' + (p.owned ? '' : '<span class=\"badge\">3P</span>') + '</div>' +\n        '<div class=\"line2\"><span class=\"track\"><span class=\"bar ' + s + '\" style=\"width:' + Math.min(100, r) + '%;display:block\"></span></span><span class=\"rate\">' + (s === 'down' || s === 'turnaround' ? (s === 'down' ? 'Down' : 'TA') : r.toFixed(0) + '%') + '</span></div></div>';\n    }).join('') + '</div></div>';\n  }).join('');\n\n  // tiles: click selects, hover shows the tooltip\n  const tip = root.querySelector('.tip');\n  const byId = {};\n  plants.forEach(p => byId[p.id] = p);\n  box.querySelectorAll('.tile').forEach(el => {\n    const p = byId[el.dataset.id];\n    el.onclick = () => fire('plantSelected', { plantId: p.id, selected: p.id });\n    el.onmouseenter = () => {\n      tip.innerHTML = '<b>' + esc(p.name) + '</b> · ' + esc(p.region) + (p.owned ? '' : ' · 3rd-party') + '<br>' +\n        'Status: <b>' + STATUS[status(p)] + '</b><br>Capacity: <b>' + fmt(p.capacityMmgy) + ' MMgy</b><br>' +\n        'Run rate: <b>' + fmt(p.runRatePct) + '%</b> · Today: <b>' + fmt(p.productionKgal) + ' kgal</b>';\n      tip.style.display = 'block';\n      const hr = host.getBoundingClientRect(), er = el.getBoundingClientRect();\n      let left = er.left - hr.left, top = er.bottom - hr.top + 4;\n      if (left + tip.offsetWidth > hr.width - 4) left = hr.width - tip.offsetWidth - 4;\n      if (top + tip.offsetHeight > hr.height - 4) top = er.top - hr.top - tip.offsetHeight - 4;\n      tip.style.left = Math.max(4, left) + 'px'; tip.style.top = top + 'px';\n    };\n    el.onmouseleave = () => tip.style.display = 'none';\n  });\n}",
+    "props": [
+      {
+        "name": "groupBy",
+        "type": "enum",
+        "default": "region",
+        "description": "How the tiles are grouped: by region, by ownership (owned / 3rd-party), or not at all.",
+        "values": [
+          "region",
+          "ownership",
+          "none"
+        ]
+      },
+      {
+        "name": "selected",
+        "type": "string",
+        "default": "IA-05",
+        "description": "The id of the selected plant; empty for none."
+      },
+      {
+        "name": "plants",
+        "type": "rows",
+        "default": [
+          {
+            "id": "IA-01",
+            "name": "Shenandoah",
+            "region": "Iowa",
+            "owned": true,
+            "status": "running",
+            "capacityMmgy": 65,
+            "runRatePct": 98,
+            "productionKgal": 175
+          },
+          {
+            "id": "IA-02",
+            "name": "Mason City",
+            "region": "Iowa",
+            "owned": true,
+            "status": "running",
+            "capacityMmgy": 120,
+            "runRatePct": 101,
+            "productionKgal": 332
+          },
+          {
+            "id": "IA-03",
+            "name": "Galva",
+            "region": "Iowa",
+            "owned": false,
+            "status": "running",
+            "capacityMmgy": 60,
+            "runRatePct": 96,
+            "productionKgal": 158
+          },
+          {
+            "id": "IA-04",
+            "name": "Fairbank",
+            "region": "Iowa",
+            "owned": true,
+            "status": "running",
+            "capacityMmgy": 120,
+            "runRatePct": 99,
+            "productionKgal": 326
+          },
+          {
+            "id": "IA-05",
+            "name": "Jewell",
+            "region": "Iowa",
+            "owned": true,
+            "status": "running",
+            "capacityMmgy": 135,
+            "runRatePct": 102,
+            "productionKgal": 377
+          },
+          {
+            "id": "IA-06",
+            "name": "Nevada",
+            "region": "Iowa",
+            "owned": true,
+            "status": "running",
+            "capacityMmgy": 70,
+            "runRatePct": 97,
+            "productionKgal": 186
+          },
+          {
+            "id": "IA-07",
+            "name": "Menlo",
+            "region": "Iowa",
+            "owned": true,
+            "status": "reduced",
+            "capacityMmgy": 110,
+            "runRatePct": 82,
+            "productionKgal": 247
+          },
+          {
+            "id": "IA-08",
+            "name": "Steamboat Rock",
+            "region": "Iowa",
+            "owned": true,
+            "status": "down",
+            "capacityMmgy": 60,
+            "runRatePct": 0,
+            "productionKgal": 0
+          },
+          {
+            "id": "IA-09",
+            "name": "Lakota",
+            "region": "Iowa",
+            "owned": true,
+            "status": "running",
+            "capacityMmgy": 115,
+            "runRatePct": 100,
+            "productionKgal": 315
+          },
+          {
+            "id": "IA-10",
+            "name": "Arthur",
+            "region": "Iowa",
+            "owned": false,
+            "status": "running",
+            "capacityMmgy": 110,
+            "runRatePct": 94,
+            "productionKgal": 283
+          },
+          {
+            "id": "IA-11",
+            "name": "Superior",
+            "region": "Iowa",
+            "owned": true,
+            "status": "running",
+            "capacityMmgy": 65,
+            "runRatePct": 99,
+            "productionKgal": 176
+          },
+          {
+            "id": "IA-12",
+            "name": "Council Bluffs",
+            "region": "Iowa",
+            "owned": true,
+            "status": "running",
+            "capacityMmgy": 130,
+            "runRatePct": 103,
+            "productionKgal": 367
+          },
+          {
+            "id": "NE-01",
+            "name": "Madison",
+            "region": "Nebraska",
+            "owned": true,
+            "status": "running",
+            "capacityMmgy": 60,
+            "runRatePct": 98,
+            "productionKgal": 161
+          },
+          {
+            "id": "NE-02",
+            "name": "Wood River",
+            "region": "Nebraska",
+            "owned": true,
+            "status": "running",
+            "capacityMmgy": 130,
+            "runRatePct": 101,
+            "productionKgal": 360
+          },
+          {
+            "id": "NE-03",
+            "name": "Atkinson",
+            "region": "Nebraska",
+            "owned": true,
+            "status": "running",
+            "capacityMmgy": 50,
+            "runRatePct": 95,
+            "productionKgal": 130
+          },
+          {
+            "id": "NE-04",
+            "name": "Ravenna",
+            "region": "Nebraska",
+            "owned": true,
+            "status": "reduced",
+            "capacityMmgy": 110,
+            "runRatePct": 76,
+            "productionKgal": 229
+          },
+          {
+            "id": "NE-05",
+            "name": "Fairmont",
+            "region": "Nebraska",
+            "owned": true,
+            "status": "running",
+            "capacityMmgy": 115,
+            "runRatePct": 99,
+            "productionKgal": 312
+          },
+          {
+            "id": "NE-06",
+            "name": "York",
+            "region": "Nebraska",
+            "owned": true,
+            "status": "running",
+            "capacityMmgy": 140,
+            "runRatePct": 100,
+            "productionKgal": 384
+          },
+          {
+            "id": "NE-07",
+            "name": "Hastings",
+            "region": "Nebraska",
+            "owned": true,
+            "status": "turnaround",
+            "capacityMmgy": 60,
+            "runRatePct": 0,
+            "productionKgal": 0
+          },
+          {
+            "id": "NE-08",
+            "name": "Central City",
+            "region": "Nebraska",
+            "owned": true,
+            "status": "running",
+            "capacityMmgy": 115,
+            "runRatePct": 97,
+            "productionKgal": 306
+          },
+          {
+            "id": "NE-09",
+            "name": "Aurora",
+            "region": "Nebraska",
+            "owned": false,
+            "status": "running",
+            "capacityMmgy": 120,
+            "runRatePct": 98,
+            "productionKgal": 322
+          },
+          {
+            "id": "MN-01",
+            "name": "Heron Lake",
+            "region": "Minnesota",
+            "owned": true,
+            "status": "running",
+            "capacityMmgy": 60,
+            "runRatePct": 97,
+            "productionKgal": 159
+          },
+          {
+            "id": "MN-02",
+            "name": "Benson",
+            "region": "Minnesota",
+            "owned": true,
+            "status": "running",
+            "capacityMmgy": 50,
+            "runRatePct": 100,
+            "productionKgal": 137
+          },
+          {
+            "id": "MN-03",
+            "name": "Janesville",
+            "region": "Minnesota",
+            "owned": true,
+            "status": "running",
+            "capacityMmgy": 110,
+            "runRatePct": 98,
+            "productionKgal": 295
+          },
+          {
+            "id": "MN-04",
+            "name": "Albert Lea",
+            "region": "Minnesota",
+            "owned": true,
+            "status": "running",
+            "capacityMmgy": 65,
+            "runRatePct": 96,
+            "productionKgal": 171
+          },
+          {
+            "id": "MN-05",
+            "name": "Lamberton",
+            "region": "Minnesota",
+            "owned": true,
+            "status": "reduced",
+            "capacityMmgy": 55,
+            "runRatePct": 71,
+            "productionKgal": 107
+          },
+          {
+            "id": "MN-06",
+            "name": "Welcome",
+            "region": "Minnesota",
+            "owned": true,
+            "status": "running",
+            "capacityMmgy": 115,
+            "runRatePct": 99,
+            "productionKgal": 312
+          },
+          {
+            "id": "MN-07",
+            "name": "Granite Falls",
+            "region": "Minnesota",
+            "owned": false,
+            "status": "running",
+            "capacityMmgy": 65,
+            "runRatePct": 95,
+            "productionKgal": 169
+          },
+          {
+            "id": "IL-01",
+            "name": "Cambridge",
+            "region": "Illinois",
+            "owned": true,
+            "status": "running",
+            "capacityMmgy": 135,
+            "runRatePct": 100,
+            "productionKgal": 370
+          },
+          {
+            "id": "IL-02",
+            "name": "Annawan",
+            "region": "Illinois",
+            "owned": true,
+            "status": "running",
+            "capacityMmgy": 110,
+            "runRatePct": 98,
+            "productionKgal": 295
+          },
+          {
+            "id": "IL-03",
+            "name": "Hennepin",
+            "region": "Illinois",
+            "owned": true,
+            "status": "running",
+            "capacityMmgy": 115,
+            "runRatePct": 101,
+            "productionKgal": 318
+          },
+          {
+            "id": "IL-04",
+            "name": "Lena",
+            "region": "Illinois",
+            "owned": true,
+            "status": "reduced",
+            "capacityMmgy": 70,
+            "runRatePct": 79,
+            "productionKgal": 152
+          },
+          {
+            "id": "IL-05",
+            "name": "Robinson",
+            "region": "Illinois",
+            "owned": false,
+            "status": "running",
+            "capacityMmgy": 130,
+            "runRatePct": 97,
+            "productionKgal": 345
+          },
+          {
+            "id": "IL-06",
+            "name": "Marseilles",
+            "region": "Illinois",
+            "owned": true,
+            "status": "running",
+            "capacityMmgy": 120,
+            "runRatePct": 99,
+            "productionKgal": 326
+          },
+          {
+            "id": "SD-01",
+            "name": "Aberdeen",
+            "region": "South Dakota",
+            "owned": true,
+            "status": "running",
+            "capacityMmgy": 60,
+            "runRatePct": 98,
+            "productionKgal": 161
+          },
+          {
+            "id": "SD-02",
+            "name": "Huron",
+            "region": "South Dakota",
+            "owned": true,
+            "status": "running",
+            "capacityMmgy": 35,
+            "runRatePct": 96,
+            "productionKgal": 92
+          },
+          {
+            "id": "SD-03",
+            "name": "Mina",
+            "region": "South Dakota",
+            "owned": true,
+            "status": "down",
+            "capacityMmgy": 55,
+            "runRatePct": 0,
+            "productionKgal": 0
+          },
+          {
+            "id": "SD-04",
+            "name": "Wentworth",
+            "region": "South Dakota",
+            "owned": true,
+            "status": "running",
+            "capacityMmgy": 130,
+            "runRatePct": 100,
+            "productionKgal": 356
+          },
+          {
+            "id": "SD-05",
+            "name": "Hudson",
+            "region": "South Dakota",
+            "owned": false,
+            "status": "running",
+            "capacityMmgy": 65,
+            "runRatePct": 98,
+            "productionKgal": 175
+          },
+          {
+            "id": "IN-01",
+            "name": "Linden",
+            "region": "Indiana",
+            "owned": true,
+            "status": "running",
+            "capacityMmgy": 120,
+            "runRatePct": 99,
+            "productionKgal": 326
+          },
+          {
+            "id": "IN-02",
+            "name": "Mt Vernon",
+            "region": "Indiana",
+            "owned": true,
+            "status": "running",
+            "capacityMmgy": 115,
+            "runRatePct": 100,
+            "productionKgal": 315
+          },
+          {
+            "id": "IN-03",
+            "name": "Cloverdale",
+            "region": "Indiana",
+            "owned": false,
+            "status": "running",
+            "capacityMmgy": 90,
+            "runRatePct": 97,
+            "productionKgal": 239
+          }
+        ],
+        "description": "The plants: { id, name, region, owned, status (running | reduced | down | turnaround), capacityMmgy, runRatePct, productionKgal }."
+      }
+    ],
+    "events": [
+      {
+        "name": "plantSelected",
+        "payload": {
+          "plantId": "string",
+          "selected": "string"
+        },
+        "sets": [
+          "selected"
+        ]
+      }
+    ],
+    "tokens": {
+      "accent": "#6d4dff",
+      "positive": "#1fb57a",
+      "negative": "#e5484d",
+      "warning": "#f5a524",
+      "window": "#ffffff",
+      "background": "#f3f4f7",
+      "text": "#171a21",
+      "muted": "#5f6878",
+      "border": "#e1e4ea",
+      "hover": "#eeeaff"
+    },
+    "dependencies": [],
+    "notes": "Simple control (no designer-edited items): plants are data rows, set from code as any list of objects (PlantStatusGridPlant on the server). Docked inside a GridBoard widget: no outer border or card chrome; fluid from about 300x200 to 1000x500, the tile area scrolls. Status colours: running = positive, reduced = warning (amber), down = negative, turnaround = accent (planned). 3P badge marks 3rd-party plants. Tooltip on hover: capacity MMgy, today's kgal, status. Summary: counts by status and fleet run rate = sum(capacity × run rate) / sum(capacity). Colours follow the GridKrafter palette (same tokens as CrushMarginGauge).",
+    "filledByAgent": true,
+    "icon": {
+      "rgba": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH7V6/x+1ev8ftXr/AAAAAB+1ev8ftXr/H7V6/wAAAAD1pST/9aUk//WlJP8AAAAAAAAAAAAAAAAAAAAAAAAAAB+1ev8ftXr/H7V6/wAAAAAftXr/H7V6/x+1ev8AAAAA9aUk//WlJP/1pST/AAAAAAAAAAAAAAAAAAAAAAAAAAAftXr/H7V6/x+1ev8AAAAAH7V6/x+1ev8ftXr/AAAAAPWlJP/1pST/9aUk/wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB+1ev8ftXr/H7V6/wAAAADlSE3/5UhN/+VITf8AAAAAH7V6/x+1ev8ftXr/AAAAAAAAAAAAAAAAAAAAAAAAAAAftXr/H7V6/x+1ev8AAAAA5UhN/+VITf/lSE3/AAAAAB+1ev8ftXr/H7V6/wAAAAAAAAAAAAAAAAAAAAAAAAAAH7V6/x+1ev8ftXr/AAAAAOVITf/lSE3/5UhN/wAAAAAftXr/H7V6/x+1ev8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAftXr/H7V6/x+1ev8AAAAAH7V6/x+1ev8ftXr/AAAAAG1N//9tTf//bU3//wAAAAAAAAAAAAAAAAAAAAAAAAAAH7V6/x+1ev8ftXr/AAAAAB+1ev8ftXr/H7V6/wAAAABtTf//bU3//21N//8AAAAAAAAAAAAAAAAAAAAAAAAAAB+1ev8ftXr/H7V6/wAAAAAftXr/H7V6/x+1ev8AAAAAbU3//21N//9tTf//AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+      "svg": null
+    }
+  }
+}

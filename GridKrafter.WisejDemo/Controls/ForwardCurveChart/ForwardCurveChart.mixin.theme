@@ -1,0 +1,98 @@
+{
+	"name": "ForwardCurveChart.mixin",
+
+	// the GridKrafter palette: hedged prices and a rising curve green, a falling curve red; the curve
+	// itself is the theme's highlight, and surfaces, text and borders are the theme's own colours so it
+	// follows Light and Dark.
+	"colors": {
+		"forward-curve-chart-positive": "#1fb57a",
+		"forward-curve-chart-negative": "#e5484d"
+	},
+
+	"fonts": {
+		"forward-curve-chart-small": { "size": 12, "family": ["Segoe UI", "system-ui", "Roboto", "Helvetica Neue", "Arial", "sans-serif"] },
+		"forward-curve-chart-legend": { "size": 11.5, "family": ["Segoe UI", "system-ui", "Roboto", "Helvetica Neue", "Arial", "sans-serif"] },
+		"forward-curve-chart-title": { "size": 13.5, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] },
+		"forward-curve-chart-strong": { "size": 12, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] },
+		"forward-curve-chart-value": { "size": 20, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] }
+	},
+
+	"appearances": {
+
+		"forward-curve-chart": {
+			"inherit": "widget",
+			"states": {
+				"default": {
+					"properties": {
+						"themeAccentColor": "highlight",
+						"themePositiveColor": "forward-curve-chart-positive",
+						"themeNegativeColor": "forward-curve-chart-negative",
+						"padding": [10, 12],
+						"font": "forward-curve-chart-small",
+						"textColor": "windowText",
+						"backgroundColor": "window",
+						"opacity": 1
+					},
+					"styles": { "width": 0 }
+				},
+				"disabled": { "properties": { "opacity": 0.55 } }
+			},
+			"components": {
+
+				"title": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "forward-curve-chart-title", "textColor": "windowText" } } }
+				},
+
+				"unit": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "forward-curve-chart-small", "textColor": "grayText" } } }
+				},
+
+				"front-label": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "forward-curve-chart-small", "textColor": "grayText" } } }
+				},
+
+				"front-value": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "forward-curve-chart-value", "textColor": "windowText" } } }
+				},
+
+				"change": {
+					"inherit": "label",
+					"states": {
+						"default": {
+							"properties": { "font": "forward-curve-chart-strong", "padding": [1, 7] },
+							"styles": { "radius": 10 }
+						}
+					}
+				},
+
+				"chart": {
+					"inherit": "widget",
+					"states": { "default": { "properties": { "backgroundColor": "transparent", "font": "forward-curve-chart-small" } } }
+				},
+
+				"tip": {
+					"inherit": "label",
+					"states": {
+						"default": {
+							"properties": { "font": "forward-curve-chart-small", "textColor": "grayText", "padding": [7, 10], "minWidth": 160 },
+							"styles": {
+								"backgroundColor": "window",
+								"width": 1, "color": "windowFrame", "radius": 8,
+								"shadowColor": "rgba(20,20,50,0.14)", "shadowBlurRadius": 14, "shadowLength": 4
+							}
+						}
+					}
+				},
+
+				"legend": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "forward-curve-chart-legend", "textColor": "grayText" } } }
+				}
+			}
+		}
+	}
+}

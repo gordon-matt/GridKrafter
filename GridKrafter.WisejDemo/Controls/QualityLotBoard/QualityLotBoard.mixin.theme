@@ -1,0 +1,92 @@
+{
+	"name": "QualityLotBoard.mixin",
+
+	// spec states use the GridKrafter palette the Light and Dark themes both define (green in spec, amber near a
+	// limit, red out of spec); surfaces, text, borders and the accent are the theme's own colours.
+
+	"fonts": {
+		"quality-lot-board-small": { "size": 11.5, "family": ["Segoe UI", "system-ui", "Roboto", "Helvetica Neue", "Arial", "sans-serif"] },
+		"quality-lot-board-text": { "size": 12.5, "family": ["Segoe UI", "system-ui", "Roboto", "Helvetica Neue", "Arial", "sans-serif"] },
+		"quality-lot-board-strong": { "size": 12, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] },
+		"quality-lot-board-lot": { "size": 13, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] },
+		"quality-lot-board-head": { "size": 11, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] },
+		"quality-lot-board-stat": { "size": 18, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] }
+	},
+
+	"appearances": {
+
+		"quality-lot-board": {
+			"inherit": "widget",
+			"states": {
+				"default": {
+					"properties": {
+						"themePositiveColor": "green",
+						"themeNegativeColor": "red",
+						"themeWarningColor": "amber",
+						"themeAccentColor": "highlight",
+						"padding": [10, 12],
+						"font": "quality-lot-board-text",
+						"textColor": "windowText",
+						"backgroundColor": "window",
+						"opacity": 1
+					},
+					"styles": { "width": 0 }
+				},
+				"disabled": { "properties": { "opacity": 0.55 } }
+			},
+			"components": {
+
+				"stat": {
+					"inherit": "widget",
+					"states": { "default": { "properties": { "padding": [4, 10] }, "styles": { "backgroundColor": "appWorkspace", "radius": 8 } } }
+				},
+				"stat-value": { "inherit": "label", "states": { "default": { "properties": { "font": "quality-lot-board-stat" } } } },
+				"stat-label": { "inherit": "label", "states": { "default": { "properties": { "font": "quality-lot-board-small", "textColor": "grayText" } } } },
+
+				"chip": {
+					"inherit": "label",
+					"states": {
+						"default": {
+							"properties": { "font": "quality-lot-board-small", "textColor": "grayText", "padding": [2, 10] },
+							"styles": { "backgroundColor": "transparent", "radius": 12, "width": 1, "style": "solid", "color": "windowFrame" }
+						},
+						"hovered": { "properties": { "textColor": "windowText" }, "styles": { "backgroundColor": "menuHighlight" } },
+						"selected": { "properties": { "textColor": "highlightText" }, "styles": { "backgroundColor": "highlight", "color": "highlight" } }
+					}
+				},
+
+				"head": {
+					"inherit": "widget",
+					"states": { "default": { "properties": { "padding": [5, 6] }, "styles": { "backgroundColor": "transparent", "width": 0 } } }
+				},
+				"head-label": { "inherit": "label", "states": { "default": { "properties": { "font": "quality-lot-board-head", "textColor": "grayText" } } } },
+
+				"row": {
+					"inherit": "widget",
+					"states": {
+						"default": {
+							"properties": { "padding": [5, 6] },
+							"styles": { "backgroundColor": "transparent", "radius": 6, "width": 0 }
+						},
+						"hovered": { "styles": { "backgroundColor": "menuHighlight" } },
+						"selected": { "styles": { "backgroundColor": "menuHighlight" } }
+					}
+				},
+				"lot": { "inherit": "label", "states": { "default": { "properties": { "font": "quality-lot-board-lot", "textColor": "windowText" } } } },
+				"meta": { "inherit": "label", "states": { "default": { "properties": { "font": "quality-lot-board-small", "textColor": "grayText" } } } },
+				"cell": { "inherit": "label", "states": { "default": { "properties": { "font": "quality-lot-board-strong", "padding": [2, 0] } } } },
+				"status": { "inherit": "label", "states": { "default": { "properties": { "font": "quality-lot-board-small", "padding": [1, 0] } } } },
+
+				"detail": {
+					"inherit": "widget",
+					"states": { "default": { "properties": { "padding": [8, 10], "margin": [2, 6, 6, 9] }, "styles": { "backgroundColor": "appWorkspace", "radius": 8 } } }
+				},
+				"detail-title": { "inherit": "label", "states": { "default": { "properties": { "font": "quality-lot-board-strong", "textColor": "windowText" } } } },
+				"detail-meta": { "inherit": "label", "states": { "default": { "properties": { "font": "quality-lot-board-small", "textColor": "grayText" } } } },
+				"detail-value": { "inherit": "label", "states": { "default": { "properties": { "font": "quality-lot-board-strong" } } } },
+
+				"empty": { "inherit": "label", "states": { "default": { "properties": { "textColor": "grayText", "padding": [20, 0] } } } }
+			}
+		}
+	}
+}

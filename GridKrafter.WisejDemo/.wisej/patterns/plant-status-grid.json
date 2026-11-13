@@ -1,0 +1,14 @@
+{
+  "id": "plant-status-grid",
+  "name": "Plant status grid",
+  "purpose": "A compact status board of ethanol plants: one tile per plant with its status, run rate against nameplate and a 3rd-party badge, grouped by region or ownership under a fleet summary.",
+  "keywords": [
+    "plant status grid",
+    "plantstatusgrid"
+  ],
+  "control": "PlantStatusGrid",
+  "type": "GridKrafter.WisejDemo.PlantStatusGrid",
+  "extends": null,
+  "component": null,
+  "preview": "<div data-wisej-pattern=\"plant-status-grid\"><div class=\"psg\">\n  <div class=\"summary\"></div>\n  <div class=\"groups\"></div>\n  <div class=\"tip\"></div>\n</div></div>"
+}

@@ -264,4 +264,106 @@
     </EmbeddedResource>
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- PlantStatusGrid: its files, each embedded under the name Wisej.NET or the Toolbox reads it by (added by Component Studio) -->
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\PlantStatusGrid\PlantStatusGrid.mixin.theme">
+      <DependentUpon>PlantStatusGrid.cs</DependentUpon>
+      <LogicalName>$(RootNamespace).Themes.PlantStatusGrid.mixin.theme</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\PlantStatusGrid\PlantStatusGrid.bmp">
+      <DependentUpon>PlantStatusGrid.cs</DependentUpon>
+      <LogicalName>GridKrafter.WisejDemo.PlantStatusGrid.bmp</LogicalName>
+    </EmbeddedResource>
+    <None Remove="$(MSBuildThisFileDirectory)Controls\PlantStatusGrid\gridkrafter.wisejdemo.PlantStatusGrid.js" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\PlantStatusGrid\gridkrafter.wisejdemo.PlantStatusGrid.js">
+      <DependentUpon>PlantStatusGrid.cs</DependentUpon>
+      <LogicalName>$(RootNamespace).Platform.gridkrafter.wisejdemo.PlantStatusGrid.js</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- ForwardCurveChart: its files, each embedded under the name Wisej.NET or the Toolbox reads it by (added by Component Studio) -->
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\ForwardCurveChart\ForwardCurveChart.mixin.theme">
+      <DependentUpon>ForwardCurveChart.cs</DependentUpon>
+      <LogicalName>$(RootNamespace).Themes.ForwardCurveChart.mixin.theme</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\ForwardCurveChart\ForwardCurveChart.bmp">
+      <DependentUpon>ForwardCurveChart.cs</DependentUpon>
+      <LogicalName>GridKrafter.WisejDemo.ForwardCurveChart.bmp</LogicalName>
+    </EmbeddedResource>
+    <None Remove="$(MSBuildThisFileDirectory)Controls\ForwardCurveChart\gridkrafter.wisejdemo.ForwardCurveChart.js" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\ForwardCurveChart\gridkrafter.wisejdemo.ForwardCurveChart.js">
+      <DependentUpon>ForwardCurveChart.cs</DependentUpon>
+      <LogicalName>$(RootNamespace).Platform.gridkrafter.wisejdemo.ForwardCurveChart.js</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- HedgeCoverageMeter: its files, each embedded under the name Wisej.NET or the Toolbox reads it by (added by Component Studio) -->
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\HedgeCoverageMeter\HedgeCoverageMeter.mixin.theme">
+      <DependentUpon>HedgeCoverageMeter.cs</DependentUpon>
+      <LogicalName>$(RootNamespace).Themes.HedgeCoverageMeter.mixin.theme</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\HedgeCoverageMeter\HedgeCoverageMeter.bmp">
+      <DependentUpon>HedgeCoverageMeter.cs</DependentUpon>
+      <LogicalName>GridKrafter.WisejDemo.HedgeCoverageMeter.bmp</LogicalName>
+    </EmbeddedResource>
+    <None Remove="$(MSBuildThisFileDirectory)Controls\HedgeCoverageMeter\gridkrafter.wisejdemo.HedgeCoverageMeter.js" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\HedgeCoverageMeter\gridkrafter.wisejdemo.HedgeCoverageMeter.js">
+      <DependentUpon>HedgeCoverageMeter.cs</DependentUpon>
+      <LogicalName>$(RootNamespace).Platform.gridkrafter.wisejdemo.HedgeCoverageMeter.js</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- FreightLaneMatrix: its files, each embedded under the name Wisej.NET or the Toolbox reads it by (added by Component Studio) -->
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\FreightLaneMatrix\FreightLaneMatrix.mixin.theme">
+      <DependentUpon>FreightLaneMatrix.cs</DependentUpon>
+      <LogicalName>$(RootNamespace).Themes.FreightLaneMatrix.mixin.theme</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\FreightLaneMatrix\FreightLaneMatrix.bmp">
+      <DependentUpon>FreightLaneMatrix.cs</DependentUpon>
+      <LogicalName>GridKrafter.WisejDemo.FreightLaneMatrix.bmp</LogicalName>
+    </EmbeddedResource>
+    <None Remove="$(MSBuildThisFileDirectory)Controls\FreightLaneMatrix\gridkrafter.wisejdemo.FreightLaneMatrix.js" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\FreightLaneMatrix\gridkrafter.wisejdemo.FreightLaneMatrix.js">
+      <DependentUpon>FreightLaneMatrix.cs</DependentUpon>
+      <LogicalName>$(RootNamespace).Platform.gridkrafter.wisejdemo.FreightLaneMatrix.js</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- LiftingScheduleTracker: its files, each embedded under the name Wisej.NET or the Toolbox reads it by (added by Component Studio) -->
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\LiftingScheduleTracker\LiftingScheduleTracker.mixin.theme">
+      <DependentUpon>LiftingScheduleTracker.cs</DependentUpon>
+      <LogicalName>$(RootNamespace).Themes.LiftingScheduleTracker.mixin.theme</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\LiftingScheduleTracker\LiftingScheduleTracker.bmp">
+      <DependentUpon>LiftingScheduleTracker.cs</DependentUpon>
+      <LogicalName>GridKrafter.WisejDemo.LiftingScheduleTracker.bmp</LogicalName>
+    </EmbeddedResource>
+    <None Remove="$(MSBuildThisFileDirectory)Controls\LiftingScheduleTracker\gridkrafter.wisejdemo.LiftingScheduleTracker.js" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\LiftingScheduleTracker\gridkrafter.wisejdemo.LiftingScheduleTracker.js">
+      <DependentUpon>LiftingScheduleTracker.cs</DependentUpon>
+      <LogicalName>$(RootNamespace).Platform.gridkrafter.wisejdemo.LiftingScheduleTracker.js</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- QualityLotBoard: its files, each embedded under the name Wisej.NET or the Toolbox reads it by (added by Component Studio) -->
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\QualityLotBoard\QualityLotBoard.mixin.theme">
+      <DependentUpon>QualityLotBoard.cs</DependentUpon>
+      <LogicalName>$(RootNamespace).Themes.QualityLotBoard.mixin.theme</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\QualityLotBoard\QualityLotBoard.bmp">
+      <DependentUpon>QualityLotBoard.cs</DependentUpon>
+      <LogicalName>GridKrafter.WisejDemo.QualityLotBoard.bmp</LogicalName>
+    </EmbeddedResource>
+    <None Remove="$(MSBuildThisFileDirectory)Controls\QualityLotBoard\gridkrafter.wisejdemo.QualityLotBoard.js" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\QualityLotBoard\gridkrafter.wisejdemo.QualityLotBoard.js">
+      <DependentUpon>QualityLotBoard.cs</DependentUpon>
+      <LogicalName>$(RootNamespace).Platform.gridkrafter.wisejdemo.QualityLotBoard.js</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
 </Project>

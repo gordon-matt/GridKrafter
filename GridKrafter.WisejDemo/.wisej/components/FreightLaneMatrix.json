@@ -1,0 +1,247 @@
+{
+  "name": "FreightLaneMatrix",
+  "namespace": "GridKrafter.WisejDemo",
+  "fullName": "GridKrafter.WisejDemo.FreightLaneMatrix",
+  "language": "csharp",
+  "files": [
+    "Controls/FreightLaneMatrix/FreightLaneMatrix.cs",
+    "Controls/FreightLaneMatrix/gridkrafter.wisejdemo.FreightLaneMatrix.js",
+    "Controls/FreightLaneMatrix/FreightLaneMatrix.mixin.theme",
+    "Controls/FreightLaneMatrix/FreightLaneMatrix.bmp",
+    "GridKrafter.WisejDemo.csproj"
+  ],
+  "saved": "2026-11-13T12:46:46.2433608Z",
+  "sketch": {
+    "schema": "wisej-component-sketch/1",
+    "name": "FreightLaneMatrix",
+    "namespace": "",
+    "description": "A freight lane matrix for ethanol shipping: lanes by Rail / Truck / Barge with rate per gallon, transit days and month-on-month trend, the cheapest mode per lane highlighted, a mode filter, and a demurrage aging strip underneath.",
+    "size": [
+      640,
+      420
+    ],
+    "html": "<div class=\"fm\">\n  <div class=\"head\">\n    <span class=\"title\">Freight lanes</span>\n    <span class=\"unit\">$/gal · transit days · vs last month</span>\n    <div class=\"modes\"></div>\n  </div>\n  <div class=\"matrix\">\n    <div class=\"mhead\"></div>\n    <div class=\"lanes\"></div>\n  </div>\n  <div class=\"demurrage\">\n    <div class=\"dtitle\"></div>\n    <div class=\"buckets\"></div>\n  </div>\n</div>",
+    "css": ".fm{box-sizing:border-box;width:100%;height:100%;display:flex;flex-direction:column;gap:8px;padding:10px 12px;background:var(--window);color:var(--text);font:13px/1.4 \"Segoe UI\",system-ui,sans-serif;overflow:hidden;container-type:inline-size}\n.fm *{box-sizing:border-box}\n.head{display:flex;align-items:center;gap:10px;flex-wrap:wrap}\n.title{font-weight:600}\n.unit{color:var(--muted);font-size:11.5px;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.modes{display:flex;gap:2px;background:var(--background);border-radius:8px;padding:2px}\n.mode{padding:2px 10px;border-radius:6px;font-size:11.5px;font-weight:500;color:var(--muted);cursor:pointer}\n.mode:hover{color:var(--text)}\n.mode.selected{background:var(--window);color:var(--accent);box-shadow:0 1px 2px rgba(20,20,50,.1)}\n.matrix{flex:1;min-height:0;display:flex;flex-direction:column;border-top:1px solid var(--border)}\n.mhead,.lane{display:grid;grid-template-columns:minmax(96px,1.5fr) repeat(var(--n),minmax(0,1fr));gap:8px;align-items:center}\n.mhead{padding:6px 6px 4px;font-size:11.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}\n.mhead .mc{text-align:center}\n.lanes{flex:1;overflow:auto}\n.lane{padding:5px 6px;border-bottom:1px solid var(--border);border-radius:6px;cursor:pointer}\n.lane:hover{background:var(--hover)}\n.lane.selected{background:var(--hover);box-shadow:inset 3px 0 0 var(--accent)}\n.lname{min-width:0}\n.lname b{display:block;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.lname span{display:block;color:var(--muted);font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.cell{position:relative;text-align:center;padding:3px 4px;border-radius:7px;border:1px solid transparent;min-width:0}\n.cell .rate{font-weight:600;font-variant-numeric:tabular-nums;line-height:1.25}\n.cell .sub{display:flex;justify-content:center;gap:5px;font-size:11px;color:var(--muted);white-space:nowrap}\n.cell .up{color:var(--red);font-weight:600}\n.cell .down{color:var(--green);font-weight:600}\n.cell.na{color:var(--muted);opacity:.6;padding:8px 4px}\n.cell.best{background:color-mix(in srgb,var(--green) 13%,transparent);border-color:color-mix(in srgb,var(--green) 55%,transparent)}\n.cell.best .rate{color:var(--green)}\n.cell.best::after{content:\"\";position:absolute;top:4px;right:4px;width:6px;height:6px;border-radius:50%;background:var(--green)}\n.empty{color:var(--muted);text-align:center;padding:24px 0}\n.demurrage{border-top:1px solid var(--border);padding-top:6px}\n.dtitle{display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);margin-bottom:5px}\n.dtitle b{color:var(--text);font-weight:600}\n.buckets{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}\n.bucket{border-radius:8px;padding:5px 8px;background:color-mix(in srgb,var(--red) calc(var(--t) * 1%),var(--background));border:1px solid color-mix(in srgb,var(--red) calc(var(--t) * 1%),var(--border));min-width:0}\n.bucket .bl{font-size:11px;font-weight:600;color:var(--muted)}\n.bucket .bv{font-size:15px;font-weight:700;line-height:1.2;letter-spacing:-.01em}\n.bucket .bs{font-size:11px;color:var(--muted);white-space:nowrap}\n.bucket.hot .bv,.bucket.hot .bs{color:var(--red)}\n@container (max-width:480px){\n  .unit{display:none}\n  .fm{padding:8px 8px;gap:6px}\n  .mhead,.lane{gap:4px}\n  .cell .sub{flex-direction:column;gap:0;align-items:center}\n  .bucket .bv{font-size:13px}\n  .bucket{padding:4px 6px}\n}",
+    "js": "function render(root, props, fire) {\n  const MODES = [{ k: 'all', t: 'All' }, { k: 'rail', t: 'Rail' }, { k: 'truck', t: 'Truck' }, { k: 'barge', t: 'Barge' }];\n  const esc = s => String(s == null ? '' : s).replace(/[&<>\"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]));\n  const lanes = props.lanes || [];\n  const dem = props.demurrage || [];\n  const mode = MODES.some(m => m.k === props.mode) ? props.mode : 'all';\n  const cols = mode === 'all' ? ['rail', 'truck', 'barge'] : [mode];\n  const name = k => k.charAt(0).toUpperCase() + k.slice(1);\n  const money = v => '$' + (v >= 10000 ? (v / 1000).toFixed(1).replace(/\\.0$/, '') + 'k' : Math.round(v).toLocaleString());\n\n  const md = root.querySelector('.modes');\n  md.innerHTML = MODES.map(m => '<span class=\"mode' + (m.k === mode ? ' selected' : '') + '\" data-m=\"' + m.k + '\">' + m.t + '</span>').join('');\n  md.querySelectorAll('.mode').forEach(el => el.onclick = () => fire('modeChanged', { mode: el.dataset.m }));\n\n  const head = root.querySelector('.mhead');\n  head.style.setProperty('--n', cols.length);\n  head.innerHTML = '<span>Lane</span>' + cols.map(c => '<span class=\"mc\">' + name(c) + '</span>').join('');\n\n  const list = root.querySelector('.lanes');\n  if (!lanes.length) list.innerHTML = '<div class=\"empty\">No lanes</div>';\n  else list.innerHTML = lanes.map(l => {\n    const all = ['rail', 'truck', 'barge'].map(c => ({ c, r: +l[c + 'Rate'] || 0 })).filter(x => x.r > 0);\n    const best = all.length ? all.reduce((a, b) => b.r < a.r ? b : a).c : '';\n    return '<div class=\"lane' + (l.lane === props.selected ? ' selected' : '') + '\" data-lane=\"' + esc(l.lane) + '\" style=\"--n:' + cols.length + '\">' +\n      '<div class=\"lname\"><b>' + esc(l.origin) + ' → ' + esc(l.destination) + '</b></div>' +\n      cols.map(c => {\n        const r = +l[c + 'Rate'] || 0;\n        if (r <= 0) return '<div class=\"cell na\"><div class=\"rate\">—</div></div>';\n        const d = +l[c + 'Days'] || 0, t = +l[c + 'Trend'] || 0;\n        const tr = Math.abs(t) < 0.05 ? '<span>–</span>' : '<span class=\"' + (t > 0 ? 'up' : 'down') + '\">' + (t > 0 ? '▲' : '▼') + Math.abs(t).toFixed(1) + '%</span>';\n        return '<div class=\"cell' + (c === best ? ' best' : '') + '\" title=\"' + name(c) + (c === best ? ' · cheapest' : '') + '\"><div class=\"rate\">$' + r.toFixed(3) + '</div><div class=\"sub\"><span>' + d + 'd</span>' + tr + '</div></div>';\n      }).join('') + '</div>';\n  }).join('');\n  list.querySelectorAll('.lane').forEach(el => el.onclick = () => fire('laneSelected', { lane: el.dataset.lane, selected: el.dataset.lane }));\n\n  const cars = dem.reduce((a, b) => a + (+b.cars || 0), 0), amt = dem.reduce((a, b) => a + (+b.amount || 0), 0);\n  root.querySelector('.dtitle').innerHTML = '<span>Demurrage aging</span><span><b>' + cars + '</b> cars · <b>' + money(amt) + '</b> accrued</span>';\n  root.querySelector('.buckets').innerHTML = dem.map((b, i) => {\n    const t = dem.length > 1 ? Math.round(i / (dem.length - 1) * 45) : 0;\n    return '<div class=\"bucket' + (i >= dem.length - 2 ? ' hot' : '') + '\" style=\"--t:' + t + '\"><div class=\"bl\">' + esc(b.bucket) + ' days</div><div class=\"bv\">' + (+b.cars || 0) + ' cars</div><div class=\"bs\">' + money(+b.amount || 0) + '</div></div>';\n  }).join('');\n}",
+    "props": [
+      {
+        "name": "mode",
+        "type": "enum",
+        "default": "all",
+        "description": "Shows every mode, or only one mode's column.",
+        "values": [
+          "all",
+          "rail",
+          "truck",
+          "barge"
+        ]
+      },
+      {
+        "name": "selected",
+        "type": "string",
+        "default": "Minnesota -> Chicago Argo",
+        "description": "The selected lane (its lane string), highlighted in the matrix."
+      },
+      {
+        "name": "lanes",
+        "type": "rows",
+        "default": [
+          {
+            "lane": "Iowa -> Houston",
+            "origin": "Iowa",
+            "destination": "Houston (Kinder Morgan)",
+            "railRate": 0.215,
+            "railDays": 8,
+            "railTrend": 1.9,
+            "truckRate": 0,
+            "truckDays": 0,
+            "truckTrend": 0,
+            "bargeRate": 0.162,
+            "bargeDays": 12,
+            "bargeTrend": -1.2
+          },
+          {
+            "lane": "Nebraska -> Stockton CA",
+            "origin": "Nebraska",
+            "destination": "Stockton CA",
+            "railRate": 0.288,
+            "railDays": 10,
+            "railTrend": 3.4,
+            "truckRate": 0.455,
+            "truckDays": 4,
+            "truckTrend": 2,
+            "bargeRate": 0,
+            "bargeDays": 0,
+            "bargeTrend": 0
+          },
+          {
+            "lane": "Minnesota -> Chicago Argo",
+            "origin": "Minnesota",
+            "destination": "Chicago Argo",
+            "railRate": 0.118,
+            "railDays": 2,
+            "railTrend": -0.8,
+            "truckRate": 0.134,
+            "truckDays": 1,
+            "truckTrend": 1.1,
+            "bargeRate": 0.092,
+            "bargeDays": 5,
+            "bargeTrend": -2.6
+          },
+          {
+            "lane": "South Dakota -> Port Arthur TX",
+            "origin": "South Dakota",
+            "destination": "Port Arthur TX",
+            "railRate": 0.236,
+            "railDays": 7,
+            "railTrend": 0.9,
+            "truckRate": 0,
+            "truckDays": 0,
+            "truckTrend": 0,
+            "bargeRate": 0,
+            "bargeDays": 0,
+            "bargeTrend": 0
+          },
+          {
+            "lane": "Illinois -> New Orleans",
+            "origin": "Illinois",
+            "destination": "New Orleans",
+            "railRate": 0.142,
+            "railDays": 5,
+            "railTrend": 0.4,
+            "truckRate": 0.198,
+            "truckDays": 3,
+            "truckTrend": 1.6,
+            "bargeRate": 0.081,
+            "bargeDays": 9,
+            "bargeTrend": -3.1
+          },
+          {
+            "lane": "Indiana -> Carteret NJ",
+            "origin": "Indiana",
+            "destination": "Carteret NJ",
+            "railRate": 0.176,
+            "railDays": 4,
+            "railTrend": -1.4,
+            "truckRate": 0.221,
+            "truckDays": 2,
+            "truckTrend": 2.3,
+            "bargeRate": 0,
+            "bargeDays": 0,
+            "bargeTrend": 0
+          },
+          {
+            "lane": "Kansas -> Watson CA",
+            "origin": "Kansas",
+            "destination": "Watson CA",
+            "railRate": 0.274,
+            "railDays": 8,
+            "railTrend": 2.7,
+            "truckRate": 0,
+            "truckDays": 0,
+            "truckTrend": 0,
+            "bargeRate": 0,
+            "bargeDays": 0,
+            "bargeTrend": 0
+          },
+          {
+            "lane": "Iowa -> Chicago Argo",
+            "origin": "Iowa",
+            "destination": "Chicago Argo",
+            "railRate": 0.121,
+            "railDays": 2,
+            "railTrend": 0.2,
+            "truckRate": 0.129,
+            "truckDays": 1,
+            "truckTrend": -0.6,
+            "bargeRate": 0.094,
+            "bargeDays": 4,
+            "bargeTrend": -1.8
+          },
+          {
+            "lane": "Ohio -> Tampa FL",
+            "origin": "Ohio",
+            "destination": "Tampa FL",
+            "railRate": 0.246,
+            "railDays": 6,
+            "railTrend": 1.2,
+            "truckRate": 0.318,
+            "truckDays": 3,
+            "truckTrend": 3.8,
+            "bargeRate": 0.148,
+            "bargeDays": 14,
+            "bargeTrend": -0.9
+          }
+        ],
+        "description": "Lanes: { lane, origin, destination, railRate, railDays, railTrend, truckRate, truckDays, truckTrend, bargeRate, bargeDays, bargeTrend }; rate in $/gal, trend in % vs last month, rate 0 = mode not available."
+      },
+      {
+        "name": "demurrage",
+        "type": "rows",
+        "default": [
+          {
+            "bucket": "0-2",
+            "cars": 74,
+            "amount": 3700
+          },
+          {
+            "bucket": "3-5",
+            "cars": 41,
+            "amount": 26800
+          },
+          {
+            "bucket": "6-10",
+            "cars": 19,
+            "amount": 34200
+          },
+          {
+            "bucket": "10+",
+            "cars": 8,
+            "amount": 28900
+          }
+        ],
+        "description": "Demurrage aging buckets: { bucket, cars, amount } with amount in $ accrued."
+      }
+    ],
+    "events": [
+      {
+        "name": "laneSelected",
+        "payload": {
+          "lane": "string",
+          "selected": "string"
+        },
+        "sets": [
+          "selected"
+        ]
+      },
+      {
+        "name": "modeChanged",
+        "payload": {
+          "mode": "string"
+        },
+        "sets": [
+          "mode"
+        ]
+      }
+    ],
+    "tokens": {
+      "accent": "#6d4dff",
+      "green": "#1fb57a",
+      "amber": "#f2a516",
+      "red": "#e5484d",
+      "window": "#ffffff",
+      "background": "#f3f4f7",
+      "text": "#171a21",
+      "muted": "#5f6878",
+      "border": "#e1e4ea",
+      "hover": "#eeeaff"
+    },
+    "dependencies": [],
+    "notes": "Simple control (rows are data, no designer-edited items). Cheapest available mode per lane is highlighted (green tint + dot) computed across all modes, even when the mode filter shows one column. Trend is % vs last month: up (costlier) red, down green. Demurrage strip: four buckets tinted from neutral to red, last two in red text; totals in the title. Fluid ~350x220 to 1100x600; lanes list scrolls, strip stays at the bottom. Meant for a GridBoard card with no outer chrome.",
+    "filledByAgent": true,
+    "icon": {
+      "rgba": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABfaHhRX2h4l19oeJlfaHiZX2h4mV9oeJlfaHiZX2h4mV9oeJlfaHiZX2h4mV9oeJlfaHiXX2h4UQAAAABfaHhRX2h49l9oeJ9faHiZX2h4mV9oeOpfaHiuX2h4mV9oeJlfaHiuX2h46k97ecxPe3nMUHt40l9oePZfaHhRX2h4l19oeJ8AAAAAAAAAAAAAAABfaHjLX2h4NAAAAAAAAAAAX2h4NF9oeMsftXr/H7V6/x+1ev9faHifX2h4l19oeJlfaHiZAAAAAAAAAAAAAAAAX2h4y19oeDQAAAAAAAAAAF9oeDRfaHjLH7V6/x+1ev8ftXr/X2h4mV9oeJlfaHiZX2h4zF9oeIBfaHiAX2h4gF9oeOVfaHiZX2h4gF9oeIBfaHiZX2h45U1+ebNNfnmzTX55s19oeMxfaHiZX2h4mV9oeMxfaHiAX2h4gF9oeIBfaHjlVnN4s01+ebNNfnmzVnN4s19oeOVfaHiAX2h4gF9oeIBfaHjMX2h4mV9oeJlfaHiZAAAAAAAAAAAAAAAAX2h4yzGfebMftXr/H7V6/zGfebNfaHjLAAAAAAAAAAAAAAAAX2h4mV9oeJlfaHiZX2h4mQAAAAAAAAAAAAAAAF9oeMsxn3mzH7V6/x+1ev8xn3mzX2h4ywAAAAAAAAAAAAAAAF9oeJlfaHiZX2h4mV9oeMxfaHiAX2h4gF9oeIBfaHjlVnN4s01+ebNNfnmzVnN4s19oeOVfaHiAX2h4gF9oeIBfaHjMX2h4mV9oeJlfaHjMY2Cfs2Ngn7NjYJ+zX2h45V9oeJlfaHiAX2h4gF9oeJlfaHjlX2h4gF9oeIBfaHiAX2h4zF9oeJlfaHiZX2h4mW1N//9tTf//bU3//19oeMtfaHg0AAAAAAAAAABfaHg0X2h4ywAAAAAAAAAAAAAAAF9oeJlfaHiZX2h4l19oeJ9tTf//bU3//21N//9faHjLX2h4NAAAAAAAAAAAX2h4NF9oeMsAAAAAAAAAAAAAAABfaHifX2h4l19oeFFfaHj2Y2GZ0mNhmsxjYZrMX2h46l9oeK5faHiZX2h4mV9oeK5faHjqX2h4mV9oeJlfaHifX2h49l9oeFEAAAAAX2h4UV9oeJdfaHiZX2h4mV9oeJlfaHiZX2h4mV9oeJlfaHiZX2h4mV9oeJlfaHiZX2h4l19oeFEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 16 16\"><rect x=\"1\" y=\"2\" width=\"14\" height=\"12\" rx=\"1.5\" fill=\"none\" stroke=\"#5f6878\" stroke-width=\"1.2\"/><path d=\"M1 6H15M1 10H15M5.7 2V14M10.3 2V14\" stroke=\"#5f6878\" stroke-width=\"1\"/><rect x=\"6.5\" y=\"6.8\" width=\"3\" height=\"2.4\" fill=\"#1fb57a\"/><rect x=\"11\" y=\"2.8\" width=\"3\" height=\"2.4\" fill=\"#1fb57a\"/><rect x=\"2\" y=\"10.8\" width=\"3\" height=\"2.4\" fill=\"#6d4dff\"/></svg>"
+    }
+  }
+}

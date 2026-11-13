@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using GridKrafter.WisejDemo.Panels;
 using GridKrafter.WisejDemo.Services;
 using Wisej.Web;
 
@@ -28,6 +29,14 @@ namespace GridKrafter.WisejDemo
 			["HomePanel"] = "Every widget is a real Wisej.NET control on the GridBoard. Refreshing one loads its data again, and every change is saved on the server, so the board follows you from browser to browser.",
 			["EventsPanel"] = "Move, resize, collapse or edit a widget and it shows up here, newest first.",
 			["AboutPanel"] = "How this demo is put together, and where to read more.",
+			["OverviewPanel"] = "The whole company at a glance: volume, margin, net position and how the plants run, across every line of business.",
+			["EthanolPanel"] = "Fuel ethanol, E-85 and 200 proof: prices, position, crush margin, inventory and liftings.",
+			["Co2Panel"] = "CO2 captured at the plants and sold under contract, with storage and realized prices.",
+			["PurifiedPanel"] = "Purified ethanol: its premium over fuel grade, quality lots against spec, and orders.",
+			["DenaturantPanel"] = "Denaturant supply at each plant: inventory, deliveries and days of supply.",
+			["NaturalGasPanel"] = "Natural gas the plants burn: the Henry Hub curve, hedges and nominations against burn.",
+			["GrainPanel"] = "Corn bought for the plants: the CBOT curve, basis bids, hedges and grind against receipts.",
+			["FreightPanel"] = "Railcars, lanes and modes that move the product, with transit times and demurrage.",
 		};
 
 		public Page1()
@@ -117,7 +126,9 @@ namespace GridKrafter.WisejDemo
 
 		private void navigationBar_SelectedItemChanged(object sender, EventArgs e)
 		{
-			ShowPanel((string)this.navigationBar.SelectedItem.Tag);
+			// a group, such as Commodities, only opens its items
+			if (this.navigationBar.SelectedItem?.Tag is string panelName)
+				ShowPanel(panelName);
 		}
 
 		private void navigationBar_TitleClick(object sender, EventArgs e)
@@ -138,6 +149,13 @@ namespace GridKrafter.WisejDemo
 
 		private void buttonReset_Click(object sender, EventArgs e)
 		{
+			// a commodity board forgets only its own layout, and stays on show
+			if (this.panelMain.Controls.Count > 0 && this.panelMain.Controls[0] is CommodityBoardPanel commodityBoard)
+			{
+				commodityBoard.ResetBoard();
+				return;
+			}
+
 			BoardStore.Reset();
 			BoardEvents.Write("reset", "the page's own board");
 			BoardEvents.Status = "This is the page's own board. Change something and it's saved on the server.";
