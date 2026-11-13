@@ -1,0 +1,84 @@
+{
+	"name": "LiftingScheduleTracker.mixin",
+
+	// status colours are the GridKrafter palette the Light and Dark themes both define (green, grey,
+	// red, violet); surfaces, text and borders are the theme's own colours.
+
+	"fonts": {
+		"lifting-schedule-tracker-text": { "size": 12, "family": ["Segoe UI", "system-ui", "Roboto", "Helvetica Neue", "Arial", "sans-serif"] },
+		"lifting-schedule-tracker-small": { "size": 11, "family": ["Segoe UI", "system-ui", "Roboto", "Helvetica Neue", "Arial", "sans-serif"] },
+		"lifting-schedule-tracker-strong": { "size": 12, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] },
+		"lifting-schedule-tracker-title": { "size": 14, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] },
+		"lifting-schedule-tracker-tag": { "size": 11, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] }
+	},
+
+	"appearances": {
+
+		"lifting-schedule-tracker": {
+			"inherit": "widget",
+			"states": {
+				"default": {
+					"properties": {
+						"themeAheadColor": "green",
+						"themePaceColor": "grayText",
+						"themeBehindColor": "red",
+						"themeOverColor": "violet",
+						"padding": [12, 14],
+						"font": "lifting-schedule-tracker-text",
+						"textColor": "windowText",
+						"backgroundColor": "window",
+						"opacity": 1
+					},
+					"styles": { "width": 0 }
+				},
+				"disabled": { "properties": { "opacity": 0.55 } }
+			},
+			"components": {
+
+				"title": { "inherit": "label", "states": { "default": { "properties": { "font": "lifting-schedule-tracker-title", "textColor": "windowText" } } } },
+				"period": { "inherit": "label", "states": { "default": { "properties": { "font": "lifting-schedule-tracker-text", "textColor": "grayText" } } } },
+				"total": { "inherit": "label", "states": { "default": { "properties": { "font": "lifting-schedule-tracker-text", "textColor": "grayText" } } } },
+
+				"caption": {
+					"inherit": "widget",
+					"states": { "default": { "properties": { "padding": [2, 6] }, "styles": { "widthBottom": 1, "styleBottom": "solid", "colorBottom": "windowFrame" } } }
+				},
+				"caption-text": {
+					"inherit": "label",
+					"states": {
+						"default": { "properties": { "font": "lifting-schedule-tracker-tag", "textColor": "grayText" } },
+						"hovered": { "properties": { "textColor": "windowText" } },
+						"selected": { "properties": { "textColor": "highlight" } }
+					}
+				},
+
+				"row": {
+					"inherit": "widget",
+					"states": {
+						"default": {
+							"properties": { "padding": [4, 6] },
+							"styles": { "backgroundColor": "transparent", "radius": 6, "width": 1, "style": "solid", "color": "transparent" }
+						},
+						"hovered": { "styles": { "backgroundColor": "menuHighlight" } },
+						"selected": { "styles": { "backgroundColor": "menuHighlight", "color": "highlight" } }
+					}
+				},
+				"name": { "inherit": "label", "states": { "default": { "properties": { "font": "lifting-schedule-tracker-strong", "textColor": "windowText" } } } },
+				"sub": { "inherit": "label", "states": { "default": { "properties": { "font": "lifting-schedule-tracker-small", "textColor": "grayText" } } } },
+
+				"planned": { "inherit": "widget", "states": { "default": { "styles": { "backgroundColor": "windowFrame", "radius": 5 } } } },
+				"fill": { "inherit": "widget", "states": { "default": { "styles": { "radius": 5 } } } },
+				"mark": { "inherit": "widget", "states": { "default": { "styles": { "backgroundColor": "windowText", "radius": 1 }, "properties": { "opacity": 0.55 } } } },
+
+				"amount": { "inherit": "label", "states": { "default": { "properties": { "font": "lifting-schedule-tracker-text", "textColor": "grayText" } } } },
+				"percent": { "inherit": "label", "states": { "default": { "properties": { "font": "lifting-schedule-tracker-strong", "textColor": "windowText" } } } },
+				"chip": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "lifting-schedule-tracker-tag", "padding": [1, 8] }, "styles": { "backgroundColor": "appWorkspace", "radius": 10 } } }
+				},
+
+				"empty": { "inherit": "label", "states": { "default": { "properties": { "textColor": "grayText", "padding": [24, 0] } } } }
+			}
+		}
+	}
+}

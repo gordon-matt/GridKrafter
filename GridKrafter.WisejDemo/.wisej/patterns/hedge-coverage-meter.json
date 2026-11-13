@@ -1,0 +1,14 @@
+{
+  "id": "hedge-coverage-meter",
+  "name": "Hedge coverage meter",
+  "purpose": "A hedge coverage meter: for each future month the percent of expected exposure that is hedged (futures plus fixed-price physical), as bars against a shaded policy band, with the weighted coverage and the months out of policy.",
+  "keywords": [
+    "hedge coverage meter",
+    "hedgecoveragemeter"
+  ],
+  "control": "HedgeCoverageMeter",
+  "type": "GridKrafter.WisejDemo.HedgeCoverageMeter",
+  "extends": null,
+  "component": null,
+  "preview": "<div data-wisej-pattern=\"hedge-coverage-meter\"><div class=\"hc\">\n  <div class=\"top\">\n    <div class=\"headline\">\n      <div class=\"label\"></div>\n      <div class=\"valuerow\"><span class=\"value\"></span><span class=\"sub\">weighted, next 12 months</span></div>\n    </div>\n    <div class=\"flag\"></div>\n  </div>\n  <div class=\"legend\"></div>\n  <div class=\"chart\">\n    <div class=\"axis\"></div>\n    <div class=\"plot\"><div class=\"band\"></div><div class=\"grid\"></div><div class=\"cols\"></div></div>\n  </div>\n  <div class=\"tip\"></div>\n</div></div>"
+}

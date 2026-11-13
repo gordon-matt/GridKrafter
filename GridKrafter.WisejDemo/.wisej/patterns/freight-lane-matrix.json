@@ -1,0 +1,14 @@
+{
+  "id": "freight-lane-matrix",
+  "name": "Freight lane matrix",
+  "purpose": "A freight lane matrix for ethanol shipping: lanes by Rail / Truck / Barge with rate per gallon, transit days and month-on-month trend, the cheapest mode per lane highlighted, a mode filter, and a demurrage aging strip underneath.",
+  "keywords": [
+    "freight lane matrix",
+    "freightlanematrix"
+  ],
+  "control": "FreightLaneMatrix",
+  "type": "GridKrafter.WisejDemo.FreightLaneMatrix",
+  "extends": null,
+  "component": null,
+  "preview": "<div data-wisej-pattern=\"freight-lane-matrix\"><div class=\"fm\">\n  <div class=\"head\">\n    <span class=\"title\">Freight lanes</span>\n    <span class=\"unit\">$/gal · transit days · vs last month</span>\n    <div class=\"modes\"></div>\n  </div>\n  <div class=\"matrix\">\n    <div class=\"mhead\"></div>\n    <div class=\"lanes\"></div>\n  </div>\n  <div class=\"demurrage\">\n    <div class=\"dtitle\"></div>\n    <div class=\"buckets\"></div>\n  </div>\n</div></div>"
+}

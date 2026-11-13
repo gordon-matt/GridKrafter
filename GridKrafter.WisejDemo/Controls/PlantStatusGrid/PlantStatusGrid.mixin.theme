@@ -1,0 +1,129 @@
+{
+	"name": "PlantStatusGrid.mixin",
+
+	// the GridKrafter palette: running green, reduced amber, down red; a turnaround uses the theme's accent.
+	// Surfaces, text, borders and the accent are the theme's own colours so it follows Light and Dark.
+	"colors": {
+		"plant-status-grid-running": "#1fb57a",
+		"plant-status-grid-reduced": "#f5a524",
+		"plant-status-grid-down": "#e5484d"
+	},
+
+	"fonts": {
+		"plant-status-grid-small": { "size": 12, "family": ["Segoe UI", "system-ui", "Roboto", "Helvetica Neue", "Arial", "sans-serif"] },
+		"plant-status-grid-tiny": { "size": 11, "family": ["Segoe UI", "system-ui", "Roboto", "Helvetica Neue", "Arial", "sans-serif"] },
+		"plant-status-grid-name": { "size": 12, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] },
+		"plant-status-grid-badge": { "size": 9.5, "bold": true, "family": ["Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] }
+	},
+
+	"appearances": {
+
+		"plant-status-grid": {
+			"inherit": "widget",
+			"states": {
+				"default": {
+					"properties": {
+						"themeRunningColor": "plant-status-grid-running",
+						"themeReducedColor": "plant-status-grid-reduced",
+						"themeDownColor": "plant-status-grid-down",
+						"themeTurnaroundColor": "highlight",
+						"padding": [10, 12],
+						"font": "plant-status-grid-small",
+						"textColor": "windowText",
+						"backgroundColor": "window",
+						"opacity": 1
+					},
+					"styles": { "width": 0 }
+				},
+				"disabled": { "properties": { "opacity": 0.55 } }
+			},
+			"components": {
+
+				"summary": {
+					"inherit": "widget",
+					"states": {
+						"default": {
+							"properties": { "padding": [0, 0, 8, 0] },
+							"styles": { "widthBottom": 1, "colorBottom": "windowFrame", "styleBottom": "solid" }
+						}
+					}
+				},
+
+				"counts": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "plant-status-grid-small", "textColor": "grayText" } } }
+				},
+
+				"total": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "plant-status-grid-small", "textColor": "grayText" } } }
+				},
+
+				"header": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "plant-status-grid-tiny", "textColor": "grayText" } } }
+				},
+
+				"tile": {
+					"inherit": "widget",
+					"states": {
+						"default": {
+							"properties": { "padding": [5, 7], "backgroundColor": "window" },
+							"styles": { "width": 1, "color": "windowFrame", "style": "solid", "radius": 6, "shadowBlurRadius": 0, "shadowLength": 0, "inset": false }
+						},
+						"hovered": { "properties": { "backgroundColor": "menuHighlight" } },
+						"selected": {
+							"properties": { "backgroundColor": "menuHighlight", "padding": [4, 6] },
+							"styles": { "width": 2, "color": "highlight" }
+						}
+					}
+				},
+
+				"dot": {
+					"inherit": "widget",
+					"states": { "default": { "styles": { "radius": 4 } } }
+				},
+
+				"name": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "plant-status-grid-name", "textColor": "windowText" } } }
+				},
+
+				"badge": {
+					"inherit": "label",
+					"states": {
+						"default": {
+							"properties": { "font": "plant-status-grid-badge", "textColor": "grayText", "padding": [1, 4], "backgroundColor": "appWorkspace" },
+							"styles": { "width": 1, "color": "windowFrame", "style": "solid", "radius": 4 }
+						}
+					}
+				},
+
+				"track": {
+					"inherit": "widget",
+					"states": {
+						"default": {
+							"properties": { "backgroundColor": "appWorkspace" },
+							"styles": { "radius": 2 }
+						}
+					}
+				},
+
+				"bar": {
+					"inherit": "widget",
+					"states": { "default": { "styles": { "radius": 2 } } }
+				},
+
+				"rate": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "plant-status-grid-tiny", "textColor": "grayText" } } }
+				},
+
+				"empty": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "plant-status-grid-small", "textColor": "grayText", "padding": [20, 0] } } }
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,79 @@
+{
+	"name": "HedgeCoverageMeter.mixin",
+
+	// In policy follows the theme's highlight, under-hedged is the palette's red and over-hedged its amber
+	// (both GridKrafter themes define them); surfaces and borders are the theme's own.
+
+	"fonts": {
+		"hedge-coverage-meter-small": { "size": 11.5, "family": ["Segoe UI", "system-ui", "Roboto", "Helvetica Neue", "Arial", "sans-serif"] },
+		"hedge-coverage-meter-text": { "size": 12, "family": ["Segoe UI", "system-ui", "Roboto", "Helvetica Neue", "Arial", "sans-serif"] },
+		"hedge-coverage-meter-pct": { "size": 11, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] },
+		"hedge-coverage-meter-flag": { "size": 12, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] },
+		"hedge-coverage-meter-total": { "size": 28, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] }
+	},
+
+	"appearances": {
+
+		"hedge-coverage-meter": {
+			"inherit": "widget",
+			"states": {
+				"default": {
+					"properties": {
+						"themeInColor": "highlight",
+						"themeBelowColor": "red",
+						"themeAboveColor": "amber",
+						"themeOkColor": "green",
+						"padding": [12, 14],
+						"font": "hedge-coverage-meter-text",
+						"textColor": "windowText",
+						"backgroundColor": "window",
+						"opacity": 1
+					},
+					"styles": { "width": 0 }
+				},
+				"disabled": { "properties": { "opacity": 0.55 } }
+			},
+			"components": {
+
+				"title": { "inherit": "label", "states": { "default": { "properties": { "font": "hedge-coverage-meter-text", "textColor": "grayText" } } } },
+				"total": { "inherit": "label", "states": { "default": { "properties": { "font": "hedge-coverage-meter-total", "textColor": "windowText" } } } },
+				"caption": { "inherit": "label", "states": { "default": { "properties": { "font": "hedge-coverage-meter-small", "textColor": "grayText" } } } },
+				"flag": {
+					"inherit": "label",
+					"states": {
+						"default": { "properties": { "font": "hedge-coverage-meter-flag", "padding": [2, 9], "textColor": "green" }, "styles": { "radius": 10, "backgroundColor": "rgba(31,181,122,0.14)" } },
+						"ok": { "properties": { "textColor": "green" }, "styles": { "backgroundColor": "rgba(31,181,122,0.14)" } },
+						"bad": { "properties": { "textColor": "red" }, "styles": { "backgroundColor": "rgba(229,72,77,0.14)" } }
+					}
+				},
+
+				"swatch": { "inherit": "widget", "states": { "default": { "styles": { "radius": 2 } } } },
+				"legend": { "inherit": "label", "states": { "default": { "properties": { "font": "hedge-coverage-meter-small", "textColor": "grayText" } } } },
+
+				"axis": { "inherit": "label", "states": { "default": { "properties": { "font": "hedge-coverage-meter-small", "textColor": "grayText" } } } },
+				"band": { "inherit": "widget", "states": { "default": { "styles": { "radius": 0 } } } },
+				"line": { "inherit": "widget", "states": { "default": { "properties": { "backgroundColor": "windowFrame" } } } },
+
+				"column": {
+					"inherit": "widget",
+					"states": {
+						"default": { "styles": { "backgroundColor": "transparent", "radius": 5, "widthBottom": 0 } },
+						"hovered": { "styles": { "backgroundColor": "menuHighlight" } },
+						"selected": { "styles": { "backgroundColor": "menuHighlight", "widthBottom": 3, "styleBottom": "solid", "colorBottom": "highlight" } }
+					}
+				},
+				"bar": { "inherit": "widget", "states": { "default": { "styles": { "radius": 3 } } } },
+				"pct": { "inherit": "label", "states": { "default": { "properties": { "font": "hedge-coverage-meter-pct", "textColor": "windowText" } } } },
+				"month": {
+					"inherit": "label",
+					"states": {
+						"default": { "properties": { "font": "hedge-coverage-meter-small", "textColor": "grayText" } },
+						"selected": { "properties": { "textColor": "highlight" } }
+					}
+				},
+
+				"empty": { "inherit": "label", "states": { "default": { "properties": { "textColor": "grayText", "padding": [30, 0] } } } }
+			}
+		}
+	}
+}

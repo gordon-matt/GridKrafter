@@ -1,0 +1,246 @@
+{
+  "name": "QualityLotBoard",
+  "namespace": "GridKrafter.WisejDemo",
+  "fullName": "GridKrafter.WisejDemo.QualityLotBoard",
+  "language": "csharp",
+  "files": [
+    "Controls/QualityLotBoard/QualityLotBoard.cs",
+    "Controls/QualityLotBoard/gridkrafter.wisejdemo.QualityLotBoard.js",
+    "Controls/QualityLotBoard/QualityLotBoard.mixin.theme",
+    "Controls/QualityLotBoard/QualityLotBoard.bmp",
+    "GridKrafter.WisejDemo.csproj"
+  ],
+  "saved": "2026-11-13T12:47:51.8716844Z",
+  "sketch": {
+    "schema": "wisej-component-sketch/1",
+    "name": "QualityLotBoard",
+    "namespace": "",
+    "description": "A purified-ethanol quality board: lot release summary, status filter chips and a list of lots with each lab test coloured against its spec, status chip, CoA flag and a per-test detail row for the selected lot.",
+    "size": [
+      640,
+      360
+    ],
+    "html": "<div class=\"qb\">\n  <div class=\"summary\"></div>\n  <div class=\"chips\"></div>\n  <div class=\"table\">\n    <div class=\"head\"></div>\n    <div class=\"rows\"></div>\n  </div>\n</div>",
+    "css": ".qb{box-sizing:border-box;width:100%;height:100%;display:flex;flex-direction:column;gap:8px;padding:10px 12px;background:var(--window);color:var(--text);font:13px/1.4 \"Segoe UI\",system-ui,sans-serif;overflow:hidden;container-type:inline-size}\n.qb *{box-sizing:border-box}\n.summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}\n.stat{display:flex;align-items:baseline;gap:6px;padding:4px 10px;border-radius:8px;background:var(--background);min-width:0;overflow:hidden}\n.stat .n{font-size:18px;font-weight:700;letter-spacing:-.02em;line-height:1.2}\n.stat .l{color:var(--muted);font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}\n.stat.released .n{color:var(--positive)}\n.stat.hold .n{color:var(--warning)}\n.stat.fail .n{color:var(--negative)}\n.stat.coa .n{color:var(--accent)}\n.chips{display:flex;gap:4px;flex-wrap:wrap}\n.chip{padding:2px 10px;border-radius:12px;font-size:12px;font-weight:500;color:var(--muted);border:1px solid var(--border);cursor:pointer;white-space:nowrap}\n.chip:hover{background:var(--hover);color:var(--text)}\n.chip.selected{background:var(--accent);border-color:var(--accent);color:#fff}\n.chip .c{opacity:.75;margin-left:4px;font-variant-numeric:tabular-nums}\n.table{flex:1;min-height:0;display:flex;flex-direction:column;border-top:1px solid var(--border)}\n.head{display:flex;align-items:center;gap:8px;padding:5px 6px;padding-right:20px;color:var(--muted);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.03em}\n.rows{flex:1;min-height:0;overflow-y:scroll;overflow-x:hidden}\n.row{display:flex;align-items:center;gap:8px;padding:5px 6px;border-radius:6px;cursor:pointer}\n.row:hover{background:var(--hover)}\n.row.selected{background:var(--hover);box-shadow:inset 3px 0 0 var(--accent)}\n.id{flex:1;min-width:0}\n.lot{font-weight:600;white-space:nowrap}\n.meta{color:var(--muted);font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.dots{display:none;gap:3px;margin-top:2px}\n.dot{width:8px;height:8px;border-radius:50%;background:var(--positive)}\n.dot.warn{background:var(--warning)}\n.dot.bad{background:var(--negative)}\n.dot.none{background:var(--border)}\n.tests{display:flex;gap:4px}\n.cell,.th{width:54px;text-align:center;flex:none}\n.cell{padding:2px 0;border-radius:5px;font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--positive);background:color-mix(in srgb,var(--positive) 12%,transparent)}\n.cell.warn{color:var(--warning);background:color-mix(in srgb,var(--warning) 16%,transparent)}\n.cell.bad{color:var(--negative);background:color-mix(in srgb,var(--negative) 14%,transparent)}\n.cell.none{color:var(--muted);background:transparent;font-weight:400}\n.status{width:70px;flex:none;text-align:center;padding:1px 0;border-radius:10px;font-size:11.5px;font-weight:600}\n.status.released{color:var(--positive);background:color-mix(in srgb,var(--positive) 14%,transparent)}\n.status.hold{color:var(--warning);background:color-mix(in srgb,var(--warning) 18%,transparent)}\n.status.fail{color:var(--negative);background:color-mix(in srgb,var(--negative) 14%,transparent)}\n.status.pending{color:var(--muted);background:var(--background)}\n.coa{width:20px;flex:none;display:flex;justify-content:center}\n.coa svg{width:16px;height:16px}\n.coa.yes{color:var(--accent)}\n.coa.no{color:var(--border)}\n.detail{margin:2px 6px 6px 9px;padding:8px 10px;border-radius:8px;background:var(--background);display:flex;flex-direction:column;gap:3px}\n.dhead{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:2px}\n.dhead b{color:var(--text)}\n.drow{display:grid;grid-template-columns:1fr 90px 120px 14px;gap:8px;align-items:center;font-size:12px}\n.drow .t{color:var(--muted)}\n.drow .v{font-weight:600;font-variant-numeric:tabular-nums}\n.drow .v.warn{color:var(--warning)}\n.drow .v.bad{color:var(--negative)}\n.drow .v.ok{color:var(--positive)}\n.drow .s{color:var(--muted);font-variant-numeric:tabular-nums}\n.drow .m{width:8px;height:8px;border-radius:50%;background:var(--positive)}\n.drow .m.warn{background:var(--warning)}\n.drow .m.bad{background:var(--negative)}\n.drow .m.none{background:var(--border)}\n.empty{color:var(--muted);text-align:center;padding:20px 0;font-size:12px}\n@container (max-width:560px){\n  .tests,.th{display:none}\n  .head .tests{display:none}\n  .dots{display:flex}\n  .stat .l{font-size:11px}\n}\n@container (max-width:420px){\n  .coa{display:none}\n  .status{width:60px}\n  .drow{grid-template-columns:1fr 80px 100px 14px}\n}",
+    "js": "function render(root, props, fire) {\n  const esc = s => String(s == null ? '' : s).replace(/[&<>\"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]));\n  const lots = Array.isArray(props.lots) ? props.lots : [];\n  const specs = (Array.isArray(props.specs) ? props.specs : []).filter(s => s && s.test);\n  const filter = (props.statusFilter || 'all').toLowerCase();\n  const selected = props.selected || '';\n  const num = v => (v === null || v === undefined || v === '' || isNaN(+v)) ? null : +v;\n  const fmt = v => v === null ? '—' : (Math.abs(v) >= 100 ? v.toFixed(1) : Math.abs(v) >= 1 ? v.toFixed(2).replace(/\\.?0+$/, '') : v.toFixed(3).replace(/\\.?0+$/, '') || '0');\n  const STATUS = ['released', 'hold', 'fail', 'pending'];\n  const LABEL = { released: 'Released', hold: 'Hold', fail: 'Fail', pending: 'Pending' };\n  const norm = s => { s = String(s || '').toLowerCase(); return STATUS.indexOf(s) >= 0 ? s : 'pending'; };\n\n  function parse(str) {\n    const o = {};\n    String(str || '').split(';').forEach(p => { const i = p.indexOf('='); if (i > 0) { const v = num(p.slice(i + 1).trim()); if (v !== null) o[p.slice(0, i).trim().toLowerCase()] = v; } });\n    return o;\n  }\n  // state of a value against its spec: ok | warn (within 10% of a limit) | bad | none\n  function state(spec, v) {\n    if (v === undefined || v === null) return 'none';\n    const lo = num(spec.min), hi = num(spec.max);\n    if ((lo !== null && v < lo) || (hi !== null && v > hi)) return 'bad';\n    const m = (lo !== null && hi !== null) ? (hi - lo) * 0.1 : 0.1 * Math.abs(lo !== null ? lo : hi !== null ? hi : 0);\n    if ((lo !== null && v - lo <= m) || (hi !== null && hi - v <= m)) return 'warn';\n    return 'ok';\n  }\n  const specText = s => { const lo = num(s.min), hi = num(s.max); return lo !== null && hi !== null ? lo + ' – ' + hi : hi !== null ? '≤ ' + hi : lo !== null ? '≥ ' + lo : ''; };\n\n  const items = lots.filter(l => l && l.lot).map(l => ({ l: l, st: norm(l.status), r: parse(l.results) }));\n  const count = st => items.filter(i => i.st === st).length;\n  const awaiting = items.filter(i => i.st === 'released' && !i.l.coaIssued).length;\n\n  root.querySelector('.summary').innerHTML =\n    '<div class=\"stat released\"><span class=\"n\">' + count('released') + '</span><span class=\"l\">Released</span></div>' +\n    '<div class=\"stat hold\"><span class=\"n\">' + count('hold') + '</span><span class=\"l\">On hold</span></div>' +\n    '<div class=\"stat fail\"><span class=\"n\">' + count('fail') + '</span><span class=\"l\">Failed</span></div>' +\n    '<div class=\"stat coa\"><span class=\"n\">' + awaiting + '</span><span class=\"l\">Awaiting CoA</span></div>';\n\n  const chips = root.querySelector('.chips');\n  chips.innerHTML = ['all'].concat(STATUS).map(s => {\n    const c = s === 'all' ? items.length : count(s);\n    return '<span class=\"chip' + (s === filter ? ' selected' : '') + '\" data-s=\"' + s + '\">' + (s === 'all' ? 'All' : LABEL[s]) + '<span class=\"c\">' + c + '</span></span>';\n  }).join('');\n  chips.querySelectorAll('.chip').forEach(el => el.onclick = () => fire('statusFilterChanged', { status: el.dataset.s, statusFilter: el.dataset.s }));\n\n  const short = { proof: 'Proof', water: 'Water', methanol: 'MeOH', acidity: 'Acid', appearance: 'Appear' };\n  const label = s => short[String(s.test).toLowerCase()] || s.test;\n  root.querySelector('.head').innerHTML = '<span class=\"id\">Lot</span><span class=\"tests\">' +\n    specs.map(s => '<span class=\"th\" title=\"' + esc(s.test + (s.unit ? ' (' + s.unit + ')' : '')) + '\">' + esc(label(s)) + '</span>').join('') +\n    '</span><span class=\"status\">Status</span><span class=\"coa\">CoA</span>';\n\n  const check = '<svg viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M4 1.75h5.5L13 5.25v9H4z\"/><path d=\"M9.5 1.75v3.5H13\"/><path d=\"M6 10l1.6 1.6L10.8 8.2\"/></svg>';\n  const blank = '<svg viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-dasharray=\"2 2\"><path d=\"M4 1.75h5.5L13 5.25v9H4z\"/></svg>';\n\n  const shown = items.filter(i => filter === 'all' || i.st === filter);\n  const rows = root.querySelector('.rows');\n  if (!shown.length) { rows.innerHTML = '<div class=\"empty\">No lots</div>'; return; }\n  rows.innerHTML = shown.map(i => {\n    const l = i.l, sel = l.lot === selected;\n    const cells = specs.map(s => { const v = i.r[String(s.test).toLowerCase()]; return { s: s, v: v, st: state(s, v) }; });\n    let h = '<div class=\"row' + (sel ? ' selected' : '') + '\" data-lot=\"' + esc(l.lot) + '\">' +\n      '<div class=\"id\"><div class=\"lot\">' + esc(l.lot) + '</div><div class=\"meta\">' +\n      [l.plant, l.grade, l.vessel, String(l.sampled || '').replace('T', ' ').slice(5, 16)].filter(Boolean).map(esc).join(' · ') + '</div>' +\n      '<div class=\"dots\">' + cells.map(c => '<span class=\"dot ' + (c.st === 'ok' ? '' : c.st) + '\"></span>').join('') + '</div></div>' +\n      '<div class=\"tests\">' + cells.map(c => '<span class=\"cell ' + (c.st === 'ok' ? '' : c.st) + '\">' + (c.v === undefined ? '—' : fmt(c.v)) + '</span>').join('') + '</div>' +\n      '<span class=\"status ' + i.st + '\">' + LABEL[i.st] + '</span>' +\n      '<span class=\"coa ' + (l.coaIssued ? 'yes' : 'no') + '\" title=\"' + (l.coaIssued ? 'CoA issued' : 'CoA not issued') + '\">' + (l.coaIssued ? check : blank) + '</span></div>';\n    if (sel) {\n      h += '<div class=\"detail\"><div class=\"dhead\"><span><b>' + esc(l.lot) + '</b> · ' + esc(l.grade) + ' · ' + esc(l.vessel) + '</span><span>' + (l.coaIssued ? 'CoA issued' : 'CoA not issued') + '</span></div>' +\n        cells.map(c => '<div class=\"drow\"><span class=\"t\">' + esc(c.s.test) + '</span><span class=\"v ' + c.st + '\">' + (c.v === undefined ? 'not tested' : fmt(c.v) + ' ' + esc(c.s.unit || '')) + '</span><span class=\"s\">' + esc(specText(c.s)) + '</span><span class=\"m ' + (c.st === 'ok' ? '' : c.st) + '\"></span></div>').join('') + '</div>';\n    }\n    return h;\n  }).join('');\n  rows.querySelectorAll('.row').forEach(el => el.onclick = () => { const v = el.dataset.lot === selected ? '' : el.dataset.lot; fire('lotSelected', { lot: v, selected: v }); });\n}",
+    "props": [
+      {
+        "name": "lots",
+        "type": "rows",
+        "default": [
+          {
+            "lot": "PE-2611-016",
+            "plant": "Council Bluffs",
+            "grade": "Beverage 190",
+            "vessel": "Tank T-09",
+            "sampled": "2026-11-13T07:50",
+            "status": "Pending",
+            "coaIssued": false,
+            "results": ""
+          },
+          {
+            "lot": "PE-2611-015",
+            "plant": "Atchison",
+            "grade": "Industrial 200",
+            "vessel": "Railcar TILX 30551",
+            "sampled": "2026-11-13T06:30",
+            "status": "Pending",
+            "coaIssued": false,
+            "results": "proof=199.8;water=0.2"
+          },
+          {
+            "lot": "PE-2611-014",
+            "plant": "Council Bluffs",
+            "grade": "USP 200",
+            "vessel": "Tank T-12",
+            "sampled": "2026-11-12T14:20",
+            "status": "Released",
+            "coaIssued": true,
+            "results": "proof=199.9;water=0.08;methanol=42;acidity=8;appearance=2"
+          },
+          {
+            "lot": "PE-2611-013",
+            "plant": "Atchison",
+            "grade": "Beverage 190",
+            "vessel": "Tank T-07",
+            "sampled": "2026-11-12T09:05",
+            "status": "Released",
+            "coaIssued": true,
+            "results": "proof=190.1;water=4.8;methanol=95;acidity=12;appearance=3"
+          },
+          {
+            "lot": "PE-2611-012",
+            "plant": "Council Bluffs",
+            "grade": "Industrial 200",
+            "vessel": "Railcar UTLX 84213",
+            "sampled": "2026-11-11T16:40",
+            "status": "Released",
+            "coaIssued": false,
+            "results": "proof=199.8;water=0.15;methanol=118;acidity=19;appearance=4"
+          },
+          {
+            "lot": "PE-2611-011",
+            "plant": "Albion",
+            "grade": "USP 200",
+            "vessel": "Tank T-03",
+            "sampled": "2026-11-11T10:30",
+            "status": "Hold",
+            "coaIssued": false,
+            "results": "proof=199.6;water=0.35;methanol=186;acidity=22;appearance=5"
+          },
+          {
+            "lot": "PE-2611-010",
+            "plant": "Atchison",
+            "grade": "Beverage 190",
+            "vessel": "Tank T-08",
+            "sampled": "2026-11-10T15:15",
+            "status": "Fail",
+            "coaIssued": false,
+            "results": "proof=188.2;water=6.4;methanol=71;acidity=14;appearance=6"
+          },
+          {
+            "lot": "PE-2611-009",
+            "plant": "Council Bluffs",
+            "grade": "USP 200",
+            "vessel": "Railcar GATX 60917",
+            "sampled": "2026-11-10T08:50",
+            "status": "Released",
+            "coaIssued": true,
+            "results": "proof=200.0;water=0.05;methanol=31;acidity=6;appearance=1"
+          },
+          {
+            "lot": "PE-2611-008",
+            "plant": "Albion",
+            "grade": "Industrial 200",
+            "vessel": "Tank T-05",
+            "sampled": "2026-11-09T13:00",
+            "status": "Released",
+            "coaIssued": false,
+            "results": "proof=199.7;water=0.22;methanol=140;acidity=27;appearance=7"
+          },
+          {
+            "lot": "PE-2611-007",
+            "plant": "Atchison",
+            "grade": "Beverage 190",
+            "vessel": "Tank T-07",
+            "sampled": "2026-11-09T07:45",
+            "status": "Released",
+            "coaIssued": true,
+            "results": "proof=189.6;water=5.4;methanol=60;acidity=9;appearance=2"
+          },
+          {
+            "lot": "PE-2611-006",
+            "plant": "Council Bluffs",
+            "grade": "USP 200",
+            "vessel": "Tank T-12",
+            "sampled": "2026-11-08T11:10",
+            "status": "Fail",
+            "coaIssued": false,
+            "results": "proof=199.5;water=0.4;methanol=214;acidity=17;appearance=4"
+          },
+          {
+            "lot": "PE-2611-005",
+            "plant": "Albion",
+            "grade": "USP 190",
+            "vessel": "Tank T-01",
+            "sampled": "2026-11-08T09:00",
+            "status": "Released",
+            "coaIssued": true,
+            "results": "proof=190.3;water=4.7;methanol=48;acidity=11;appearance=3"
+          }
+        ],
+        "description": "Lots: { lot, plant, grade, vessel, sampled, status (Released/Hold/Fail/Pending), coaIssued, results } where results is compact text: test=value;test=value."
+      },
+      {
+        "name": "specs",
+        "type": "rows",
+        "default": [
+          {
+            "test": "Proof",
+            "unit": "proof",
+            "min": 188,
+            "max": 202
+          },
+          {
+            "test": "Water",
+            "unit": "% w/w",
+            "min": null,
+            "max": 6
+          },
+          {
+            "test": "Methanol",
+            "unit": "mg/L",
+            "min": null,
+            "max": 200
+          },
+          {
+            "test": "Acidity",
+            "unit": "mg/L",
+            "min": null,
+            "max": 30
+          },
+          {
+            "test": "Appearance",
+            "unit": "APHA",
+            "min": null,
+            "max": 10
+          }
+        ],
+        "description": "Test limits: { test, unit, min, max }. A value is out of spec beyond a limit and amber within 10% of it. The test name matches the key in a lot's results."
+      },
+      {
+        "name": "statusFilter",
+        "type": "string",
+        "default": "all",
+        "description": "Shows only lots of this status: all, released, hold, fail or pending."
+      },
+      {
+        "name": "selected",
+        "type": "string",
+        "default": "",
+        "description": "Lot number of the selected lot, whose per-test detail is shown."
+      }
+    ],
+    "events": [
+      {
+        "name": "lotSelected",
+        "payload": {
+          "lot": "string",
+          "selected": "string"
+        },
+        "sets": [
+          "selected"
+        ]
+      },
+      {
+        "name": "statusFilterChanged",
+        "payload": {
+          "status": "string",
+          "statusFilter": "string"
+        },
+        "sets": [
+          "statusFilter"
+        ]
+      }
+    ],
+    "tokens": {
+      "accent": "#6d4dff",
+      "positive": "#1fb57a",
+      "negative": "#e5484d",
+      "warning": "#e0a100",
+      "window": "#ffffff",
+      "background": "#f3f4f7",
+      "text": "#171a21",
+      "muted": "#5f6878",
+      "border": "#e1e4ea",
+      "hover": "#eeeaff"
+    },
+    "dependencies": [],
+    "notes": "Simple control (rows, no items collections). Parts: the board, the lot-selected and filter-changed event args, enums none (status as text), client class, theme mixin, icon. Results kept as compact \"test=value;test=value\" text (rows cannot nest), parsed client-side; the server passes it through. Amber margin: 10% of the band (min..max) or of the single limit. Test name keys are matched case-insensitively. Narrow (<560px) shows colour dots instead of test cells.",
+    "filledByAgent": true,
+    "icon": {
+      "rgba": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB+1esgftXr/H7V6/x+1ev8ftXr/H7V6/x+1ev8ftXr/H7V6/ya3fv9Wx5v/ILV6yAAAAAAAAAAAAAAAAAAAAAAftXr/H7V6/x+1ev8ftXr/H7V6/x+1ev8ftXr/H7V6/x+1ev+D1rX//////1bHm/8AAAAAAAAAAAAAAAAAAAAAH7V65x+1ev8ftXr/H7V6/x+1ev8ftXr/H7V6/x+1ev8ftXr/Nr2I/4PWtf8nuH/nAAAAAAAAAAAAAAAAAAAAAB+1ehUftXozH7V6Mx+1ejMftXozH7V6Mx+1ejMftXozH7V6Mx+1ejMftXozH7V6FQAAAAAAAAAAAAAAAAAAAADgoQBl4KEAmeChAJngoQCZ4KEAmeChAJngoQCZ4KEAmeChAJngoQCZ4KEAmeChAGUAAAAAAAAAAAAAAAAAAAAA4KEA/OChAP/goQD/4KEA/+ChAP/goQD/4KEA/+ChAP/goQD/6b1L//rw1//kryX8AAAAAAAAAAAAAAAAAAAAAOChAPzgoQD/4KEA/+ChAP/goQD/4KEA/+ChAP/goQD/4KEA/+m9S//68Nf/5K8l/AAAAAAAAAAAAAAAAAAAAADgoQBl4KEAmeChAJngoQCZ4KEAmeChAJngoQCZ4KEAmeChAJngoQCZ4KEAmeChAGUAAAAAAAAAAAAAAAAAAAAA5UhNFeVITTPlSE0z5UhNM+VITTPlSE0z5UhNM+VITTPlSE0z5UhNM+VITTPlSE0VAAAAAAAAAAAAAAAAAAAAAOVITeflSE3/5UhN/+VITf/lSE3/5UhN/+VITf/lSE3/5UhN/+hbX//xmpz/5k5T5wAAAAAAAAAAAAAAAAAAAADlSE3/5UhN/+VITf/lSE3/5UhN/+VITf/lSE3/5UhN/+VITf/xmpz//////+t1ef8AAAAAAAAAAAAAAAAAAAAA5UhNyOVITf/lSE3/5UhN/+VITf/lSE3/5UhN/+VITf/lSE3/5k5T/+t1ef/lSU7IAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 16 16\"><rect x=\"2\" y=\"2\" width=\"12\" height=\"3.2\" rx=\"1\" fill=\"#1fb57a\"/><rect x=\"2\" y=\"6.4\" width=\"12\" height=\"3.2\" rx=\"1\" fill=\"#e0a100\"/><rect x=\"2\" y=\"10.8\" width=\"12\" height=\"3.2\" rx=\"1\" fill=\"#e5484d\"/><circle cx=\"12.4\" cy=\"3.6\" r=\"0.9\" fill=\"#fff\"/><circle cx=\"12.4\" cy=\"8\" r=\"0.9\" fill=\"#fff\"/><circle cx=\"12.4\" cy=\"12.4\" r=\"0.9\" fill=\"#fff\"/></svg>"
+    }
+  }
+}

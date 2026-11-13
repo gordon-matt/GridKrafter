@@ -1,0 +1,14 @@
+{
+  "id": "quality-lot-board",
+  "name": "Quality lot board",
+  "purpose": "A purified-ethanol quality board: lot release summary, status filter chips and a list of lots with each lab test coloured against its spec, status chip, CoA flag and a per-test detail row for the selected lot.",
+  "keywords": [
+    "quality lot board",
+    "qualitylotboard"
+  ],
+  "control": "QualityLotBoard",
+  "type": "GridKrafter.WisejDemo.QualityLotBoard",
+  "extends": null,
+  "component": null,
+  "preview": "<div data-wisej-pattern=\"quality-lot-board\"><div class=\"qb\">\n  <div class=\"summary\"></div>\n  <div class=\"chips\"></div>\n  <div class=\"table\">\n    <div class=\"head\"></div>\n    <div class=\"rows\"></div>\n  </div>\n</div></div>"
+}

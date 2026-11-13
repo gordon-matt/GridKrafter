@@ -1,0 +1,14 @@
+{
+  "id": "lifting-schedule-tracker",
+  "name": "Lifting schedule tracker",
+  "purpose": "A planned-versus-actual tracker: each row shows a planned amount as a track, the actual as its fill and a pace marker for how far along the period is, with a computed Ahead / On pace / Behind / Over status; sortable, with a total line.",
+  "keywords": [
+    "lifting schedule tracker",
+    "liftingscheduletracker"
+  ],
+  "control": "LiftingScheduleTracker",
+  "type": "GridKrafter.WisejDemo.LiftingScheduleTracker",
+  "extends": null,
+  "component": null,
+  "preview": "<div data-wisej-pattern=\"lifting-schedule-tracker\"><div class=\"lt\">\n  <div class=\"head\">\n    <div class=\"titles\"><span class=\"title\"></span><span class=\"period\"></span></div>\n    <div class=\"total\"></div>\n  </div>\n  <div class=\"cols\">\n    <span class=\"col c-label\" data-sort=\"label\">Name</span>\n    <span class=\"col c-bar\"><span class=\"pacekey\"><i></i>Pace</span></span>\n    <span class=\"col c-amt\"></span>\n    <span class=\"col c-pct\" data-sort=\"percent\">%</span>\n    <span class=\"col c-chip\" data-sort=\"variance\">Status</span>\n  </div>\n  <div class=\"rows\"></div>\n</div></div>"
+}

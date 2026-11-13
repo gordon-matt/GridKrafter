@@ -1,0 +1,133 @@
+{
+	"name": "FreightLaneMatrix.mixin",
+
+	// the cheapest mode and the trends use the GridKrafter palette's green and red, which the Light and
+	// Dark themes both define; surfaces, text and borders are the theme's own colours.
+
+	"colors": {
+		"freight-lane-matrix-best-background": "rgba(31,181,122,0.14)",
+		"freight-lane-matrix-best-border": "rgba(31,181,122,0.55)",
+		"freight-lane-matrix-aging1-background": "rgba(229,72,77,0.12)",
+		"freight-lane-matrix-aging2-background": "rgba(229,72,77,0.22)",
+		"freight-lane-matrix-aging3-background": "rgba(229,72,77,0.32)"
+	},
+
+	"fonts": {
+		"freight-lane-matrix-small": { "size": 11.5, "family": ["Segoe UI", "system-ui", "Roboto", "Helvetica Neue", "Arial", "sans-serif"] },
+		"freight-lane-matrix-text": { "size": 13, "family": ["Segoe UI", "system-ui", "Roboto", "Helvetica Neue", "Arial", "sans-serif"] },
+		"freight-lane-matrix-strong": { "size": 13, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] },
+		"freight-lane-matrix-title": { "size": 13, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] },
+		"freight-lane-matrix-column": { "size": 11.5, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] },
+		"freight-lane-matrix-tiny": { "size": 11, "family": ["Segoe UI", "system-ui", "Roboto", "Helvetica Neue", "Arial", "sans-serif"] },
+		"freight-lane-matrix-tiny-strong": { "size": 11, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] },
+		"freight-lane-matrix-figure": { "size": 15, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] }
+	},
+
+	"appearances": {
+
+		"freight-lane-matrix": {
+			"inherit": "widget",
+			"states": {
+				"default": {
+					"properties": {
+						"themePositiveColor": "green",
+						"themeNegativeColor": "red",
+						"padding": [10, 12],
+						"font": "freight-lane-matrix-text",
+						"textColor": "windowText",
+						"backgroundColor": "window",
+						"opacity": 1
+					},
+					"styles": { "width": 0 }
+				},
+				"disabled": { "properties": { "opacity": 0.55 } }
+			},
+			"components": {
+
+				"title": { "inherit": "label", "states": { "default": { "properties": { "font": "freight-lane-matrix-title", "textColor": "windowText" } } } },
+				"unit": { "inherit": "label", "states": { "default": { "properties": { "font": "freight-lane-matrix-small", "textColor": "grayText" } } } },
+
+				"modes": {
+					"inherit": "widget",
+					"states": { "default": { "properties": { "padding": 2 }, "styles": { "backgroundColor": "appWorkspace", "radius": 8 } } }
+				},
+				"mode-button": {
+					"inherit": "label",
+					"states": {
+						"default": {
+							"properties": { "font": "freight-lane-matrix-small", "textColor": "grayText", "padding": [2, 10] },
+							"styles": { "backgroundColor": "transparent", "radius": 6, "shadowBlurRadius": 0, "shadowLength": 0 }
+						},
+						"hovered": { "properties": { "textColor": "windowText" } },
+						"selected": {
+							"properties": { "textColor": "highlight" },
+							"styles": { "backgroundColor": "window", "radius": 6, "shadowColor": "rgba(20,20,50,0.12)", "shadowBlurRadius": 2, "shadowLength": 1 }
+						}
+					}
+				},
+
+				"matrix": {
+					"inherit": "widget",
+					"states": { "default": { "styles": { "widthTop": 1, "styleTop": "solid", "colorTop": "windowFrame" } } }
+				},
+				"columns": {
+					"inherit": "widget",
+					"states": { "default": { "properties": { "padding": [6, 6, 4, 6] } } }
+				},
+				"column": { "inherit": "label", "states": { "default": { "properties": { "font": "freight-lane-matrix-column", "textColor": "grayText" } } } },
+
+				"lane": {
+					"inherit": "widget",
+					"states": {
+						"default": {
+							"properties": { "padding": [5, 6] },
+							"styles": { "backgroundColor": "transparent", "radius": 6, "widthBottom": 1, "styleBottom": "solid", "colorBottom": "windowFrame", "widthLeft": 0 }
+						},
+						"hovered": { "styles": { "backgroundColor": "menuHighlight" } },
+						"selected": { "styles": { "backgroundColor": "menuHighlight", "widthLeft": 3, "styleLeft": "solid", "colorLeft": "highlight" } }
+					}
+				},
+				"lane-name": { "inherit": "label", "states": { "default": { "properties": { "font": "freight-lane-matrix-strong", "textColor": "windowText" } } } },
+
+				"cell": {
+					"inherit": "widget",
+					"states": {
+						"default": {
+							"properties": { "padding": [3, 4] },
+							"styles": { "backgroundColor": "transparent", "width": 1, "style": "solid", "color": "transparent", "radius": 7 }
+						},
+						"best": {
+							"styles": { "backgroundColor": "freight-lane-matrix-best-background", "color": "freight-lane-matrix-best-border" }
+						},
+						"unavailable": { "properties": { "padding": [8, 4], "opacity": 0.6 } }
+					}
+				},
+				"cell-rate": { "inherit": "label", "states": { "default": { "properties": { "font": "freight-lane-matrix-strong", "textColor": "windowText" } } } },
+				"cell-days": { "inherit": "label", "states": { "default": { "properties": { "font": "freight-lane-matrix-tiny", "textColor": "grayText" } } } },
+				"cell-trend": { "inherit": "label", "states": { "default": { "properties": { "font": "freight-lane-matrix-tiny-strong", "textColor": "grayText" } } } },
+
+				"demurrage": {
+					"inherit": "widget",
+					"states": { "default": { "properties": { "padding": [6, 0, 0, 0] }, "styles": { "widthTop": 1, "styleTop": "solid", "colorTop": "windowFrame" } } }
+				},
+				"demurrage-title": { "inherit": "label", "states": { "default": { "properties": { "font": "freight-lane-matrix-small", "textColor": "grayText" } } } },
+				"demurrage-total": { "inherit": "label", "states": { "default": { "properties": { "font": "freight-lane-matrix-small", "textColor": "windowText" } } } },
+
+				"bucket": {
+					"inherit": "widget",
+					"states": {
+						"default": { "properties": { "padding": [5, 8] }, "styles": { "backgroundColor": "appWorkspace", "width": 1, "style": "solid", "color": "windowFrame", "radius": 8 } },
+						"level1": { "styles": { "backgroundColor": "freight-lane-matrix-aging1-background" } },
+						"level2": { "styles": { "backgroundColor": "freight-lane-matrix-aging2-background" } },
+						"level3": { "styles": { "backgroundColor": "freight-lane-matrix-aging3-background" } }
+					}
+				},
+				"bucket-label": { "inherit": "label", "states": { "default": { "properties": { "font": "freight-lane-matrix-tiny-strong", "textColor": "grayText" } } } },
+				"bucket-cars": { "inherit": "label", "states": { "default": { "properties": { "font": "freight-lane-matrix-figure", "textColor": "windowText" } } } },
+				"bucket-amount": { "inherit": "label", "states": { "default": { "properties": { "font": "freight-lane-matrix-tiny", "textColor": "grayText" } } } },
+
+				"empty": { "inherit": "label", "states": { "default": { "properties": { "textColor": "grayText", "padding": [24, 0] } } } }
+			}
+		}
+	}
+}
