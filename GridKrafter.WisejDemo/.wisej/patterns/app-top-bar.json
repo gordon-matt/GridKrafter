@@ -1,0 +1,14 @@
+{
+  "id": "app-top-bar",
+  "name": "App top bar",
+  "purpose": "The enterprise application top bar: breadcrumb, data freshness, global search, environment badge, alerts bell and the signed-in user, 48 px high and docked to the top.",
+  "keywords": [
+    "app top bar",
+    "apptopbar"
+  ],
+  "control": "AppTopBar",
+  "type": "GridKrafter.WisejDemo.AppTopBar",
+  "extends": null,
+  "component": null,
+  "preview": "<div data-wisej-pattern=\"app-top-bar\"><div class=\"bar\">\n  <nav class=\"crumbs\" aria-label=\"Breadcrumb\"></nav>\n  <div class=\"asof\"><span class=\"dot\"></span><span class=\"asof-text\"></span></div>\n  <div class=\"spacer\"></div>\n  <div class=\"search\">\n    <svg class=\"mag\" viewBox=\"0 0 16 16\" aria-hidden=\"true\"><circle cx=\"7\" cy=\"7\" r=\"4.5\"/><path d=\"M10.4 10.4 L14 14\"/></svg>\n    <input class=\"search-input\" type=\"text\" spellcheck=\"false\">\n  </div>\n  <button class=\"search-button\" type=\"button\" title=\"Search\"><svg viewBox=\"0 0 16 16\" aria-hidden=\"true\"><circle cx=\"7\" cy=\"7\" r=\"4.5\"/><path d=\"M10.4 10.4 L14 14\"/></svg></button>\n  <span class=\"env\"></span>\n  <button class=\"bell\" type=\"button\" title=\"Alerts\"><svg viewBox=\"0 0 16 16\" aria-hidden=\"true\"><path d=\"M4 11.5V7.2a4 4 0 0 1 8 0v4.3l1.2 1.3H2.8z\"/><path d=\"M6.6 14.2a1.5 1.5 0 0 0 2.8 0\"/></svg><span class=\"badge\"></span></button>\n  <button class=\"user\" type=\"button\" title=\"Account\">\n    <span class=\"avatar\"></span>\n    <span class=\"who\"><span class=\"name\"></span><span class=\"role\"></span></span>\n    <svg class=\"chev\" viewBox=\"0 0 16 16\" aria-hidden=\"true\"><path d=\"M4.5 6.5 L8 10 L11.5 6.5\"/></svg>\n  </button>\n</div></div>"
+}

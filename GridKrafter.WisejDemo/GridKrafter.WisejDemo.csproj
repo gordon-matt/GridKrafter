@@ -366,4 +366,21 @@
     </EmbeddedResource>
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- AppTopBar: its files, each embedded under the name Wisej.NET or the Toolbox reads it by (added by Component Studio) -->
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\AppTopBar\AppTopBar.mixin.theme">
+      <DependentUpon>AppTopBar.cs</DependentUpon>
+      <LogicalName>$(RootNamespace).Themes.AppTopBar.mixin.theme</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\AppTopBar\AppTopBar.bmp">
+      <DependentUpon>AppTopBar.cs</DependentUpon>
+      <LogicalName>GridKrafter.WisejDemo.AppTopBar.bmp</LogicalName>
+    </EmbeddedResource>
+    <None Remove="$(MSBuildThisFileDirectory)Controls\AppTopBar\gridkrafter.wisejdemo.AppTopBar.js" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\AppTopBar\gridkrafter.wisejdemo.AppTopBar.js">
+      <DependentUpon>AppTopBar.cs</DependentUpon>
+      <LogicalName>$(RootNamespace).Platform.gridkrafter.wisejdemo.AppTopBar.js</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
 </Project>
