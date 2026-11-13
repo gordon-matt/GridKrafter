@@ -301,7 +301,15 @@
     "navbar-background-selected": "#2A2550",
     "navbar-text": "#8D96A0",
     "navbar-text-hover": "#E6EDF3",
-    "navbar-text-selected": "#A796FF"
+    "navbar-text-selected": "#A796FF",
+    "segment-text": "#E6EDF3",
+    "segment-track": "#0E1218",
+    "segment-selected": "#2A3242",
+    "segment-border": "#262C36",
+    "segment-primary": "#8B74FF",
+    "segment-pill": "#1C222B",
+    "segment-pill-text": "#C9D1DB",
+    "segment-shadow": "#000000"
   },
   "appearances": {
     "accordion": {
