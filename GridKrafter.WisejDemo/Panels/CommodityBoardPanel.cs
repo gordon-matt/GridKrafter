@@ -4,6 +4,7 @@ using GridKrafter.Models;
 using GridKrafter.WisejDemo.Controls;
 using GridKrafter.WisejDemo.Services;
 using GridKrafter.WisejDemo.Services.Commodities;
+using GridKrafter.WisejDemo.Services.Shell;
 using GridKrafter.WisejDemo.Widgets;
 using Wisej.Web;
 
@@ -83,13 +84,11 @@ namespace GridKrafter.WisejDemo.Panels
 			this.board.ResumeLayout(true);
 		}
 
-		// The board is a centred column at most 1080 pixels wide, as on the Dashboard; the filter bar sits in it.
+		// The board fills the width with the shell's gutters: 24 pixels, 12 on a phone; the filter bar sits above it.
 		private void CenterBoard()
 		{
-			const int MAX_WIDTH = 1080;
-			int SIDE = this.Width < 600 ? 4 : 24;
-			int extra = Math.Max(0, (this.Width - 2 * SIDE - MAX_WIDTH) / 2);
-			this.Padding = new Padding(SIDE + extra, 12, SIDE + extra, 20);
+			int side = this.Width < 600 ? 12 : 24;
+			this.Padding = new Padding(side, 12, side, 20);
 		}
 
 		private void CommodityBoardPanel_Resize(object sender, EventArgs e)
@@ -99,7 +98,30 @@ namespace GridKrafter.WisejDemo.Panels
 
 		private void filterBar_FilterChanged(object sender, EventArgs e)
 		{
-			this.filter = this.filterBar.Filter;
+			ApplyFilter(this.filterBar.Filter);
+		}
+
+		/// <summary>
+		/// Makes the board that opens next show only this plant (or every plant for <see langword="null"/>), as
+		/// choosing it in the filter bar does; the filter follows the user from board to board.
+		/// </summary>
+		public static void RememberPlant(string plantId)
+		{
+			Application.Session[FILTER_KEY] = plantId == null ? PlantFilter.All : PlantFilter.ForPlant(plantId);
+		}
+
+		/// <summary>Shows only this plant (or every plant for <see langword="null"/>) on the board on show.</summary>
+		public void ShowPlant(string plantId)
+		{
+			var filter = plantId == null ? PlantFilter.All : PlantFilter.ForPlant(plantId);
+			this.filterBar.Filter = filter;
+			ApplyFilter(filter);
+		}
+
+		// Keeps the filter for the session and fills every widget again for its plants.
+		private void ApplyFilter(PlantFilter filter)
+		{
+			this.filter = filter ?? PlantFilter.All;
 			Application.Session[FILTER_KEY] = this.filter;
 
 			// every widget shows the new plants
@@ -107,6 +129,7 @@ namespace GridKrafter.WisejDemo.Panels
 				RefreshWidget(widget);
 
 			BoardEvents.Write("filter", this.filter.Describe());
+			DataClock.Touch();
 		}
 
 		private void board_ResetRequested(object sender, EventArgs e)
@@ -261,6 +284,7 @@ namespace GridKrafter.WisejDemo.Panels
 		{
 			// with the filter the bar shows, not the board's first one
 			RefreshWidget(e.Widget);
+			DataClock.Touch();
 		}
 
 		// Fills a widget's body again for the current filter.
@@ -287,6 +311,7 @@ namespace GridKrafter.WisejDemo.Panels
 			{
 				BoardStore.Save(this.definition.Key, this.board.ToBoard());
 				BoardEvents.Status = "Saved on the server at " + DateTime.Now.ToLongTimeString() + ".";
+				DataClock.Touch();
 			}
 			catch (Exception ex)
 			{

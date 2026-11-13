@@ -5,6 +5,7 @@ using GridKrafter.Models;
 using GridKrafter.WisejDemo.Controls;
 using GridKrafter.WisejDemo.Model;
 using GridKrafter.WisejDemo.Services;
+using GridKrafter.WisejDemo.Services.Shell;
 using GridKrafter.WisejDemo.Widgets;
 using Wisej.Web;
 
@@ -56,13 +57,11 @@ namespace GridKrafter.WisejDemo.Panels
 			this.board.ResumeLayout(true);
 		}
 
-		// The board is a centred column at most 1080 pixels wide, as on the MVC page.
+		// The board fills the width with the shell's gutters: 24 pixels, 12 on a phone.
 		private void CenterBoard()
 		{
-			const int MAX_WIDTH = 1080;
-			int SIDE = this.Width < 600 ? 4 : 24;
-			int extra = Math.Max(0, (this.Width - 2 * SIDE - MAX_WIDTH) / 2);
-			this.Padding = new Padding(SIDE + extra, 12, SIDE + extra, 20);
+			int side = this.Width < 600 ? 12 : 24;
+			this.Padding = new Padding(side, 12, side, 20);
 		}
 
 		private void HomePanel_Resize(object sender, EventArgs e)
@@ -216,6 +215,8 @@ namespace GridKrafter.WisejDemo.Panels
 
 			if (e.Widget.RefreshInterval > 0)
 				e.Widget.FooterText = LastUpdated();
+
+			DataClock.Touch();
 		}
 
 		private void timerSave_Tick(object sender, EventArgs e)
@@ -226,6 +227,7 @@ namespace GridKrafter.WisejDemo.Panels
 			{
 				BoardStore.Save(this.board.ToBoard());
 				BoardEvents.Status = "Saved on the server at " + DateTime.Now.ToLongTimeString() + ".";
+				DataClock.Touch();
 			}
 			catch (Exception ex)
 			{

@@ -1,0 +1,198 @@
+{
+	"name": "AppTopBar.mixin",
+
+	// the GridKrafter palette: surfaces, text, borders, hover and the accent are the theme's own
+	// colours so the bar follows Light and Dark; only the status colours are the bar's.
+	"colors": {
+		"app-top-bar-success": "#1fb57a",
+		"app-top-bar-warning": "#f5a524",
+		"app-top-bar-warning-text": "#1f1600",
+		"app-top-bar-info": "#3b82f6",
+		"app-top-bar-danger": "#e5484d",
+		"app-top-bar-accent-text": "#ffffff"
+	},
+
+	"fonts": {
+		"app-top-bar-text": { "size": 13, "family": ["Segoe UI", "system-ui", "Roboto", "Helvetica Neue", "Arial", "sans-serif"] },
+		"app-top-bar-small": { "size": 12, "family": ["Segoe UI", "system-ui", "Roboto", "Helvetica Neue", "Arial", "sans-serif"] },
+		"app-top-bar-tiny": { "size": 11, "family": ["Segoe UI", "system-ui", "Roboto", "Helvetica Neue", "Arial", "sans-serif"] },
+		"app-top-bar-strong": { "size": 13, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] },
+		"app-top-bar-name": { "size": 12.5, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] },
+		"app-top-bar-badge": { "size": 10, "bold": true, "family": ["Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] },
+		"app-top-bar-pill": { "size": 11, "bold": true, "family": ["Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] }
+	},
+
+	"appearances": {
+
+		"app-top-bar": {
+			"inherit": "widget",
+			"states": {
+				"default": {
+					"properties": {
+						"padding": [0, 16],
+						"font": "app-top-bar-text",
+						"textColor": "windowText",
+						"backgroundColor": "window",
+						"opacity": 1
+					},
+					"styles": { "width": 0, "widthBottom": 1, "colorBottom": "windowFrame", "styleBottom": "solid" }
+				},
+				"disabled": { "properties": { "opacity": 0.55 } }
+			},
+			"components": {
+
+				"crumbs": {
+					"inherit": "widget",
+					"states": { "default": { "properties": { "backgroundColor": "transparent" } } }
+				},
+
+				"crumb": {
+					"inherit": "label",
+					"states": {
+						"default": { "properties": { "font": "app-top-bar-text", "textColor": "grayText", "padding": [2, 2] } },
+						"hovered": { "properties": { "textColor": "highlight" } },
+						"selected": { "properties": { "font": "app-top-bar-strong", "textColor": "windowText" } }
+					}
+				},
+
+				"separator": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "app-top-bar-text", "textColor": "grayText", "opacity": 0.7 } } }
+				},
+
+				"dot": {
+					"inherit": "widget",
+					"states": {
+						"default": { "styles": { "backgroundColor": "app-top-bar-success", "radius": 4 } },
+						"stale": { "styles": { "backgroundColor": "app-top-bar-warning", "radius": 4 } }
+					}
+				},
+
+				"as-of": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "app-top-bar-small", "textColor": "grayText" } } }
+				},
+
+				"search": {
+					"inherit": "widget",
+					"states": {
+						"default": {
+							"properties": { "padding": [0, 10] },
+							"styles": { "backgroundColor": "appWorkspace", "radius": 6, "width": 1, "color": "windowFrame", "style": "solid" }
+						},
+						"focused": {
+							"styles": { "backgroundColor": "window", "radius": 6, "width": 1, "color": "highlight", "style": "solid" }
+						}
+					}
+				},
+
+				"search-icon": {
+					"inherit": "widget",
+					"states": { "default": { "properties": { "textColor": "grayText", "backgroundColor": "transparent" } } }
+				},
+
+				"search-input": {
+					"inherit": "textfield",
+					"states": {
+						"default": {
+							"properties": { "font": "app-top-bar-text", "textColor": "windowText", "padding": [0, 0], "backgroundColor": "transparent" },
+							"styles": { "width": 0, "backgroundColor": "transparent", "radius": 0, "shadowBlurRadius": 0, "shadowLength": 0 }
+						},
+						"focused": {
+							"styles": { "width": 0, "backgroundColor": "transparent", "shadowBlurRadius": 0, "shadowLength": 0 }
+						},
+						"hovered": {
+							"styles": { "width": 0, "backgroundColor": "transparent" }
+						}
+					}
+				},
+
+				"icon-button": {
+					"inherit": "widget",
+					"states": {
+						"default": {
+							"properties": { "width": 32, "height": 32, "textColor": "windowText" },
+							"styles": { "backgroundColor": "transparent", "radius": 6, "width": 0 }
+						},
+						"hovered": { "styles": { "backgroundColor": "menuHighlight", "radius": 6 } },
+						"focused": { "styles": { "backgroundColor": "menuHighlight", "radius": 6 } }
+					}
+				},
+
+				"icon": {
+					"inherit": "widget",
+					"states": { "default": { "properties": { "backgroundColor": "transparent" } } }
+				},
+
+				"badge": {
+					"inherit": "label",
+					"states": {
+						"default": {
+							"properties": { "font": "app-top-bar-badge", "textColor": "app-top-bar-accent-text", "padding": [1, 4] },
+							"styles": { "backgroundColor": "app-top-bar-danger", "radius": 8, "width": 1.5, "color": "window", "style": "solid" }
+						}
+					}
+				},
+
+				"env": {
+					"inherit": "label",
+					"states": {
+						"default": {
+							"properties": { "font": "app-top-bar-pill", "padding": [3, 8], "textColor": "windowText" },
+							"styles": { "radius": 11, "width": 1, "color": "transparent", "style": "solid", "backgroundColor": "transparent" }
+						},
+						"uat": {
+							"properties": { "textColor": "app-top-bar-warning-text" },
+							"styles": { "backgroundColor": "app-top-bar-warning", "color": "app-top-bar-warning" }
+						},
+						"dev": {
+							"properties": { "textColor": "app-top-bar-accent-text" },
+							"styles": { "backgroundColor": "app-top-bar-info", "color": "app-top-bar-info" }
+						},
+						"prod": {
+							"properties": { "textColor": "app-top-bar-danger" },
+							"styles": { "backgroundColor": "transparent", "color": "app-top-bar-danger" }
+						}
+					}
+				},
+
+				"user": {
+					"inherit": "widget",
+					"states": {
+						"default": {
+							"properties": { "height": 36, "padding": [0, 6, 0, 2], "textColor": "windowText" },
+							"styles": { "backgroundColor": "transparent", "radius": 6, "width": 0 }
+						},
+						"hovered": { "styles": { "backgroundColor": "menuHighlight", "radius": 6 } },
+						"focused": { "styles": { "backgroundColor": "menuHighlight", "radius": 6 } }
+					}
+				},
+
+				"avatar": {
+					"inherit": "widget",
+					"states": { "default": { "styles": { "backgroundColor": "highlight", "radius": 15 } } }
+				},
+
+				"initials": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "app-top-bar-small", "textColor": "highlightText" } } }
+				},
+
+				"name": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "app-top-bar-name", "textColor": "windowText" } } }
+				},
+
+				"role": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "app-top-bar-tiny", "textColor": "grayText" } } }
+				},
+
+				"chevron": {
+					"inherit": "widget",
+					"states": { "default": { "properties": { "textColor": "grayText", "backgroundColor": "transparent" } } }
+				}
+			}
+		}
+	}
+}
