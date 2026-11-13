@@ -174,12 +174,30 @@ namespace GridKrafter.WisejDemo
 		{
 			int width = this.panelTop.ClientSize.Width;
 			int side = width < 600 ? 12 : 24;
-			int textWidth = Math.Max(120, width - 2 * side);
+
+			// the board's actions sit at the right of the title on a wide screen, under the subtitle on a narrow one
+			var actions = BoardActionButtons().Where(b => b.Visible).ToList();
+			int actionsWidth = actions.Sum(b => b.Width) + Math.Max(0, actions.Count - 1) * 8;
+			bool actionsBeside = actions.Count > 0 && width - 2 * side - actionsWidth >= 360;
+			int textWidth = Math.Max(120, width - 2 * side - (actionsBeside ? actionsWidth + 16 : 0));
 
 			this.labelTitle.Location = new System.Drawing.Point(side, 12);
 			this.labelSubtitle.Location = new System.Drawing.Point(side, this.labelTitle.Bottom + 2);
 			this.labelSubtitle.Width = textWidth;
 			int bottom = this.labelSubtitle.Bottom;
+
+			if (actions.Count > 0)
+			{
+				int x = actionsBeside ? width - side - actionsWidth : side;
+				int y = actionsBeside ? 14 : bottom + 10;
+				foreach (var button in actions)
+				{
+					button.Location = new System.Drawing.Point(x, y);
+					x += button.Width + 8;
+				}
+				if (!actionsBeside)
+					bottom = y + actions[0].Height;
+			}
 
 			if (DemoNotes.Enabled)
 			{
@@ -286,6 +304,103 @@ namespace GridKrafter.WisejDemo
 			DataClock.Changed -= this.DataClock_Changed;
 		}
 
+		#region Board actions on the title row
+
+		// The board of the page on show, or null on a page without one.
+		private Controls.GridBoard CurrentBoard =>
+			this.panelMain.Controls.Count > 0 ? (this.panelMain.Controls[0] as IBoardPage)?.Board : null;
+
+		// left to right, as on the board's own toolbar
+		private IEnumerable<Button> BoardActionButtons()
+		{
+			yield return this.buttonEdit;
+			yield return this.buttonAddWidget;
+			yield return this.buttonAddSection;
+			yield return this.buttonResetLayout;
+		}
+
+		// Edit on a board; Done (in the accent colour), Add widget, Add section and Reset layout while editing.
+		private void UpdateBoardActions()
+		{
+			var board = CurrentBoard;
+			bool editing = board != null && board.EditMode;
+
+			this.buttonEdit.Visible = board != null;
+			this.buttonEdit.Text = editing ? "Done" : "Edit";
+			this.buttonEdit.ImageSource = editing
+				? "resource.wx/Wisej.Ext.BootstrapIcons/check-lg.svg"
+				: "resource.wx/Wisej.Ext.BootstrapIcons/pencil.svg";
+			this.buttonEdit.BackColor = editing ? System.Drawing.Color.FromName("@highlight") : System.Drawing.Color.Empty;
+			this.buttonEdit.ForeColor = editing ? System.Drawing.Color.FromName("@highlightText") : System.Drawing.Color.Empty;
+
+			this.buttonAddWidget.Visible = editing;
+			this.buttonAddSection.Visible = editing;
+			this.buttonResetLayout.Visible = editing;
+
+			LayoutHeader();
+		}
+
+		private void buttonEdit_Click(object sender, EventArgs e)
+		{
+			CurrentBoard?.ToggleEditMode();
+			UpdateBoardActions();
+		}
+
+		private void buttonAddSection_Click(object sender, EventArgs e)
+		{
+			CurrentBoard?.AddSection();
+		}
+
+		private void buttonResetLayout_Click(object sender, EventArgs e)
+		{
+			CurrentBoard?.RequestResetLayout();
+		}
+
+		// Add widget: the board's catalog, then the widgets that were closed and can come back.
+		private void buttonAddWidget_Click(object sender, EventArgs e)
+		{
+			var board = CurrentBoard;
+			if (board == null)
+				return;
+
+			this.contextMenuAddWidget.MenuItems.Clear(true);
+			foreach (var kind in board.Catalog)
+			{
+				this.contextMenuAddWidget.MenuItems.Add(new MenuItem(kind.DisplayName) { Tag = "add:" + kind.Kind });
+			}
+
+			var closed = board.RemovedItemIds
+				.Where(id => board.Widgets.All(w => w.EffectiveId != id))
+				.Select(id => new { Id = id, Item = board.GetRemovedItem(id) })
+				.ToList();
+			if (closed.Count > 0)
+			{
+				this.contextMenuAddWidget.MenuItems.Add(new MenuItem("-"));
+				this.contextMenuAddWidget.MenuItems.Add(new MenuItem("Bring back") { Enabled = false });
+				foreach (var c in closed)
+					this.contextMenuAddWidget.MenuItems.Add(new MenuItem(c.Item?.Title ?? c.Id) { Tag = "restore:" + c.Id });
+			}
+
+			if (this.contextMenuAddWidget.MenuItems.Count == 0)
+				this.contextMenuAddWidget.MenuItems.Add(new MenuItem("No widgets to add") { Enabled = false });
+
+			this.contextMenuAddWidget.Show(this.buttonAddWidget, new System.Drawing.Point(0, this.buttonAddWidget.Height + 4));
+		}
+
+		private void contextMenuAddWidget_MenuItemClicked(object sender, MenuItemEventArgs e)
+		{
+			var board = CurrentBoard;
+			if (board == null || !(e.MenuItem.Tag is string tag))
+				return;
+
+			if (tag.StartsWith("add:", StringComparison.Ordinal))
+				board.RequestAddWidget(tag.Substring(4));
+			else if (tag.StartsWith("restore:", StringComparison.Ordinal))
+				board.RequestRestoreWidget(tag.Substring(8));
+		}
+
+		#endregion
+
 		#region Navigation
 
 		private void ShowPanel(string panelName)
@@ -300,6 +415,7 @@ namespace GridKrafter.WisejDemo
 			// a new page starts at the top
 			this.panelScroll.VerticalScroll.Value = 0;
 			this.currentPanel = panelName;
+			UpdateBoardActions();
 
 			var animationIn = this.animationIn.GetAnimation(panel);
 			animationIn.Event = "appear";

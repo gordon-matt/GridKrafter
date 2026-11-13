@@ -1,4 +1,4 @@
-/**
+﻿/**
  * gridkrafter.wisejdemo.GridBoard
  *
  * The client half of GridKrafter.WisejDemo.Controls.GridBoard: a scrollable Wisej container with a
@@ -135,6 +135,12 @@ qx.Class.define("gridkrafter.wisejdemo.GridBoard", {
 		 * Whether the toolbar shows.
 		 */
 		showToolbar: { init: true, check: "Boolean", apply: "_applyShowToolbar" },
+
+		/**
+		 * Whether the toolbar's own Edit / Add widget / Add section / Reset layout row shows; off when the page
+		 * offers those actions itself.
+		 */
+		showActions: { init: true, check: "Boolean", apply: "_applyShowToolbar" },
 
 		/**
 		 * The height of the toolbar, in pixels: the server lays the grid out below it.
@@ -732,6 +738,10 @@ qx.Class.define("gridkrafter.wisejdemo.GridBoard", {
 
 			var toolbar = this.getChildControl("toolbar");
 			toolbar.setHeight(this.getToolbarHeight());
+			if (this.getShowActions())
+				this.getChildControl("actions").show();
+			else
+				this.getChildControl("actions").exclude();
 			if (this.getShowToolbar())
 				toolbar.show();
 			else

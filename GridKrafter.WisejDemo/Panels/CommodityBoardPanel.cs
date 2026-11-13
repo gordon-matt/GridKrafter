@@ -15,7 +15,7 @@ namespace GridKrafter.WisejDemo.Panels
 	/// for its key applied over it, under the plant filter bar. It works as the Dashboard does (every change is
 	/// logged and saved shortly after), and a change of filter fills every widget again for the new plants.
 	/// </summary>
-	public abstract partial class CommodityBoardPanel : Wisej.Web.UserControl, IFitsPage
+	public abstract partial class CommodityBoardPanel : Wisej.Web.UserControl, IFitsPage, IBoardPage
 	{
 		// the board is as tall as its open tab, so the page scrolls instead of the board
 		private readonly BoardFit fit;
@@ -36,11 +36,17 @@ namespace GridKrafter.WisejDemo.Panels
 			foreach (var kind in board.Catalog ?? Enumerable.Empty<GridWidgetKind>())
 				this.board.Catalog.Add(kind);
 
+			// Edit, Add widget, Add section and Reset layout are on the page's title row
+			this.board.ShowActions = false;
+
 			// the filter bar sits above the board and may wrap onto more lines on a narrow screen
 			this.fit = new BoardFit(this, this.board, () => this.filterBar.Height);
 			this.fit.Changed += (s, e) => this.ContentHeightChanged?.Invoke(this, EventArgs.Empty);
 			this.filterBar.Resize += (s, e) => this.fit.Update();
 		}
+
+		/// <inheritdoc/>
+		public GridBoard Board => this.board;
 
 		/// <inheritdoc/>
 		public int ContentHeight => this.fit.ContentHeight;

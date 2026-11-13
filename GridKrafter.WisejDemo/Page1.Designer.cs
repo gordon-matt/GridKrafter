@@ -49,6 +49,11 @@
             this.panelScroll = new Wisej.Web.Panel();
             this.panelTop = new Wisej.Web.Panel();
             this.buttonReset = new Wisej.Web.Button();
+            this.buttonEdit = new Wisej.Web.Button();
+            this.buttonAddWidget = new Wisej.Web.Button();
+            this.buttonAddSection = new Wisej.Web.Button();
+            this.buttonResetLayout = new Wisej.Web.Button();
+            this.contextMenuAddWidget = new Wisej.Web.ContextMenu(this.components);
             this.labelSubtitle = new Wisej.Web.Label();
             this.labelStatus = new Wisej.Web.Label();
             this.labelIntro = new Wisej.Web.Label();
@@ -231,6 +236,10 @@
             //
             // panelTop
             //
+            this.panelTop.Controls.Add(this.buttonResetLayout);
+            this.panelTop.Controls.Add(this.buttonAddSection);
+            this.panelTop.Controls.Add(this.buttonAddWidget);
+            this.panelTop.Controls.Add(this.buttonEdit);
             this.panelTop.Controls.Add(this.buttonReset);
             this.panelTop.Controls.Add(this.labelStatus);
             this.panelTop.Controls.Add(this.labelIntro);
@@ -241,6 +250,55 @@
             this.panelTop.Padding = new Wisej.Web.Padding(24, 12, 24, 12);
             this.panelTop.Size = new System.Drawing.Size(960, 72);
             this.panelTop.TabIndex = 0;
+            //
+            // buttonEdit
+            //
+            this.buttonEdit.ImageSource = "resource.wx/Wisej.Ext.BootstrapIcons/pencil.svg";
+            this.buttonEdit.Location = new System.Drawing.Point(560, 14);
+            this.buttonEdit.Name = "buttonEdit";
+            this.buttonEdit.Size = new System.Drawing.Size(80, 30);
+            this.buttonEdit.TabIndex = 5;
+            this.buttonEdit.Text = "Edit";
+            this.buttonEdit.Visible = false;
+            this.buttonEdit.Click += new System.EventHandler(this.buttonEdit_Click);
+            //
+            // buttonAddWidget
+            //
+            this.buttonAddWidget.ImageSource = "resource.wx/Wisej.Ext.BootstrapIcons/plus-lg.svg";
+            this.buttonAddWidget.Location = new System.Drawing.Point(648, 14);
+            this.buttonAddWidget.Name = "buttonAddWidget";
+            this.buttonAddWidget.Size = new System.Drawing.Size(120, 30);
+            this.buttonAddWidget.TabIndex = 6;
+            this.buttonAddWidget.Text = "Add widget";
+            this.buttonAddWidget.Visible = false;
+            this.buttonAddWidget.Click += new System.EventHandler(this.buttonAddWidget_Click);
+            //
+            // buttonAddSection
+            //
+            this.buttonAddSection.ImageSource = "resource.wx/Wisej.Ext.BootstrapIcons/layers.svg";
+            this.buttonAddSection.Location = new System.Drawing.Point(776, 14);
+            this.buttonAddSection.Name = "buttonAddSection";
+            this.buttonAddSection.Size = new System.Drawing.Size(124, 30);
+            this.buttonAddSection.TabIndex = 7;
+            this.buttonAddSection.Text = "Add section";
+            this.buttonAddSection.Visible = false;
+            this.buttonAddSection.Click += new System.EventHandler(this.buttonAddSection_Click);
+            //
+            // buttonResetLayout
+            //
+            this.buttonResetLayout.ImageSource = "resource.wx/Wisej.Ext.BootstrapIcons/arrow-counterclockwise.svg";
+            this.buttonResetLayout.Location = new System.Drawing.Point(908, 14);
+            this.buttonResetLayout.Name = "buttonResetLayout";
+            this.buttonResetLayout.Size = new System.Drawing.Size(130, 30);
+            this.buttonResetLayout.TabIndex = 8;
+            this.buttonResetLayout.Text = "Reset layout";
+            this.buttonResetLayout.Visible = false;
+            this.buttonResetLayout.Click += new System.EventHandler(this.buttonResetLayout_Click);
+            //
+            // contextMenuAddWidget
+            //
+            this.contextMenuAddWidget.Name = "contextMenuAddWidget";
+            this.contextMenuAddWidget.MenuItemClicked += new Wisej.Web.MenuItemEventHandler(this.contextMenuAddWidget_MenuItemClicked);
             //
             // buttonReset
             //
@@ -415,5 +473,10 @@
 		private Wisej.Web.Label labelStatus;
 		private Wisej.Web.Label labelIntro;
 		private Wisej.Web.Button buttonReset;
+		private Wisej.Web.Button buttonEdit;
+		private Wisej.Web.Button buttonAddWidget;
+		private Wisej.Web.Button buttonAddSection;
+		private Wisej.Web.Button buttonResetLayout;
+		private Wisej.Web.ContextMenu contextMenuAddWidget;
 	}
 }

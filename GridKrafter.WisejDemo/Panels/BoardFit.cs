@@ -22,6 +22,16 @@ namespace GridKrafter.WisejDemo.Panels
 	}
 
 	/// <summary>
+	/// A page that shows a board: the page header offers the board's Edit / Done, Add widget, Add section and
+	/// Reset layout on the title row, so the board's own row of them is hidden.
+	/// </summary>
+	public interface IBoardPage
+	{
+		/// <summary>The board the page shows.</summary>
+		GridBoard Board { get; }
+	}
+
+	/// <summary>
 	/// Keeps a board as tall as the widgets of its open tab: its toolbar and tabs, the lowest widget and a little
 	/// space under it. The board then never scrolls by itself; the page does. A widget in full screen fills the
 	/// part of the page people see instead.
@@ -110,7 +120,7 @@ namespace GridKrafter.WisejDemo.Panels
 
 		private int BoardHeight()
 		{
-			int toolbar = this.board.ShowToolbar ? GridBoard.ToolbarHeight : 0;
+			int toolbar = this.board.ShowToolbar ? this.board.EffectiveToolbarHeight : 0;
 
 			// full screen: the widget fills what people see, under the page's own header when it is in view
 			if (this.board.FullscreenWidget != null)
