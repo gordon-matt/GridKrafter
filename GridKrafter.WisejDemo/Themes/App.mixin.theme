@@ -1,11 +1,26 @@
 {
-	"name": "App.mixin",
-	"colors": {
-		"navbar-background": "window",
-		"navbar-background-hover": "buttonFace",
-		"navbar-background-selected": "highlight",
-		"navbar-text": "grayText",
-		"navbar-text-hover": "windowText",
-		"navbar-text-selected": "highlightText"
-	}
+  "name": "App.mixin",
+  "colors": {
+    "navbar-background": "#0f1f17",
+    "navbar-background-hover": "#17301f",
+    "navbar-background-selected": "#1f3a2a",
+    "navbar-text": "#e8f0ea",
+    "navbar-text-hover": "#ffffff",
+    "navbar-text-selected": "#ffffff"
+  },
+  "appearances": {
+    "navbar-item": {
+      "components": {
+        "header": {
+          "states": {
+            "selected": {
+              "styles": {
+                "css": "{\"box-shadow\":\"inset 3px 0 0 #8bc34a\"}"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 }

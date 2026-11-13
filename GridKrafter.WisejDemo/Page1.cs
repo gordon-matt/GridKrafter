@@ -54,8 +54,99 @@ namespace GridKrafter.WisejDemo
 			this.comboBoxTheme.Text = (string)Application.Session["gk.theme"] ?? AUTO;
 			this.panelTop.Resize += this.panelTop_Resize;
 			LayoutHeader();
+			InitNavCompact();
 			this.navigationBar.SelectedItem = this.navigationBarHome;
 		}
+
+		#region Sidebar compact view
+
+		// The sidebar is labelled on a wide screen and an icon strip under NAV_COMPACT_WIDTH.
+		// The user's own choice (the toggle at the bottom) is kept for the session and in a cookie.
+		private const int NAV_COMPACT_WIDTH = 1024;
+		private const string NAV_COMPACT_KEY = "gk.navCompact";
+		private bool navNarrow;
+		private bool navRestoring;
+		private Wisej.Web.Ext.NavigationBar.NavigationBarItem navLastItem;
+
+		// the choice the user made with the toggle, or null when they haven't
+		private static bool? NavCompactChoice
+		{
+			get
+			{
+				if (Application.Session[NAV_COMPACT_KEY] is bool session)
+					return session;
+				if (bool.TryParse(Application.Cookies.Get(NAV_COMPACT_KEY)?.Value, out bool cookie))
+					return cookie;
+				return null;
+			}
+			set
+			{
+				Application.Session[NAV_COMPACT_KEY] = value;
+				Application.Cookies.Add(NAV_COMPACT_KEY, value.ToString(), DateTime.Now.AddYears(1));
+			}
+		}
+
+		private void InitNavCompact()
+		{
+			this.navNarrow = this.Width < NAV_COMPACT_WIDTH;
+			this.navigationBar.CompactView = this.navNarrow || NavCompactChoice == true;
+			UpdateNavToggle();
+			this.Resize += this.Page1_NavResize;
+		}
+
+		private void Page1_NavResize(object sender, EventArgs e)
+		{
+			// only crossing the breakpoint changes the view, so the user's toggle holds while resizing
+			bool narrow = this.Width < NAV_COMPACT_WIDTH;
+			if (narrow == this.navNarrow)
+				return;
+
+			this.navNarrow = narrow;
+			this.navigationBar.CompactView = narrow || NavCompactChoice == true;
+		}
+
+		private void navigationBar_CompactViewChanged(object sender, EventArgs e)
+		{
+			UpdateNavToggle();
+		}
+
+		private void UpdateNavToggle()
+		{
+			bool compact = this.navigationBar.CompactView;
+			this.navigationBarCollapse.Text = compact ? "Expand menu" : "Collapse menu";
+			this.navigationBarCollapse.Icon = compact
+				? "resource.wx/Wisej.Ext.BootstrapIcons/chevron-double-right.svg"
+				: "resource.wx/Wisej.Ext.BootstrapIcons/chevron-double-left.svg";
+		}
+
+		// the toggle is an item: it flips the view and gives the selection back to the page on show
+		private bool HandleNavToggle()
+		{
+			var item = this.navigationBar.SelectedItem;
+			if (item != this.navigationBarCollapse)
+			{
+				if (!this.navRestoring && item?.Tag is string)
+					this.navLastItem = item;
+				return this.navRestoring;
+			}
+
+			bool compact = !this.navigationBar.CompactView;
+			NavCompactChoice = compact;
+			this.navigationBar.CompactView = compact;
+
+			this.navRestoring = true;
+			try
+			{
+				this.navigationBar.SelectedItem = this.navLastItem;
+			}
+			finally
+			{
+				this.navRestoring = false;
+			}
+			return true;
+		}
+
+		#endregion
 
 		private void panelTop_Resize(object sender, EventArgs e)
 		{
@@ -126,6 +217,10 @@ namespace GridKrafter.WisejDemo
 
 		private void navigationBar_SelectedItemChanged(object sender, EventArgs e)
 		{
+			// the collapse toggle isn't a page
+			if (HandleNavToggle())
+				return;
+
 			// a group, such as Commodities, only opens its items
 			if (this.navigationBar.SelectedItem?.Tag is string panelName)
 				ShowPanel(panelName);

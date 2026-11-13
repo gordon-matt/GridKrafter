@@ -41,8 +41,10 @@
             this.navigationBarNaturalGas = new Wisej.Web.Ext.NavigationBar.NavigationBarItem();
             this.navigationBarGrain = new Wisej.Web.Ext.NavigationBar.NavigationBarItem();
             this.navigationBarFreight = new Wisej.Web.Ext.NavigationBar.NavigationBarItem();
+            this.navigationBarSystem = new Wisej.Web.Ext.NavigationBar.NavigationBarItem();
             this.navigationBarEvents = new Wisej.Web.Ext.NavigationBar.NavigationBarItem();
             this.navigationBarAbout = new Wisej.Web.Ext.NavigationBar.NavigationBarItem();
+            this.navigationBarCollapse = new Wisej.Web.Ext.NavigationBar.NavigationBarItem();
             this.panelTop = new Wisej.Web.Panel();
             this.buttonReset = new Wisej.Web.Button();
             this.comboBoxTheme = new Wisej.Web.ComboBox();
@@ -60,17 +62,16 @@
             this.navigationBar.Items.AddRange(new Wisej.Web.Ext.NavigationBar.NavigationBarItem[] {
             this.navigationBarHome,
             this.navigationBarCommodities,
-            this.navigationBarEvents,
-            this.navigationBarAbout});
-            this.navigationBar.Logo = "Images\\gridkrafter-icon.png";
+            this.navigationBarSystem,
+            this.navigationBarCollapse});
+            this.navigationBar.Logo = "Images\\poet-monogram.svg";
             this.navigationBar.Name = "navigationBar";
-            this.navigationBar.ResponsiveProfiles.Add(((Wisej.Base.ResponsiveProfile)(resources.GetObject("navigationBar.ResponsiveProfiles"))));
-            this.navigationBar.ResponsiveProfiles.Add(((Wisej.Base.ResponsiveProfile)(resources.GetObject("navigationBar.ResponsiveProfiles1"))));
             this.navigationBar.ShowUser = false;
-            this.navigationBar.Size = new System.Drawing.Size(70, 750);
+            this.navigationBar.Size = new System.Drawing.Size(240, 750);
             this.navigationBar.TabIndex = 0;
-            this.navigationBar.Text = "GridKrafter";
+            this.navigationBar.Text = "Poet Biofuels";
             this.navigationBar.TitleClick += new System.EventHandler(this.navigationBar_TitleClick);
+            this.navigationBar.CompactViewChanged += new System.EventHandler(this.navigationBar_CompactViewChanged);
             this.navigationBar.SelectedItemChanged += new System.EventHandler(this.navigationBar_SelectedItemChanged);
             //
             // navigationBarHome
@@ -84,7 +85,8 @@
             //
             // navigationBarCommodities
             //
-            this.navigationBarCommodities.Icon = "resource.wx/Wisej.Ext.BootstrapIcons/boxes.svg";
+            this.navigationBarCommodities.Expanded = true;
+            this.navigationBarCommodities.Icon = "resource.wx/Wisej.Ext.BootstrapIcons/box-seam.svg";
             this.navigationBarCommodities.Items.AddRange(new Wisej.Web.Ext.NavigationBar.NavigationBarItem[] {
             this.navigationBarCommodityOverview,
             this.navigationBarEthanol,
@@ -153,9 +155,18 @@
             this.navigationBarFreight.Tag = "FreightPanel";
             this.navigationBarFreight.Text = "Freight";
             //
+            // navigationBarSystem
+            //
+            this.navigationBarSystem.Icon = "resource.wx/Wisej.Ext.BootstrapIcons/gear.svg";
+            this.navigationBarSystem.Items.AddRange(new Wisej.Web.Ext.NavigationBar.NavigationBarItem[] {
+            this.navigationBarEvents,
+            this.navigationBarAbout});
+            this.navigationBarSystem.Name = "navigationBarSystem";
+            this.navigationBarSystem.Text = "System";
+            //
             // navigationBarEvents
             //
-            this.navigationBarEvents.Icon = "resource.wx/Wisej.Ext.BootstrapIcons/activity.svg";
+            this.navigationBarEvents.Icon = "resource.wx/Wisej.Ext.BootstrapIcons/journal-text.svg";
             this.navigationBarEvents.Name = "navigationBarEvents";
             this.navigationBarEvents.Tag = "EventsPanel";
             this.navigationBarEvents.Text = "Events";
@@ -166,6 +177,12 @@
             this.navigationBarAbout.Name = "navigationBarAbout";
             this.navigationBarAbout.Tag = "AboutPanel";
             this.navigationBarAbout.Text = "About";
+            //
+            // navigationBarCollapse
+            //
+            this.navigationBarCollapse.Icon = "resource.wx/Wisej.Ext.BootstrapIcons/chevron-double-left.svg";
+            this.navigationBarCollapse.Name = "navigationBarCollapse";
+            this.navigationBarCollapse.Text = "Collapse menu";
             //
             // panelTop
             //
@@ -287,6 +304,8 @@
 		private Wisej.Web.Ext.NavigationBar.NavigationBarItem navigationBarNaturalGas;
 		private Wisej.Web.Ext.NavigationBar.NavigationBarItem navigationBarGrain;
 		private Wisej.Web.Ext.NavigationBar.NavigationBarItem navigationBarFreight;
+		private Wisej.Web.Ext.NavigationBar.NavigationBarItem navigationBarSystem;
+		private Wisej.Web.Ext.NavigationBar.NavigationBarItem navigationBarCollapse;
 		private Wisej.Web.Ext.NavigationBar.NavigationBarItem navigationBarEvents;
 		private Wisej.Web.Ext.NavigationBar.NavigationBarItem navigationBarAbout;
 		private Wisej.Web.Animation animationIn;

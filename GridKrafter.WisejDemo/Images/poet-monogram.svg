@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">
+  <!-- Placeholder monogram for Poet Biofuels: drop the real logo file in its place. -->
+  <defs>
+    <linearGradient id="poetGreen" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2e7d32"/>
+      <stop offset="1" stop-color="#9ccc65"/>
+    </linearGradient>
+  </defs>
+  <rect x="2" y="2" width="36" height="36" rx="9" ry="9" fill="url(#poetGreen)"/>
+  <path fill="#ffffff" fill-rule="evenodd"
+        d="M13 9 H21.5 A7.5 7.5 0 0 1 21.5 24 H18.5 V31 H13 Z M18.5 13.5 V19.5 H21 A3 3 0 0 0 21 13.5 Z"/>
+</svg>
