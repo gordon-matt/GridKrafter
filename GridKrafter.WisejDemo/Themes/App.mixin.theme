@@ -21,6 +21,92 @@
           }
         }
       }
+    },
+    "segmentedbutton": {
+      "states": {
+        "default": {
+          "properties": {
+            "textColor": "windowText"
+          }
+        }
+      },
+      "components": {
+        "row": {
+          "states": {
+            "default": {
+              "properties": {
+                "padding": 0,
+                "backgroundColor": "transparent"
+              }
+            }
+          }
+        },
+        "option": {
+          "states": {
+            "default": {
+              "properties": {
+                "textColor": "windowText",
+                "backgroundColor": "window",
+                "minHeight": 30,
+                "padding": [
+                  0,
+                  12
+                ],
+                "margin": [
+                  0,
+                  6,
+                  0,
+                  0
+                ]
+              },
+              "styles": {
+                "width": 1,
+                "style": "solid",
+                "color": "windowFrame",
+                "radius": 6
+              }
+            },
+            "hovered": {
+              "styles": {
+                "color": "highlight"
+              }
+            },
+            "focused": {
+              "styles": {
+                "color": "highlight",
+                "shadowLength": 0,
+                "shadowBlurRadius": 0
+              }
+            },
+            "selected-raised": {
+              "properties": {
+                "backgroundColor": "highlight",
+                "textColor": "highlightText"
+              },
+              "styles": {
+                "color": "highlight",
+                "shadowLength": 0,
+                "shadowBlurRadius": 0
+              }
+            },
+            "selected-pill": {
+              "properties": {
+                "backgroundColor": "highlight",
+                "textColor": "highlightText"
+              }
+            },
+            "selected-outlined": {
+              "properties": {
+                "backgroundColor": "highlight",
+                "textColor": "highlightText"
+              },
+              "styles": {
+                "color": "highlight"
+              }
+            }
+          }
+        }
+      }
     }
   }
 }

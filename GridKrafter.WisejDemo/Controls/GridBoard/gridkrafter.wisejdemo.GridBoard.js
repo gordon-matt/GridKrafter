@@ -1376,7 +1376,8 @@ qx.Class.define("gridkrafter.wisejdemo.GridWidget", {
 			var tool = function (action, icon, label, cursor) {
 				return '<span role="button" tabindex="-1" aria-label="' + label + '" title="' + label + '" data-action="' + action +
 					'" style="display:inline-flex;padding:3px;border-radius:5px;cursor:' + cursor + ';color:' + muted + '">' +
-					GridBoard.iconHtml(icon, 16).replace("<svg ", '<svg style="pointer-events:none" ') + '</span>';
+					// one style attribute: a second one would be dropped by the browser, and with it the icon's stroke
+					GridBoard.iconHtml(icon, 16).replace('style="', 'style="pointer-events:none;') + '</span>';
 			};
 			this.__hover.setAttribute("html", tool("grip", "grip", "Move", "move") + tool("color", "color", "Colour", "pointer") + tool("delete", "delete", "Close", "pointer"));
 
