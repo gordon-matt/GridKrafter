@@ -45,14 +45,24 @@
             this.navigationBarEvents = new Wisej.Web.Ext.NavigationBar.NavigationBarItem();
             this.navigationBarAbout = new Wisej.Web.Ext.NavigationBar.NavigationBarItem();
             this.navigationBarCollapse = new Wisej.Web.Ext.NavigationBar.NavigationBarItem();
+            this.topBar = new GridKrafter.WisejDemo.AppTopBar();
             this.panelTop = new Wisej.Web.Panel();
             this.buttonReset = new Wisej.Web.Button();
-            this.comboBoxTheme = new Wisej.Web.ComboBox();
+            this.labelSubtitle = new Wisej.Web.Label();
             this.labelStatus = new Wisej.Web.Label();
             this.labelIntro = new Wisej.Web.Label();
             this.labelTitle = new Wisej.Web.Label();
             this.panelMain = new Wisej.Web.FlexLayoutPanel();
             this.animationIn = new Wisej.Web.Animation(this.components);
+            this.contextMenuUser = new Wisej.Web.ContextMenu(this.components);
+            this.menuItemUser = new Wisej.Web.MenuItem();
+            this.menuItemUserSeparator = new Wisej.Web.MenuItem();
+            this.menuItemTheme = new Wisej.Web.MenuItem();
+            this.menuItemDemoNotes = new Wisej.Web.MenuItem();
+            this.menuItemResetBoard = new Wisej.Web.MenuItem();
+            this.contextMenuAlerts = new Wisej.Web.ContextMenu(this.components);
+            this.contextMenuSearch = new Wisej.Web.ContextMenu(this.components);
+            this.timerAsOf = new Wisej.Web.Timer(this.components);
             this.panelTop.SuspendLayout();
             this.SuspendLayout();
             //
@@ -184,73 +194,83 @@
             this.navigationBarCollapse.Name = "navigationBarCollapse";
             this.navigationBarCollapse.Text = "Collapse menu";
             //
+            // topBar
+            //
+            this.topBar.AlertCount = 0;
+            this.topBar.AsOfText = "";
+            this.topBar.Breadcrumb = new string[] {
+        "Home",
+        "Dashboard"};
+            this.topBar.Dock = Wisej.Web.DockStyle.Top;
+            this.topBar.Environment = GridKrafter.WisejDemo.AppTopBarEnvironment.Uat;
+            this.topBar.Initials = "TL";
+            this.topBar.Location = new System.Drawing.Point(240, 0);
+            this.topBar.Name = "topBar";
+            this.topBar.Size = new System.Drawing.Size(960, 48);
+            this.topBar.TabIndex = 1;
+            this.topBar.UserName = "Tim Larson";
+            this.topBar.UserRole = "Commodity Marketing";
+            this.topBar.SearchSubmitted += new GridKrafter.WisejDemo.AppTopBarSearchEventHandler(this.topBar_SearchSubmitted);
+            this.topBar.AlertsClicked += new System.EventHandler(this.topBar_AlertsClicked);
+            this.topBar.UserMenuClicked += new System.EventHandler(this.topBar_UserMenuClicked);
+            this.topBar.CrumbClicked += new GridKrafter.WisejDemo.AppTopBarCrumbEventHandler(this.topBar_CrumbClicked);
+            //
             // panelTop
             //
             this.panelTop.Controls.Add(this.buttonReset);
-            this.panelTop.Controls.Add(this.comboBoxTheme);
             this.panelTop.Controls.Add(this.labelStatus);
             this.panelTop.Controls.Add(this.labelIntro);
+            this.panelTop.Controls.Add(this.labelSubtitle);
             this.panelTop.Controls.Add(this.labelTitle);
             this.panelTop.Dock = Wisej.Web.DockStyle.Top;
-            this.panelTop.Location = new System.Drawing.Point(70, 0);
+            this.panelTop.Location = new System.Drawing.Point(240, 48);
             this.panelTop.Name = "panelTop";
             this.panelTop.Padding = new Wisej.Web.Padding(24, 12, 24, 12);
             this.panelTop.ResponsiveProfiles.Add(((Wisej.Base.ResponsiveProfile)(resources.GetObject("panelTop.ResponsiveProfiles"))));
             this.panelTop.ResponsiveProfiles.Add(((Wisej.Base.ResponsiveProfile)(resources.GetObject("panelTop.ResponsiveProfiles1"))));
-            this.panelTop.Size = new System.Drawing.Size(1130, 120);
-            this.panelTop.TabIndex = 1;
+            this.panelTop.Size = new System.Drawing.Size(960, 72);
+            this.panelTop.TabIndex = 2;
             //
             // buttonReset
             //
-            this.buttonReset.Anchor = ((Wisej.Web.AnchorStyles)((Wisej.Web.AnchorStyles.Top | Wisej.Web.AnchorStyles.Right)));
-            this.buttonReset.Location = new System.Drawing.Point(976, 14);
+            this.buttonReset.Location = new System.Drawing.Point(24, 120);
             this.buttonReset.Name = "buttonReset";
             this.buttonReset.Size = new System.Drawing.Size(130, 30);
-            this.buttonReset.TabIndex = 3;
+            this.buttonReset.TabIndex = 4;
             this.buttonReset.Text = "Reset the board";
+            this.buttonReset.Visible = false;
             this.buttonReset.Click += new System.EventHandler(this.buttonReset_Click);
             //
-            // comboBoxTheme
+            // labelSubtitle
             //
-            this.comboBoxTheme.Anchor = ((Wisej.Web.AnchorStyles)((Wisej.Web.AnchorStyles.Top | Wisej.Web.AnchorStyles.Right)));
-            this.comboBoxTheme.DropDownStyle = Wisej.Web.ComboBoxStyle.DropDownList;
-            this.comboBoxTheme.Items.AddRange(new object[] {
-            "Auto",
-            "GridKrafter Light",
-            "GridKrafter Dark",
-            "Fluent Light",
-            "Fluent Dark",
-            "Material",
-            "Material Dark",
-            "Bootstrap",
-            "Bootstrap Dark"});
-            this.comboBoxTheme.Label.Position = Wisej.Web.LabelPosition.Left;
-            this.comboBoxTheme.LabelText = "Theme";
-            this.comboBoxTheme.Location = new System.Drawing.Point(758, 14);
-            this.comboBoxTheme.Name = "comboBoxTheme";
-            this.comboBoxTheme.ResponsiveProfiles.Add(((Wisej.Base.ResponsiveProfile)(resources.GetObject("comboBoxTheme.ResponsiveProfiles"))));
-            this.comboBoxTheme.Size = new System.Drawing.Size(206, 30);
-            this.comboBoxTheme.TabIndex = 2;
-            this.comboBoxTheme.SelectedIndexChanged += new System.EventHandler(this.comboBoxTheme_SelectedIndexChanged);
+            this.labelSubtitle.AutoEllipsis = true;
+            this.labelSubtitle.ForeColor = System.Drawing.Color.FromName("@grayText");
+            this.labelSubtitle.Location = new System.Drawing.Point(24, 44);
+            this.labelSubtitle.Name = "labelSubtitle";
+            this.labelSubtitle.Size = new System.Drawing.Size(700, 20);
+            this.labelSubtitle.TabIndex = 1;
+            this.labelSubtitle.Text = "Your marketing desk at a glance: positions, prices and plant status in one view";
             //
             // labelStatus
             //
             this.labelStatus.AutoEllipsis = true;
             this.labelStatus.ForeColor = System.Drawing.Color.FromName("@grayText");
             this.labelStatus.Font = new System.Drawing.Font("default", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
-            this.labelStatus.Location = new System.Drawing.Point(24, 92);
+            this.labelStatus.Location = new System.Drawing.Point(24, 96);
             this.labelStatus.Name = "labelStatus";
             this.labelStatus.Size = new System.Drawing.Size(700, 18);
-            this.labelStatus.TabIndex = 1;
+            this.labelStatus.TabIndex = 3;
             this.labelStatus.Text = "This is the page\'s own board. Change something and it\'s saved on the server.";
+            this.labelStatus.Visible = false;
             //
             // labelIntro
             //
             this.labelIntro.ForeColor = System.Drawing.Color.FromName("@grayText");
-            this.labelIntro.Location = new System.Drawing.Point(24, 46);
+            this.labelIntro.Location = new System.Drawing.Point(24, 72);
             this.labelIntro.Name = "labelIntro";
-            this.labelIntro.Size = new System.Drawing.Size(700, 42);
-            this.labelIntro.TabIndex = 4;
+            this.labelIntro.Size = new System.Drawing.Size(700, 20);
+            this.labelIntro.TabIndex = 2;
+            this.labelIntro.Visible = false;
             this.labelIntro.Text = "Every widget is a real Wisej.NET control on the GridBoard. Refreshing one loads its data again, and every change is saved on the server, so the board follows you from browser to browser.";
             //
             // labelTitle
@@ -266,22 +286,84 @@
             // panelMain
             //
             this.panelMain.Dock = Wisej.Web.DockStyle.Fill;
-            this.panelMain.Location = new System.Drawing.Point(70, 120);
+            this.panelMain.Location = new System.Drawing.Point(240, 120);
             this.panelMain.Name = "panelMain";
             this.panelMain.ResponsiveProfiles.Add(((Wisej.Base.ResponsiveProfile)(resources.GetObject("panelMain.ResponsiveProfiles"))));
             this.panelMain.ResponsiveProfiles.Add(((Wisej.Base.ResponsiveProfile)(resources.GetObject("panelMain.ResponsiveProfiles1"))));
-            this.panelMain.Size = new System.Drawing.Size(1130, 630);
-            this.panelMain.TabIndex = 2;
+            this.panelMain.Size = new System.Drawing.Size(960, 630);
+            this.panelMain.TabIndex = 3;
+            //
+            // contextMenuUser
+            //
+            this.contextMenuUser.MenuItems.AddRange(new Wisej.Web.MenuItem[] {
+            this.menuItemUser,
+            this.menuItemUserSeparator,
+            this.menuItemTheme,
+            this.menuItemDemoNotes,
+            this.menuItemResetBoard});
+            this.contextMenuUser.Name = "contextMenuUser";
+            this.contextMenuUser.MenuItemClicked += new Wisej.Web.MenuItemEventHandler(this.contextMenuUser_MenuItemClicked);
+            //
+            // menuItemUser
+            //
+            this.menuItemUser.AllowHtml = true;
+            this.menuItemUser.IconSource = "resource.wx/Wisej.Ext.BootstrapIcons/person-circle.svg";
+            this.menuItemUser.Index = 0;
+            this.menuItemUser.Name = "menuItemUser";
+            this.menuItemUser.Text = "Tim Larson";
+            //
+            // menuItemUserSeparator
+            //
+            this.menuItemUserSeparator.Index = 1;
+            this.menuItemUserSeparator.Name = "menuItemUserSeparator";
+            this.menuItemUserSeparator.Text = "-";
+            //
+            // menuItemTheme
+            //
+            this.menuItemTheme.IconSource = "resource.wx/Wisej.Ext.BootstrapIcons/palette.svg";
+            this.menuItemTheme.Index = 2;
+            this.menuItemTheme.Name = "menuItemTheme";
+            this.menuItemTheme.Text = "Theme";
+            //
+            // menuItemDemoNotes
+            //
+            this.menuItemDemoNotes.Index = 3;
+            this.menuItemDemoNotes.Name = "menuItemDemoNotes";
+            this.menuItemDemoNotes.Text = "Show demo notes";
+            //
+            // menuItemResetBoard
+            //
+            this.menuItemResetBoard.IconSource = "resource.wx/Wisej.Ext.BootstrapIcons/arrow-counterclockwise.svg";
+            this.menuItemResetBoard.Index = 4;
+            this.menuItemResetBoard.Name = "menuItemResetBoard";
+            this.menuItemResetBoard.Text = "Reset board";
+            this.menuItemResetBoard.Visible = false;
+            //
+            // contextMenuAlerts
+            //
+            this.contextMenuAlerts.Name = "contextMenuAlerts";
+            this.contextMenuAlerts.MenuItemClicked += new Wisej.Web.MenuItemEventHandler(this.contextMenuNavigate_MenuItemClicked);
+            //
+            // contextMenuSearch
+            //
+            this.contextMenuSearch.Name = "contextMenuSearch";
+            this.contextMenuSearch.MenuItemClicked += new Wisej.Web.MenuItemEventHandler(this.contextMenuNavigate_MenuItemClicked);
+            //
+            // timerAsOf
+            //
+            this.timerAsOf.Interval = 30000;
+            this.timerAsOf.Tick += new System.EventHandler(this.timerAsOf_Tick);
             //
             // Page1
             //
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 19F);
             this.Controls.Add(this.panelMain);
             this.Controls.Add(this.panelTop);
+            this.Controls.Add(this.topBar);
             this.Controls.Add(this.navigationBar);
             this.Name = "Page1";
             this.Size = new System.Drawing.Size(1200, 750);
-            this.Text = "GridKrafter · Wisej.NET demo";
+            this.Text = "Poet Biofuels · Commodity Marketing";
             this.Load += new System.EventHandler(this.Page1_Load);
             this.panelTop.ResumeLayout(false);
             this.panelTop.PerformLayout();
@@ -309,7 +391,17 @@
 		private Wisej.Web.Ext.NavigationBar.NavigationBarItem navigationBarEvents;
 		private Wisej.Web.Ext.NavigationBar.NavigationBarItem navigationBarAbout;
 		private Wisej.Web.Animation animationIn;
-		private Wisej.Web.ComboBox comboBoxTheme;
+		private GridKrafter.WisejDemo.AppTopBar topBar;
+		private Wisej.Web.Label labelSubtitle;
+		private Wisej.Web.ContextMenu contextMenuUser;
+		private Wisej.Web.MenuItem menuItemUser;
+		private Wisej.Web.MenuItem menuItemUserSeparator;
+		private Wisej.Web.MenuItem menuItemTheme;
+		private Wisej.Web.MenuItem menuItemDemoNotes;
+		private Wisej.Web.MenuItem menuItemResetBoard;
+		private Wisej.Web.ContextMenu contextMenuAlerts;
+		private Wisej.Web.ContextMenu contextMenuSearch;
+		private Wisej.Web.Timer timerAsOf;
 		private Wisej.Web.Label labelTitle;
 		private Wisej.Web.Label labelStatus;
 		private Wisej.Web.Label labelIntro;
