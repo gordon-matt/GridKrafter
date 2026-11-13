@@ -154,10 +154,10 @@ namespace GridKrafter.WisejDemo.Services.Commodities
 			var list = new List<Co2Contract>();
 			foreach (var c in Customers)
 			{
-				double contracted = Math.Round(month * c.Share * (0.96 + rng.NextDouble() * 0.12), -1);
+				double contracted = Math.Round(month * c.Share * (0.96 + rng.NextDouble() * 0.12) / 10) * 10;
 				// most are near pace (13 of 30 days), a few ahead or behind
 				double pace = (double)DAY_OF_MONTH / DAYS_IN_MONTH;
-				double lifted = Math.Round(contracted * pace * (0.78 + rng.NextDouble() * 0.40), -1);
+				double lifted = Math.Round(contracted * pace * (0.78 + rng.NextDouble() * 0.40) / 10) * 10;
 				list.Add(new Co2Contract(c.Customer, c.Segment, contracted, lifted));
 			}
 
