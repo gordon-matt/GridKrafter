@@ -1,0 +1,80 @@
+{
+	"name": "LimitUtilization.mixin",
+
+	// OK follows the palette's green, Watch its amber and Breach its red (both GridKrafter themes define
+	// them); surfaces, text, tracks and borders are the theme's own colours, so it is right in Light and Dark.
+	// Chips are the theme's neutral workspace colour with the status colour as text: no fixed colours.
+
+	"fonts": {
+		"limit-utilization-text": { "size": 12, "family": ["Segoe UI", "system-ui", "Roboto", "Helvetica Neue", "Arial", "sans-serif"] },
+		"limit-utilization-strong": { "size": 12, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] },
+		"limit-utilization-title": { "size": 14, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] },
+		"limit-utilization-tag": { "size": 11, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] },
+		"limit-utilization-rating": { "size": 10, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] }
+	},
+
+	"appearances": {
+
+		"limit-utilization": {
+			"inherit": "widget",
+			"states": {
+				"default": {
+					"properties": {
+						"themeOkColor": "green",
+						"themeWatchColor": "amber",
+						"themeBreachColor": "red",
+						"padding": [12, 14],
+						"font": "limit-utilization-text",
+						"textColor": "windowText",
+						"backgroundColor": "window",
+						"opacity": 1
+					},
+					"styles": { "width": 0 }
+				},
+				"disabled": { "properties": { "opacity": 0.55 } }
+			},
+			"components": {
+
+				"title": { "inherit": "label", "states": { "default": { "properties": { "font": "limit-utilization-title", "textColor": "windowText" } } } },
+				"total": { "inherit": "label", "states": { "default": { "properties": { "font": "limit-utilization-text", "textColor": "grayText" } } } },
+				"flag": {
+					"inherit": "label",
+					"states": {
+						"default": { "properties": { "font": "limit-utilization-tag", "padding": [1, 9], "textColor": "green" }, "styles": { "backgroundColor": "appWorkspace", "radius": 10 } },
+						"ok": { "properties": { "textColor": "green" } },
+						"bad": { "properties": { "textColor": "red" } }
+					}
+				},
+
+				"row": {
+					"inherit": "widget",
+					"states": {
+						"default": {
+							"properties": { "padding": [4, 6] },
+							"styles": { "backgroundColor": "transparent", "radius": 6, "width": 1, "style": "solid", "color": "transparent" }
+						},
+						"hovered": { "styles": { "backgroundColor": "menuHighlight" } },
+						"selected": { "styles": { "backgroundColor": "menuHighlight", "color": "highlight" } }
+					}
+				},
+				"name": { "inherit": "label", "states": { "default": { "properties": { "font": "limit-utilization-strong", "textColor": "windowText" } } } },
+				"rating": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "limit-utilization-rating", "padding": [0, 6], "textColor": "grayText" }, "styles": { "radius": 8, "width": 1, "style": "solid", "color": "windowFrame" } } }
+				},
+
+				"track": { "inherit": "widget", "states": { "default": { "styles": { "backgroundColor": "windowFrame", "radius": 5 } } } },
+				"fill": { "inherit": "widget", "states": { "default": { "styles": { "radius": 5 } } } },
+				"mark": { "inherit": "widget", "states": { "default": { "styles": { "backgroundColor": "windowText", "radius": 1 }, "properties": { "opacity": 0.55 } } } },
+
+				"percent": { "inherit": "label", "states": { "default": { "properties": { "font": "limit-utilization-strong", "textColor": "windowText" } } } },
+				"chip": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "limit-utilization-tag", "padding": [1, 8] }, "styles": { "backgroundColor": "appWorkspace", "radius": 10 } } }
+				},
+
+				"empty": { "inherit": "label", "states": { "default": { "properties": { "textColor": "grayText", "padding": [24, 0] } } } }
+			}
+		}
+	}
+}

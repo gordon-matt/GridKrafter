@@ -1,0 +1,14 @@
+{
+  "id": "limit-utilization",
+  "name": "Limit utilization",
+  "purpose": "Exposure against limit, one row per counterparty or obligation: a rating chip, a bar with a warning marker, the percent used and an OK / Watch / Breach chip, sorted by percent used.",
+  "keywords": [
+    "limit utilization",
+    "limitutilization"
+  ],
+  "control": "LimitUtilization",
+  "type": "GridKrafter.WisejDemo.LimitUtilization",
+  "extends": null,
+  "component": null,
+  "preview": "<div data-wisej-pattern=\"limit-utilization\"><div class=\"lu\"><div class=\"head\"><div class=\"title\"></div><div class=\"tot\"></div><div class=\"flag\"></div></div><div class=\"rows\"></div></div></div>"
+}
