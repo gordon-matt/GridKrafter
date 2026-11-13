@@ -1,4 +1,4 @@
-namespace GridKrafter.WisejDemo.Panels
+﻿namespace GridKrafter.WisejDemo.Panels
 {
 	partial class PlantFilterBar
 	{
@@ -30,6 +30,7 @@ namespace GridKrafter.WisejDemo.Panels
 		{
 			this.region = new Wisej.Web.ComboBox();
 			this.plant = new Wisej.Web.ComboBox();
+			this.mot = new Wisej.Web.ComboBox();
 			this.ownership = new Wisej.Web.SegmentedButton();
 			this.SuspendLayout();
 			//
@@ -55,18 +56,30 @@ namespace GridKrafter.WisejDemo.Panels
 			this.plant.TabIndex = 1;
 			this.plant.SelectedIndexChanged += new System.EventHandler(this.plant_SelectedIndexChanged);
 			//
+			// mot
+			//
+			this.mot.DropDownStyle = Wisej.Web.ComboBoxStyle.DropDownList;
+			this.mot.Label.Position = Wisej.Web.LabelPosition.Left;
+			this.mot.LabelText = "MOT";
+			this.mot.Location = new System.Drawing.Point(514, 0);
+			this.mot.Name = "mot";
+			this.mot.Size = new System.Drawing.Size(180, 30);
+			this.mot.TabIndex = 2;
+			this.mot.SelectedIndexChanged += new System.EventHandler(this.mot_SelectedIndexChanged);
+			//
 			// ownership
 			//
-			this.ownership.Location = new System.Drawing.Point(514, 0);
+			this.ownership.Location = new System.Drawing.Point(706, 0);
 			this.ownership.Name = "ownership";
 			this.ownership.Size = new System.Drawing.Size(260, 30);
 			this.ownership.Stretch = true;
-			this.ownership.TabIndex = 2;
+			this.ownership.TabIndex = 3;
 			this.ownership.SelectedIndexChanged += new System.EventHandler(this.ownership_SelectedIndexChanged);
 			//
 			// PlantFilterBar
 			//
 			this.Controls.Add(this.ownership);
+			this.Controls.Add(this.mot);
 			this.Controls.Add(this.plant);
 			this.Controls.Add(this.region);
 			this.Name = "PlantFilterBar";
@@ -80,6 +93,7 @@ namespace GridKrafter.WisejDemo.Panels
 
 		private Wisej.Web.ComboBox region;
 		private Wisej.Web.ComboBox plant;
+		private Wisej.Web.ComboBox mot;
 		private Wisej.Web.SegmentedButton ownership;
 	}
 }
