@@ -97,15 +97,15 @@ namespace GridKrafter.WisejDemo.Services.Commodities
 
 		private static readonly (string Customer, string Segment, double Share)[] Customers =
 		{
-			("Heartland Beverage Co.", "Food & beverage", 0.17),
-			("Prairie Bottling", "Food & beverage", 0.12),
-			("Great Plains Brewing", "Food & beverage", 0.07),
-			("Arctic Dry Ice", "Dry ice", 0.14),
-			("Polar Pack Logistics", "Dry ice", 0.08),
-			("Corn Belt Chemical", "Industrial", 0.12),
-			("Midwest Welding Gases", "Industrial", 0.06),
-			("Permian Recovery Partners", "Enhanced oil recovery", 0.18),
-			("Bakken EOR Co.", "Enhanced oil recovery", 0.06),
+			(Business.CustomerRegistry.Name("c16"), "Food & beverage", 0.17),
+			(Business.CustomerRegistry.Name("c17"), "Food & beverage", 0.12),
+			(Business.CustomerRegistry.Name("c18"), "Food & beverage", 0.07),
+			(Business.CustomerRegistry.Name("c19"), "Dry ice", 0.14),
+			(Business.CustomerRegistry.Name("c20"), "Dry ice", 0.08),
+			(Business.CustomerRegistry.Name("c21"), "Industrial", 0.12),
+			(Business.CustomerRegistry.Name("c22"), "Industrial", 0.06),
+			(Business.CustomerRegistry.Name("c23"), "Enhanced oil recovery", 0.18),
+			(Business.CustomerRegistry.Name("c24"), "Enhanced oil recovery", 0.06),
 		};
 
 		/// <summary>Whether a plant has a CO2 capture unit: about six in ten do, the same ones every run.</summary>
@@ -115,8 +115,19 @@ namespace GridKrafter.WisejDemo.Services.Commodities
 			return (n * 7 + 3) % 10 < 6;
 		}
 
+		// The share of the CO2 that moves by the filter's MOT: 1 for All MOT. Tons scale; prices, percentages,
+		// days of cover and the plants' run do not.
+		private static double ModeShare(PlantFilter filter) => (filter ?? PlantFilter.All).ModeShare("co2");
+
 		/// <inheritdoc/>
 		public Co2Summary Summary(PlantFilter filter, int refresh)
+		{
+			double share = ModeShare(filter);
+			var s = SummaryCore(filter, refresh);
+			return share == 1 ? s : s with { TonsCaptured = TransportMix.Scale(s.TonsCaptured, share), TonsSold = TransportMix.Scale(s.TonsSold, share) };
+		}
+
+		private Co2Summary SummaryCore(PlantFilter filter, int refresh)
 		{
 			var rows = Build(filter, refresh);
 			if (rows.Count == 0)
@@ -125,7 +136,7 @@ namespace GridKrafter.WisejDemo.Services.Commodities
 			double captured = rows.Sum(r => r.CapturedTons);
 			double sold = rows.Sum(r => r.SoldTons);
 			double revenue = rows.Sum(r => r.SoldTons * r.PricePerTon);
-			var storage = Storage(filter, refresh);
+			var storage = StorageCore(filter, refresh);
 			double capacity = storage.Sum(s => s.CapacityTons);
 
 			var rng = SampleRandom.For("co2:summary", filter, 0);
@@ -143,6 +154,20 @@ namespace GridKrafter.WisejDemo.Services.Commodities
 
 		/// <inheritdoc/>
 		public IReadOnlyList<Co2Contract> Contracts(PlantFilter filter, int refresh)
+		{
+			double share = ModeShare(filter);
+			var list = ContractsCore(filter, refresh);
+			if (share == 1)
+				return list;
+			if (share <= 0)
+				return Array.Empty<Co2Contract>();
+
+			return list
+				.Select(c => c with { ContractedTons = TransportMix.Scale(c.ContractedTons, share, 10), LiftedTons = TransportMix.Scale(c.LiftedTons, share, 10) })
+				.ToList();
+		}
+
+		private static IReadOnlyList<Co2Contract> ContractsCore(PlantFilter filter, int refresh)
 		{
 			var rows = Build(filter, refresh);
 			if (rows.Count == 0)
@@ -166,6 +191,21 @@ namespace GridKrafter.WisejDemo.Services.Commodities
 
 		/// <inheritdoc/>
 		public IReadOnlyList<Co2Storage> Storage(PlantFilter filter, int refresh)
+		{
+			double share = ModeShare(filter);
+			var tanks = StorageCore(filter, refresh);
+			if (share == 1)
+				return tanks;
+			if (share <= 0)
+				return new List<Co2Storage>();
+
+			// the room and the tons of the mode's CO2: how full and how many days stay
+			return tanks
+				.Select(t => t with { CapacityTons = TransportMix.Scale(t.CapacityTons, share), LevelTons = TransportMix.Scale(t.LevelTons, share), NetFlowTons = TransportMix.Scale(t.NetFlowTons, share) })
+				.ToList();
+		}
+
+		private static IReadOnlyList<Co2Storage> StorageCore(PlantFilter filter, int refresh)
 		{
 			var rows = Build(filter, refresh);
 			var tanks = new List<Co2Storage>();
@@ -195,8 +235,12 @@ namespace GridKrafter.WisejDemo.Services.Commodities
 		}
 
 		/// <inheritdoc/>
-		public IReadOnlyList<Co2PlantCapture> Plants(PlantFilter filter, int refresh) =>
-			Build(filter, refresh).OrderByDescending(r => r.CapturedTons).ToList();
+		public IReadOnlyList<Co2PlantCapture> Plants(PlantFilter filter, int refresh)
+		{
+			double share = ModeShare(filter);
+			var rows = Build(filter, refresh).OrderByDescending(r => r.CapturedTons).ToList();
+			return share == 1 ? rows : rows.Select(r => r with { CapturedTons = TransportMix.Scale(r.CapturedTons, share), SoldTons = TransportMix.Scale(r.SoldTons, share) }).ToList();
+		}
 
 		private static List<Co2PlantCapture> Build(PlantFilter filter, int refresh)
 		{

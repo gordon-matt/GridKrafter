@@ -1,0 +1,14 @@
+{
+  "id": "aging-buckets",
+  "name": "Aging buckets",
+  "purpose": "Receivables, payables or exposure aging: one bar per bucket (Current, 1-30, 31-60, 61-90, 90+) with amount, count and share of total, a header with the total and the past-due total and percentage, and bars that run from neutral to warning to negative.",
+  "keywords": [
+    "aging buckets",
+    "agingbuckets"
+  ],
+  "control": "AgingBuckets",
+  "type": "GridKrafter.WisejDemo.AgingBuckets",
+  "extends": null,
+  "component": null,
+  "preview": "<div data-wisej-pattern=\"aging-buckets\"><div class=\"ab\">\n  <div class=\"head\">\n    <span class=\"title\"></span>\n    <div class=\"sums\">\n      <span class=\"total\"></span>\n      <span class=\"past\"></span>\n    </div>\n  </div>\n  <div class=\"cols\">\n    <span class=\"c-bucket\">Bucket</span>\n    <span class=\"c-bar\"></span>\n    <span class=\"c-amt\">Amount</span>\n    <span class=\"c-cnt\">Count</span>\n    <span class=\"c-pct\">% of total</span>\n  </div>\n  <div class=\"rows\"></div>\n</div></div>"
+}

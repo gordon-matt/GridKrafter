@@ -25,6 +25,17 @@ namespace GridKrafter.WisejDemo.Services.Commodities
 	/// <param name="Ownership">Owned, 3rd-party or both.</param>
 	public sealed record PlantFilter(string Region, string PlantId, PlantOwnership Ownership)
 	{
+		/// <summary>
+		/// The mode of transport (MOT) the board shows volumes for; <see cref="TransportMode.All"/> shows every mode.
+		/// Volumes are scaled by the mode's share of the commodity (see <see cref="TransportMix"/>); prices and
+		/// percentages are not.
+		/// </summary>
+		public TransportMode Mode { get; init; } = TransportMode.All;
+
+		/// <summary>The share of a commodity's volume that moves by <see cref="Mode"/>: 1 for every mode.</summary>
+		/// <param name="commodity">The board's key: ethanol, co2, purified, denaturant, natgas, grain, freight or overview.</param>
+		public double ModeShare(string commodity) => TransportMix.Share(commodity, this.Mode);
+
 		/// <summary>Every plant.</summary>
 		public static PlantFilter All { get; } = new PlantFilter(null, null, PlantOwnership.All);
 
@@ -49,8 +60,14 @@ namespace GridKrafter.WisejDemo.Services.Commodities
 			};
 		}
 
-		/// <summary>The filter in a few words: "All plants", "Iowa · owned", "Plant: Mason City".</summary>
+		/// <summary>The filter in a few words: "All plants", "Iowa · owned", "Plant: Mason City", "… · Rail".</summary>
 		public string Describe()
+		{
+			string plants = DescribePlants();
+			return this.Mode == TransportMode.All ? plants : plants + " · " + TransportMix.Name(this.Mode);
+		}
+
+		private string DescribePlants()
 		{
 			if (this.PlantId != null)
 				return "Plant: " + (PlantRegistry.Find(this.PlantId)?.Name ?? this.PlantId);

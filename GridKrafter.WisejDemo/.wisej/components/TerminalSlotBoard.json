@@ -1,0 +1,226 @@
+{
+  "name": "TerminalSlotBoard",
+  "namespace": "GridKrafter.WisejDemo",
+  "fullName": "GridKrafter.WisejDemo.TerminalSlotBoard",
+  "language": "csharp",
+  "files": [
+    "Controls/TerminalSlotBoard/TerminalSlotBoard.cs",
+    "Controls/TerminalSlotBoard/gridkrafter.wisejdemo.TerminalSlotBoard.js",
+    "Controls/TerminalSlotBoard/TerminalSlotBoard.mixin.theme",
+    "Controls/TerminalSlotBoard/TerminalSlotBoard.bmp",
+    "GridKrafter.WisejDemo.csproj"
+  ],
+  "saved": "2026-11-13T17:36:40.1585960Z",
+  "sketch": {
+    "schema": "wisej-component-sketch/1",
+    "name": "TerminalSlotBoard",
+    "namespace": "",
+    "description": "A terminal's loading slots through the day: bays by hours, each slot a bar coloured by status with its MOT, a now-line, counts per status and free capacity.",
+    "size": [
+      760,
+      300
+    ],
+    "html": "<div class=\"tsb\">\n  <div class=\"head\">\n    <div class=\"title\"></div>\n    <div class=\"counts\"></div>\n    <div class=\"free\"><span class=\"free-value\"></span><span class=\"free-label\">free</span></div>\n  </div>\n  <div class=\"scroller\">\n    <div class=\"board\">\n      <div class=\"axis\"><div class=\"corner\"></div><div class=\"hours\"></div></div>\n      <div class=\"bays\"></div>\n    </div>\n  </div>\n  <div class=\"tip\"></div>\n</div>",
+    "css": ".tsb{position:relative;box-sizing:border-box;width:100%;height:100%;display:flex;flex-direction:column;gap:8px;padding:10px 12px;background:var(--window);color:var(--text);font:12px/1.35 \"Segoe UI\",system-ui,sans-serif;overflow:hidden}\n.tsb *{box-sizing:border-box}\n.head{display:flex;align-items:center;gap:12px;flex-wrap:wrap}\n.title{font-size:13px;font-weight:600;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.counts{display:flex;gap:10px;flex-wrap:wrap}\n.count{display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--muted)}\n.count b{color:var(--text);font-weight:600}\n.swatch{width:8px;height:8px;border-radius:2px}\n.swatch.booked{background:var(--window);border:1px solid var(--muted)}\n.swatch.loading{background:var(--accent)}\n.swatch.done{background:var(--background);border-left:3px solid var(--positive)}\n.swatch.late{background:var(--negative)}\n.free{display:flex;align-items:baseline;gap:4px;padding:1px 8px;border-radius:10px;background:var(--background)}\n.free-value{font-weight:600;font-size:12px}\n.free-label{font-size:11.5px;color:var(--muted)}\n.scroller{flex:1;min-height:0;overflow-x:auto;overflow-y:auto;border-top:1px solid var(--border)}\n.board{min-width:380px;height:100%;display:flex;flex-direction:column}\n.axis{display:flex;height:22px;flex:none}\n.corner{width:92px;flex:none}\n.hours{position:relative;flex:1}\n.hour{position:absolute;top:5px;transform:translateX(-50%);font-size:10.5px;color:var(--muted);white-space:nowrap}\n.hour.first{transform:none}\n.hour.last{transform:translateX(-100%)}\n.now-label{position:absolute;top:3px;transform:translateX(-50%);font-size:10px;font-weight:600;color:var(--negative);background:var(--window);padding:0 3px;border-radius:4px}\n.bays{flex:1;display:flex;flex-direction:column;min-height:0}\n.bay{flex:1 1 0;min-height:28px;max-height:48px;display:flex;border-bottom:1px solid var(--border)}\n.bay-name{width:92px;flex:none;display:flex;align-items:center;padding-right:8px;font-weight:600;font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.track{position:relative;flex:1}\n.grid{position:absolute;top:0;bottom:0;width:1px;background:var(--border)}\n.now{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--negative);z-index:2;pointer-events:none}\n.slot{position:absolute;top:3px;bottom:3px;display:flex;align-items:center;gap:5px;padding:0 6px 0 3px;border-radius:6px;overflow:hidden;cursor:pointer;white-space:nowrap;z-index:1;border:1px solid transparent}\n.slot.booked{background:var(--window);border-color:var(--muted);color:var(--text)}\n.slot.loading{background:var(--accent);color:#fff}\n.slot.done{background:var(--background);border-left:3px solid var(--positive);color:var(--muted)}\n.slot.late{background:var(--negative);color:#fff}\n.slot:hover{filter:brightness(1.06);box-shadow:0 1px 4px var(--border)}\n.slot.selected{box-shadow:0 0 0 2px var(--text)}\n.mot{flex:none;width:15px;height:15px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:700;background:var(--background);color:var(--text)}\n.slot.loading .mot,.slot.late .mot{background:var(--window);color:var(--text)}\n.cp{font-weight:600;overflow:hidden;text-overflow:ellipsis;min-width:0}\n.product{opacity:.8;overflow:hidden;text-overflow:ellipsis;min-width:0}\n.empty{padding:24px 0;text-align:center;color:var(--muted)}\n.tip{position:absolute;display:none;z-index:5;pointer-events:none;background:var(--text);color:var(--window);padding:6px 9px;border-radius:6px;font-size:11.5px;line-height:1.45;white-space:nowrap}\n.tip b{font-weight:600}",
+    "js": "function render(root, props, fire) {\n  var STATUS = [\n    { key: \"booked\", text: \"Booked\" }, { key: \"loading\", text: \"Loading\" },\n    { key: \"done\", text: \"Done\" }, { key: \"late\", text: \"Late\" }];\n  var MOTS = { R: \"Rail\", T: \"Truck\", B: \"Barge\", P: \"Pipeline\" };\n  function esc(s) { return String(s == null ? \"\" : s).replace(/[&<>\"']/g, function (c) { return \"&#\" + c.charCodeAt(0) + \";\"; }); }\n  function mins(t) { var m = /^(\\d{1,2}):(\\d{2})$/.exec(String(t || \"\").trim()); return m ? +m[1] * 60 + +m[2] : null; }\n  function motKey(m) { var c = String(m || \"\").trim().charAt(0).toUpperCase(); return MOTS[c] ? c : \"T\"; }\n  function statusKey(s) { s = String(s || \"\").toLowerCase(); for (var i = 0; i < STATUS.length; i++) if (STATUS[i].key === s) return s; return \"booked\"; }\n\n  var start = Math.max(0, Math.min(23, props.startHour | 0));\n  var end = Math.max(start + 1, Math.min(24, props.endHour | 0));\n  var from = start * 60, to = end * 60, span = to - from;\n  var pct = function (m) { return (Math.max(from, Math.min(to, m)) - from) / span * 100; };\n\n  var slots = [], bays = [];\n  (props.slots || []).forEach(function (s) {\n    var a = mins(s.start), b = mins(s.end);\n    if (!s.id || a == null || b == null || b <= a) return;\n    var bay = String(s.bay || \"—\");\n    if (bays.indexOf(bay) < 0) bays.push(bay);\n    slots.push({ id: String(s.id), bay: bay, a: a, b: b, start: s.start, end: s.end, cp: s.counterparty || \"\", product: s.product || \"\", mot: motKey(s.mot), status: statusKey(s.status) });\n  });\n\n  root.querySelector(\".title\").textContent = props.title || \"\";\n\n  var counts = { booked: 0, loading: 0, done: 0, late: 0 };\n  slots.forEach(function (s) { counts[s.status]++; });\n  root.querySelector(\".counts\").innerHTML = STATUS.map(function (st) {\n    return \"<span class='count'><span class='swatch \" + st.key + \"'></span>\" + st.text + \" <b>\" + counts[st.key] + \"</b></span>\";\n  }).join(\"\");\n\n  // free capacity: bay-hours inside the window not covered by any slot (overlaps merged)\n  var used = 0;\n  bays.forEach(function (bay) {\n    var iv = slots.filter(function (s) { return s.bay === bay; })\n      .map(function (s) { return [Math.max(from, s.a), Math.min(to, s.b)]; })\n      .filter(function (x) { return x[1] > x[0]; })\n      .sort(function (x, y) { return x[0] - y[0]; });\n    var cs = -1, ce = -1;\n    iv.forEach(function (x) { if (x[0] > ce) { if (ce > cs) used += ce - cs; cs = x[0]; ce = x[1]; } else ce = Math.max(ce, x[1]); });\n    if (ce > cs) used += ce - cs;\n  });\n  var total = bays.length * span;\n  root.querySelector(\".free-value\").textContent = total ? Math.round((1 - used / total) * 100) + \"%\" : \"—\";\n\n  var nowM = mins(props.now);\n  var showNow = nowM != null && nowM >= from && nowM <= to;\n\n  var hours = \"\";\n  for (var h = start; h <= end; h++) {\n    var step = span > 12 * 60 ? 2 : 1;\n    if ((h - start) % step && h !== end) continue;\n    var cls = h === start ? \" first\" : h === end ? \" last\" : \"\";\n    hours += \"<span class='hour\" + cls + \"' style='left:\" + pct(h * 60) + \"%'>\" + (h < 10 ? \"0\" : \"\") + h + \":00</span>\";\n  }\n  if (showNow) hours += \"<span class='now-label' style='left:\" + pct(nowM) + \"%'>\" + esc(props.now) + \"</span>\";\n  root.querySelector(\".hours\").innerHTML = hours;\n\n  var grid = \"\";\n  for (var h = start + 1; h < end; h++) grid += \"<div class='grid' style='left:\" + pct(h * 60) + \"%'></div>\";\n\n  var html = \"\";\n  if (!bays.length) html = \"<div class='empty'>No slots booked</div>\";\n  bays.forEach(function (bay) {\n    html += \"<div class='bay'><div class='bay-name' title='\" + esc(bay) + \"'>\" + esc(bay) + \"</div><div class='track'>\" + grid;\n    slots.forEach(function (s) {\n      if (s.bay !== bay || s.b <= from || s.a >= to) return;\n      var l = pct(s.a), w = pct(s.b) - l;\n      html += \"<div class='slot \" + s.status + (s.id === props.selected ? \" selected\" : \"\") + \"' data-id='\" + esc(s.id) + \"' style='left:calc(\" + l + \"% + 1px);width:calc(\" + w + \"% - 2px)'>\" +\n        \"<span class='mot'>\" + s.mot + \"</span><span class='cp'>\" + esc(s.cp) + \"</span><span class='product'>\" + esc(s.product) + \"</span></div>\";\n    });\n    if (showNow) html += \"<div class='now' style='left:\" + pct(nowM) + \"%'></div>\";\n    html += \"</div></div>\";\n  });\n  var baysEl = root.querySelector(\".bays\");\n  baysEl.innerHTML = html;\n\n  var tip = root.querySelector(\".tip\"), box = root.querySelector(\".tsb\");\n  var byId = {}; slots.forEach(function (s) { byId[s.id] = s; });\n  baysEl.querySelectorAll(\".slot\").forEach(function (el) {\n    var s = byId[el.getAttribute(\"data-id\")];\n    el.onmouseenter = function () {\n      var st = STATUS.filter(function (x) { return x.key === s.status; })[0].text;\n      tip.innerHTML = \"<b>\" + esc(s.bay) + \"</b> · \" + esc(s.start) + \"–\" + esc(s.end) + \"<br>\" + esc(s.cp) + \" · \" + esc(s.product) + \"<br>\" + MOTS[s.mot] + \" · \" + st;\n      tip.style.display = \"block\";\n    };\n    el.onmousemove = function (e) {\n      var r = box.getBoundingClientRect();\n      var x = e.clientX - r.left + 12, y = e.clientY - r.top + 14;\n      if (x + tip.offsetWidth > r.width) x = r.width - tip.offsetWidth - 4;\n      if (y + tip.offsetHeight > r.height) y = e.clientY - r.top - tip.offsetHeight - 10;\n      tip.style.left = x + \"px\"; tip.style.top = y + \"px\";\n    };\n    el.onmouseleave = function () { tip.style.display = \"none\"; };\n    el.onclick = function () { if (s.id !== props.selected) fire(\"slotSelected\", { id: s.id, selected: s.id }); };\n  });\n}",
+    "props": [
+      {
+        "name": "title",
+        "type": "string",
+        "default": "Hereford terminal · loading slots",
+        "description": "The board's title."
+      },
+      {
+        "name": "startHour",
+        "type": "int",
+        "default": 6,
+        "description": "First hour of the day shown (0-23)."
+      },
+      {
+        "name": "endHour",
+        "type": "int",
+        "default": 22,
+        "description": "Last hour shown (1-24), after startHour."
+      },
+      {
+        "name": "now",
+        "type": "string",
+        "default": "13:20",
+        "description": "Current time as HH:mm, drawn as a vertical line; empty hides it."
+      },
+      {
+        "name": "slots",
+        "type": "rows",
+        "default": [
+          {
+            "id": "S-101",
+            "bay": "Rack 1",
+            "start": "06:30",
+            "end": "08:00",
+            "counterparty": "Valero",
+            "product": "Ethanol",
+            "mot": "T",
+            "status": "done"
+          },
+          {
+            "id": "S-102",
+            "bay": "Rack 1",
+            "start": "09:00",
+            "end": "11:00",
+            "counterparty": "Marathon",
+            "product": "Ethanol",
+            "mot": "T",
+            "status": "done"
+          },
+          {
+            "id": "S-103",
+            "bay": "Rack 1",
+            "start": "12:30",
+            "end": "14:30",
+            "counterparty": "Sinclair",
+            "product": "E85",
+            "mot": "T",
+            "status": "loading"
+          },
+          {
+            "id": "S-104",
+            "bay": "Rack 1",
+            "start": "16:00",
+            "end": "18:00",
+            "counterparty": "Valero",
+            "product": "Ethanol",
+            "mot": "T",
+            "status": "booked"
+          },
+          {
+            "id": "S-201",
+            "bay": "Rack 2",
+            "start": "07:00",
+            "end": "09:30",
+            "counterparty": "Phillips 66",
+            "product": "Ethanol",
+            "mot": "T",
+            "status": "done"
+          },
+          {
+            "id": "S-202",
+            "bay": "Rack 2",
+            "start": "11:00",
+            "end": "13:00",
+            "counterparty": "Casey's",
+            "product": "E15",
+            "mot": "T",
+            "status": "late"
+          },
+          {
+            "id": "S-203",
+            "bay": "Rack 2",
+            "start": "15:00",
+            "end": "17:30",
+            "counterparty": "Kum & Go",
+            "product": "E85",
+            "mot": "T",
+            "status": "booked"
+          },
+          {
+            "id": "S-301",
+            "bay": "Rail spot A",
+            "start": "06:00",
+            "end": "12:00",
+            "counterparty": "BNSF unit train",
+            "product": "Ethanol",
+            "mot": "R",
+            "status": "done"
+          },
+          {
+            "id": "S-302",
+            "bay": "Rail spot A",
+            "start": "13:00",
+            "end": "19:00",
+            "counterparty": "Cargill",
+            "product": "DDGS",
+            "mot": "R",
+            "status": "loading"
+          },
+          {
+            "id": "S-401",
+            "bay": "Rail spot B",
+            "start": "10:00",
+            "end": "16:00",
+            "counterparty": "ADM",
+            "product": "Corn oil",
+            "mot": "R",
+            "status": "late"
+          },
+          {
+            "id": "S-501",
+            "bay": "Barge dock",
+            "start": "08:00",
+            "end": "15:00",
+            "counterparty": "Bunge",
+            "product": "Ethanol",
+            "mot": "B",
+            "status": "loading"
+          },
+          {
+            "id": "S-502",
+            "bay": "Barge dock",
+            "start": "17:00",
+            "end": "21:30",
+            "counterparty": "Gavilon",
+            "product": "DDGS",
+            "mot": "B",
+            "status": "booked"
+          },
+          {
+            "id": "S-601",
+            "bay": "Pipeline",
+            "start": "06:00",
+            "end": "22:00",
+            "counterparty": "Magellan",
+            "product": "Ethanol",
+            "mot": "P",
+            "status": "loading"
+          }
+        ],
+        "description": "The loading slots: id, bay, start and end (HH:mm), counterparty, product, mot (R rail, T truck, B barge, P pipeline), status (booked, loading, done, late)."
+      },
+      {
+        "name": "selected",
+        "type": "string",
+        "default": "",
+        "description": "Id of the selected slot, outlined; empty for none."
+      }
+    ],
+    "events": [
+      {
+        "name": "slotSelected",
+        "payload": {
+          "id": "string",
+          "selected": "string"
+        },
+        "sets": [
+          "selected"
+        ]
+      }
+    ],
+    "tokens": {
+      "accent": "#6d4dff",
+      "positive": "#1fb57a",
+      "negative": "#e5484d",
+      "window": "#ffffff",
+      "background": "#f3f4f7",
+      "text": "#171a21",
+      "muted": "#5f6878",
+      "border": "#e1e4ea",
+      "hover": "#eeeaff"
+    },
+    "dependencies": [],
+    "notes": "Simple control (rows are data, no designer-edited items, no library). Bays are the distinct bay values in order of first appearance. Hour labels every hour, every 2 hours when the window is over 12 h; gridlines every hour. Free capacity = bay-hours in the window not covered by any slot (overlaps merged per bay). Status colours: booked = window surface with a muted border; loading = accent fill; done = subdued surface with a green stripe; late = red fill. MOT normalized to its first letter R/T/B/P (default T). Fluid ~400x220 to 1200x600, rows share the height (28-48 px), horizontal scroll only under ~380 px. No card chrome; meant for a GridBoard widget. Native: slots are widgets in a Canvas per bay positioned by percent, tooltip is the widget's tooltip.",
+    "filledByAgent": true,
+    "icon": {
+      "rgba": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADlSE2A5UhN/+VITYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA5UhNgOVITf/lSE2AAAAAAAAAAAAAAAAAH7V6yB+1ev8ftXr/H7V6/x+1ev8ftXrIAAAAAG1N/8htTf//bU3//6lLpv/lSE3/qUum/21N/8gAAAAAAAAAAB+1ev8ftXr/H7V6/x+1ev8ftXr/H7V6/wAAAABtTf//bU3//21N//+pS6b/5UhN/6lLpv9tTf//AAAAAAAAAAAftXrIH7V6/x+1ev8ftXr/H7V6/x+1esgAAAAAbU3/yG1N//9tTf//qUum/+VITf+pS6b/bU3/yAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOVITYDlSE3/5UhNgAAAAAAAAAAAAAAAAAAAAABtTf9ObU3/gG1N/4BtTf+AbU3/gG1N/4BtTf+AbU3/gG1N/07lSE2A5UhN/+VITYAAAAAAAAAAAAAAAAAAAAAAbU3/+m1N//9tTf//bU3//21N//9tTf//bU3//21N//9tTf/65UhNgOVITf/lSE2AAAAAAAAAAAAAAAAAAAAAAG1N//ptTf//bU3//21N//9tTf//bU3//21N//9tTf//bU3/+uVITYDlSE3/5UhNgAAAAAAAAAAAAAAAAAAAAABtTf9ObU3/gG1N/4BtTf+AbU3/gG1N/4BtTf+AbU3/gG1N/07lSE2A5UhN/+VITYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA5UhNgOVITf/lSE2AAAAAAAAAAAAAAAAAjZWjyI2Vo/+NlaP/jZWj/42Vo8gAAAAAAAAAAG1N/8htTf//bU3//6lLpv/lSE3/qUum/21N/8gAAAAAAAAAAI2Vo/+NlaP/jZWj/42Vo/+NlaP/AAAAAAAAAABtTf//bU3//21N//+pS6b/5UhN/6lLpv9tTf//AAAAAAAAAACNlaPIjZWj/42Vo/+NlaP/jZWjyAAAAAAAAAAAbU3/yG1N//9tTf//qUum/+VITf+pS6b/bU3/yAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOVITYDlSE3/5UhNgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADlSE2A5UhN/+VITYAAAAAAAAAAAA==",
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 16 16\"><rect x=\"1\" y=\"2\" width=\"6\" height=\"3\" rx=\"1\" fill=\"#1fb57a\"/><rect x=\"8\" y=\"2\" width=\"7\" height=\"3\" rx=\"1\" fill=\"#6d4dff\"/><rect x=\"2\" y=\"6.5\" width=\"9\" height=\"3\" rx=\"1\" fill=\"#6d4dff\"/><rect x=\"1\" y=\"11\" width=\"5\" height=\"3\" rx=\"1\" fill=\"#8d95a3\"/><rect x=\"8\" y=\"11\" width=\"7\" height=\"3\" rx=\"1\" fill=\"#6d4dff\"/><rect x=\"11.5\" y=\"0\" width=\"2\" height=\"16\" fill=\"#e5484d\"/></svg>"
+    }
+  }
+}

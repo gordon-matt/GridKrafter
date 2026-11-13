@@ -446,12 +446,24 @@ namespace GridKrafter.WisejDemo
 			this.navigationBar.SelectedItem = this.navigationBarHome;
 		}
 
-		// Opens a page; with a plant, a commodity board shows only that plant.
-		private void Navigate(string panelName, string plantId)
+		// Opens a page; with a plant, a commodity board shows only that plant; with a board key and a pick, that
+		// business board shows only the pick (a customer, a carrier).
+		private void Navigate(string panelName, string plantId, string boardKey = null, string pickId = null)
 		{
 			var item = FindItem(this.navigationBar.Items, i => i.Tag as string == panelName);
 			if (item == null)
 				return;
+
+			if (boardKey != null && pickId != null)
+			{
+				// the board on show takes the pick at once; one that opens takes it as it loads
+				if (panelName == this.currentPanel && this.panelMain.Controls.Count > 0 && this.panelMain.Controls[0] is BusinessBoardPanel business)
+				{
+					business.ShowPick(pickId);
+					return;
+				}
+				BusinessBoardPanel.RememberPick(boardKey, pickId);
+			}
 
 			if (plantId != null)
 			{
@@ -543,6 +555,7 @@ namespace GridKrafter.WisejDemo
 					{
 						"plant" => "resource.wx/Wisej.Ext.BootstrapIcons/building.svg",
 						"customer" => "resource.wx/Wisej.Ext.BootstrapIcons/person.svg",
+						"carrier" => "resource.wx/Wisej.Ext.BootstrapIcons/truck.svg",
 						_ => "resource.wx/Wisej.Ext.BootstrapIcons/grid-1x2.svg",
 					},
 					Tag = hit,
@@ -563,7 +576,7 @@ namespace GridKrafter.WisejDemo
 					Navigate(alert.Panel, alert.PlantId);
 					break;
 				case SearchHit hit:
-					Navigate(hit.Panel, hit.PlantId);
+					Navigate(hit.Panel, hit.PlantId, hit.Board, hit.Pick);
 					break;
 			}
 		}
@@ -623,10 +636,10 @@ namespace GridKrafter.WisejDemo
 
 		private void ResetBoard()
 		{
-			// a commodity board forgets only its own layout, and stays on show
-			if (this.panelMain.Controls.Count > 0 && this.panelMain.Controls[0] is CommodityBoardPanel commodityBoard)
+			// a commodity or business board forgets only its own layout, and stays on show
+			if (this.panelMain.Controls.Count > 0 && this.panelMain.Controls[0] is BoardPanel boardPanel)
 			{
-				commodityBoard.ResetBoard();
+				boardPanel.ResetBoard();
 				return;
 			}
 

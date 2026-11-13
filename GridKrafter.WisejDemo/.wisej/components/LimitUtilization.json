@@ -1,0 +1,133 @@
+{
+  "name": "LimitUtilization",
+  "namespace": "GridKrafter.WisejDemo",
+  "fullName": "GridKrafter.WisejDemo.LimitUtilization",
+  "language": "csharp",
+  "files": [
+    "Controls/LimitUtilization/LimitUtilization.cs",
+    "Controls/LimitUtilization/gridkrafter.wisejdemo.LimitUtilization.js",
+    "Controls/LimitUtilization/LimitUtilization.mixin.theme",
+    "Controls/LimitUtilization/LimitUtilization.bmp",
+    "GridKrafter.WisejDemo.csproj"
+  ],
+  "saved": "2026-11-13T17:36:08.6149154Z",
+  "sketch": {
+    "schema": "wisej-component-sketch/1",
+    "name": "LimitUtilization",
+    "namespace": "",
+    "description": "Exposure against limit, one row per counterparty or obligation: a rating chip, a bar with a warning marker, the percent used and an OK / Watch / Breach chip, sorted by percent used.",
+    "size": [
+      560,
+      320
+    ],
+    "html": "<div class=\"lu\"><div class=\"head\"><div class=\"title\"></div><div class=\"tot\"></div><div class=\"flag\"></div></div><div class=\"rows\"></div></div>",
+    "css": ".lu{display:flex;flex-direction:column;height:100%;padding:12px 14px;background:var(--surface);color:var(--text);font:12px Segoe UI,system-ui,sans-serif;box-sizing:border-box}\n.head{display:flex;align-items:baseline;gap:10px;margin-bottom:8px}\n.title{font-weight:700;font-size:14px}\n.tot{flex:1;color:var(--muted)}.tot b{color:var(--text)}\n.flag{font-weight:700;font-size:11px;padding:1px 9px;border-radius:10px;background:var(--chip)}\n.flag.bad{color:var(--negative)}.flag.ok{color:var(--positive)}\n.rows{flex:1;overflow:auto;display:flex;flex-direction:column;gap:1px}\n.row{display:flex;align-items:center;gap:8px;padding:4px 6px;border-radius:6px;border:1px solid transparent;cursor:pointer}\n.row:hover{background:var(--hover)}.row.selected{background:var(--hover);border-color:var(--accent)}\n.who{width:150px;display:flex;align-items:center;gap:6px;min-width:0}\n.name{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.rating{font-size:10px;font-weight:700;padding:0 6px;border-radius:8px;border:1px solid var(--border);color:var(--muted)}\n.track{flex:1;position:relative;height:12px;background:var(--border);border-radius:5px}\n.fill{position:absolute;left:0;top:0;bottom:0;border-radius:5px}\n.mark{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--text);opacity:.55}\n.pct{width:44px;text-align:right;font-weight:700}\n.chip{width:56px;text-align:center;font-size:11px;font-weight:700;padding:1px 0;border-radius:10px;background:var(--chip)}",
+    "js": "function render(root, props, fire) {\n  var rows = (props.rows || []).map(function (r) { var l = +r.limit || 0, e = +r.exposure || 0; return { name: r.name, e: e, l: l, rating: r.rating || '', p: l > 0 ? e / l : (e > 0 ? 9.99 : 0) }; });\n  rows.sort(function (a, b) { return b.p - a.p; });\n  var warn = props.warnAt > 0 ? props.warnAt : 0.8, unit = props.unit || '';\n  var te = 0, tl = 0, br = 0;\n  rows.forEach(function (r) { te += r.e; tl += r.l; if (r.p > 1) br++; });\n  root.querySelector('.title').textContent = props.title || '';\n  root.querySelector('.tot').innerHTML = '<b>' + te + '</b> / ' + tl + ' ' + unit;\n  var f = root.querySelector('.flag'); f.textContent = br ? br + ' in breach' : 'No breaches'; f.className = 'flag ' + (br ? 'bad' : 'ok');\n  var scale = Math.max(1, rows.reduce(function (m, r) { return Math.max(m, r.p); }, 0));\n  var box = root.querySelector('.rows'); box.innerHTML = '';\n  rows.forEach(function (r) {\n    var st = r.p > 1 ? ['Breach', 'negative'] : r.p >= warn ? ['Watch', 'warning'] : ['OK', 'positive'];\n    var d = document.createElement('div'); d.className = 'row' + (r.name === props.selected ? ' selected' : '');\n    d.title = r.name + ': ' + r.e + ' of ' + r.l + ' ' + unit + ', headroom ' + (r.l - r.e) + ' ' + unit;\n    d.innerHTML = '<div class=\"who\"><span class=\"name\"></span><span class=\"rating\"></span></div><div class=\"track\"><div class=\"fill\" style=\"width:' + (Math.min(r.p, scale) / scale * 100) + '%;background:var(--' + st[1] + ')\"></div><div class=\"mark\" style=\"left:' + (warn / scale * 100) + '%\"></div></div><div class=\"pct\">' + Math.round(r.p * 100) + '%</div><div class=\"chip\" style=\"color:var(--' + st[1] + ')\">' + st[0] + '</div>';\n    d.querySelector('.name').textContent = r.name; d.querySelector('.rating').textContent = r.rating;\n    if (!r.rating) d.querySelector('.rating').style.display = 'none';\n    d.onclick = function () { fire('rowSelected', { name: r.name, selected: r.name }); };\n    box.appendChild(d);\n  });\n}",
+    "props": [
+      {
+        "name": "title",
+        "type": "string",
+        "default": "Credit limits",
+        "description": "The title shown in the header."
+      },
+      {
+        "name": "unit",
+        "type": "string",
+        "default": "$M",
+        "description": "The unit shown after exposure and limit amounts."
+      },
+      {
+        "name": "warnAt",
+        "type": "number",
+        "default": 0.8,
+        "description": "Share of the limit (0 to 1) at which a row is on Watch; the bar's marker sits here."
+      },
+      {
+        "name": "rows",
+        "type": "rows",
+        "default": [
+          {
+            "name": "Valero Marketing",
+            "exposure": 42,
+            "limit": 50,
+            "rating": "BBB"
+          },
+          {
+            "name": "Cargill Ethanol",
+            "exposure": 38,
+            "limit": 80,
+            "rating": "A"
+          },
+          {
+            "name": "Gunvor USA",
+            "exposure": 31,
+            "limit": 30,
+            "rating": "BBB-"
+          },
+          {
+            "name": "Phillips 66",
+            "exposure": 27,
+            "limit": 60,
+            "rating": "A-"
+          },
+          {
+            "name": "BP Products",
+            "exposure": 18,
+            "limit": 75,
+            "rating": "A"
+          },
+          {
+            "name": "Trafigura",
+            "exposure": 24,
+            "limit": 28,
+            "rating": "BBB+"
+          },
+          {
+            "name": "Marathon Petroleum",
+            "exposure": 9,
+            "limit": 45,
+            "rating": "BBB"
+          }
+        ],
+        "description": "The counterparties: name, exposure, limit, rating."
+      },
+      {
+        "name": "selected",
+        "type": "string",
+        "default": "",
+        "description": "The name of the selected row; empty for none."
+      }
+    ],
+    "events": [
+      {
+        "name": "rowSelected",
+        "payload": {
+          "name": "string",
+          "selected": "string"
+        },
+        "sets": [
+          "selected"
+        ]
+      }
+    ],
+    "tokens": {
+      "surface": "#ffffff",
+      "text": "#1c2230",
+      "muted": "#5f6878",
+      "border": "#e3e6ec",
+      "hover": "#f1effe",
+      "accent": "#6d4dff",
+      "positive": "#1fb57a",
+      "warning": "#f2a516",
+      "negative": "#e5484d",
+      "chip": "#eef0f4"
+    },
+    "dependencies": [],
+    "notes": "",
+    "filledByAgent": true,
+    "icon": {
+      "rgba": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHCIwWhwiMLMAAAAAAAAAAAAAAAAAAAAAL7iDKyK1fH4ftXqAH7V6gB+1eoAftXqAJLZ9gJXGu4DJztiAyc7YgG91gaw7QE3Zyc7YfMnO2CcAAAAAAAAAACO2fOYftXr/H7V6/x+1ev8ftXr/H7V6/x+1ev8zuIX/yc7Y/8nO2P+Nkp3/UFVi/8nO2P/JztjhAAAAAAAAAAAjtnzmH7V6/x+1ev8ftXr/H7V6/x+1ev8ftXr/M7iF/8nO2P/Jztj/jZKd/1BVYv/Jztj/yc7Y4QAAAAAAAAAAL7iDKyK1fH4ftXqAH7V6gB+1eoAftXqAJLZ9gJXGu4DJztiAyc7YgG91gaw7QE3Zyc7YfMnO2CcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAcIjBaHCIwswAAAAAAAAAAAAAAAAAAAADwpx+T8qUY/vKlFv/ypRb/8qUW//KlFv/ypRb/8qUW//KlFv/ypRb/p3cg/1dOQ//Jztj7yc7YjAAAAAAAAAAA8aYZ/PKlFv/ypRb/8qUW//KlFv/ypRb/8qUW//KlFv/ypRb/8qUW/6d3IP9cSSv/yc7Y/8nO2PgAAAAAAAAAAPCnH5PypRj+8qUW//KlFv/ypRb/8qUW//KlFv/ypRb/8qUW//KlFv+ndyD/V05D/8nO2PvJztiMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHCIwWhwiMLMAAAAAAAAAAAAAAAAAAAAA41RaK+VKT37lSE2A5UhNgOVITYDlSE2A5UhNgOVITYDlSE2A5UhNgH00Pqw/KDXZ5UhNgOVITWHmR00CAAAAAORLUOblSE3/5UhN/+VITf/lSE3/5UhN/+VITf/lSE3/5UhN/+VITf+fO0P/WC05/+VITf/lSE3/5UhNYQAAAADkS1Dm5UhN/+VITf/lSE3/5UhN/+VITf/lSE3/5UhN/+VITf/lSE3/nztD/1gtOf/lSE3/5UhN/+VITWEAAAAA41RaK+VKT37lSE2A5UhNgOVITYDlSE2A5UhNgOVITYDlSE2A5UhNgH00Pqw/KDXZ5UhNgOVITWHmR00CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 16 16\"><rect x=\"1\" y=\"2.5\" width=\"14\" height=\"3\" rx=\"1.5\" fill=\"#c9ced8\"/><rect x=\"1\" y=\"2.5\" width=\"8\" height=\"3\" rx=\"1.5\" fill=\"#1fb57a\"/><rect x=\"1\" y=\"7\" width=\"14\" height=\"3\" rx=\"1.5\" fill=\"#c9ced8\"/><rect x=\"1\" y=\"7\" width=\"12\" height=\"3\" rx=\"1.5\" fill=\"#f2a516\"/><rect x=\"1\" y=\"11.5\" width=\"11\" height=\"3\" rx=\"1.5\" fill=\"#c9ced8\"/><rect x=\"1\" y=\"11.5\" width=\"14.5\" height=\"3\" rx=\"1.5\" fill=\"#e5484d\"/><rect x=\"11.5\" y=\"1\" width=\"1.5\" height=\"14\" fill=\"#1c2230\" opacity=\"0.7\"/></svg>"
+    }
+  }
+}

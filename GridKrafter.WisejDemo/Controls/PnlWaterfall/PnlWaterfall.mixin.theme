@@ -1,0 +1,74 @@
+{
+	"name": "PnlWaterfall.mixin",
+
+	// the GridKrafter palette: up steps green, down steps red; the totals are the theme's highlight,
+	// and surfaces, text and borders are the theme's own colours so it follows Light and Dark.
+	"colors": {
+		"pnl-waterfall-positive": "#1fb57a",
+		"pnl-waterfall-negative": "#e5484d"
+	},
+
+	"fonts": {
+		"pnl-waterfall-small": { "size": 12, "family": ["Segoe UI", "system-ui", "Roboto", "Helvetica Neue", "Arial", "sans-serif"] },
+		"pnl-waterfall-title": { "size": 13.5, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] },
+		"pnl-waterfall-value": { "size": 20, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] }
+	},
+
+	"appearances": {
+
+		"pnl-waterfall": {
+			"inherit": "widget",
+			"states": {
+				"default": {
+					"properties": {
+						"themeAccentColor": "highlight",
+						"themePositiveColor": "pnl-waterfall-positive",
+						"themeNegativeColor": "pnl-waterfall-negative",
+						"padding": [10, 12],
+						"font": "pnl-waterfall-small",
+						"textColor": "windowText",
+						"backgroundColor": "window",
+						"opacity": 1
+					},
+					"styles": { "width": 0 }
+				},
+				"disabled": { "properties": { "opacity": 0.55 } }
+			},
+			"components": {
+
+				"title": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "pnl-waterfall-title", "textColor": "windowText" } } }
+				},
+
+				"total-label": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "pnl-waterfall-small", "textColor": "grayText" } } }
+				},
+
+				"total-value": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "pnl-waterfall-value", "textColor": "windowText" } } }
+				},
+
+				"chart": {
+					"inherit": "widget",
+					"states": { "default": { "properties": { "backgroundColor": "transparent", "font": "pnl-waterfall-small" } } }
+				},
+
+				"tip": {
+					"inherit": "label",
+					"states": {
+						"default": {
+							"properties": { "font": "pnl-waterfall-small", "textColor": "grayText", "padding": [7, 10], "minWidth": 150 },
+							"styles": {
+								"backgroundColor": "window",
+								"width": 1, "color": "windowFrame", "radius": 8
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}

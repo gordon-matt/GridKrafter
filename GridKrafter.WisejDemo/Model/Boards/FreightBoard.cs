@@ -173,6 +173,15 @@ namespace GridKrafter.WisejDemo.Model.Boards
 			}
 
 			var s = this.data.GetSummary(filter, n);
+			string none = NoneFor(kind, filter, s);
+			if (none != null)
+			{
+				tile.Value = "–";
+				tile.Change = "";
+				tile.Caption = none;
+				return;
+			}
+
 			switch (kind)
 			{
 				case KIND_CARS:
@@ -209,6 +218,12 @@ namespace GridKrafter.WisejDemo.Model.Boards
 
 			var matrix = host.Content<FreightLaneMatrix>();
 			var lanes = this.data.GetLanes(filter, n).ToList();
+			if (lanes.Count == 0 && filter.Mode != TransportMode.All)
+			{
+				host.ShowEmpty(NoLanes(filter));
+				return;
+			}
+
 			if (!lanes.Any(l => l.Lane == matrix.Selected))
 				matrix.Selected = "";
 
@@ -222,7 +237,7 @@ namespace GridKrafter.WisejDemo.Model.Boards
 			var mix = empty ? new List<FreightModeShare>() : this.data.GetModeMix(filter, n).ToList();
 			if (mix.Count == 0)
 			{
-				host.ShowEmpty();
+				host.ShowEmpty(empty || filter.Mode == TransportMode.All ? null : NoLanes(filter));
 				return;
 			}
 
@@ -245,6 +260,13 @@ namespace GridKrafter.WisejDemo.Model.Boards
 			if (empty)
 			{
 				host.ShowEmpty();
+				return;
+			}
+
+			// railcars move by rail only
+			if (filter.Mode != TransportMode.All && filter.Mode != TransportMode.Rail)
+			{
+				host.ShowEmpty(NoRailCars(filter));
 				return;
 			}
 
@@ -296,6 +318,34 @@ namespace GridKrafter.WisejDemo.Model.Boards
 			DefaultCellStyle = { Alignment = DataGridViewContentAlignment.MiddleRight },
 			HeaderCell = { Style = { Alignment = DataGridViewContentAlignment.MiddleRight } },
 		};
+
+		// "No rail cars for Truck": the railcar figures under another mode.
+		private static string NoRailCars(PlantFilter filter) => "No rail cars for " + TransportMix.Name(filter.Mode);
+
+		// "No freight moves by pipeline", or "No barge lanes for these plants" when the mode serves none of them.
+		private static string NoLanes(PlantFilter filter) =>
+			TransportMix.NoneMessage(filter, "freight", "freight")?.TrimEnd('.')
+			?? "No " + TransportMix.Name(filter.Mode).ToLowerInvariant() + " lanes for these plants";
+
+		// What a tile says in place of its figure under a MOT that leaves it nothing; null when it has one.
+		private static string NoneFor(string kind, PlantFilter filter, FreightSummary s)
+		{
+			if (filter.Mode == TransportMode.All)
+				return null;
+
+			switch (kind)
+			{
+				case KIND_CARS:
+				case KIND_DEMURRAGE:
+					return filter.Mode == TransportMode.Rail ? null : NoRailCars(filter);
+
+				case KIND_TRANSIT:
+					return s.AvgTransitDays > 0 ? null : NoLanes(filter);
+
+				default:
+					return s.CostCentsPerGal > 0 ? null : NoLanes(filter);
+			}
+		}
 
 		private static string Percent(double pct) => (pct < 0 ? "−" : "+") + Math.Abs(pct).ToString("0.0", CultureInfo.InvariantCulture) + "%";
 
@@ -367,7 +417,7 @@ namespace GridKrafter.WisejDemo.Model.Boards
 				this.content.Dock = DockStyle.Fill;
 				this.empty = new Label
 				{
-					Text = "No plants match this filter.\nChoose another region or plant.",
+					Text = NO_PLANTS,
 					TextAlign = ContentAlignment.MiddleCenter,
 					Dock = DockStyle.Fill,
 					Visible = false,
@@ -376,10 +426,13 @@ namespace GridKrafter.WisejDemo.Model.Boards
 				this.Controls.Add(this.empty);
 			}
 
+			private const string NO_PLANTS = "No plants match this filter.\nChoose another region or plant.";
+
 			public T Content<T>() where T : Control => (T)this.content;
 
-			public void ShowEmpty()
+			public void ShowEmpty(string text = null)
 			{
+				this.empty.Text = text ?? NO_PLANTS;
 				this.content.Visible = false;
 				this.empty.Visible = true;
 			}

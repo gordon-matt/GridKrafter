@@ -215,7 +215,7 @@ namespace GridKrafter.WisejDemo.Model.Boards
 
 			if (body is StatTile tile)
 			{
-				FillTile(tile, state.Tile, plants.Count == 0 ? null : this.data.Summary(filter, refresh));
+				FillTile(tile, state.Tile, plants.Count == 0 ? null : this.data.Summary(filter, refresh), filter);
 				return;
 			}
 
@@ -224,9 +224,14 @@ namespace GridKrafter.WisejDemo.Model.Boards
 			if (content == null || empty == null)
 				return;
 
-			empty.Text = message;
-			empty.Visible = plants.Count == 0;
-			content.Visible = plants.Count > 0;
+			// tons move by a mode; with none of the CO2 moving by the filter's, the tons widgets say so
+			string none = content is PlantStatusGrid ? null : TransportMix.NoneMessage(filter, "co2", "CO2");
+			bool show = plants.Count > 0 && none == null;
+			empty.Text = plants.Count == 0 ? message : none ?? "";
+			empty.Visible = !show;
+			content.Visible = show;
+			if (!show)
+				return;
 
 			switch (content)
 			{
@@ -273,7 +278,7 @@ namespace GridKrafter.WisejDemo.Model.Boards
 			}
 		}
 
-		private static void FillTile(StatTile tile, string metric, Co2Summary s)
+		private static void FillTile(StatTile tile, string metric, Co2Summary s, PlantFilter filter)
 		{
 			if (s == null)
 			{
@@ -283,12 +288,21 @@ namespace GridKrafter.WisejDemo.Model.Boards
 				return;
 			}
 
+			string none = TransportMix.NoneMessage(filter, "co2", "CO2");
+			if (none != null && metric != TILE_PRICE)
+			{
+				tile.Value = "—";
+				tile.Change = "";
+				tile.Caption = none.TrimEnd('.');
+				return;
+			}
+
 			switch (metric)
 			{
 				case TILE_SOLD:
 					tile.Value = s.TonsSold.ToString("N0", Culture);
 					tile.Change = Signed(s.SoldChangePct, "%");
-					tile.Caption = "vs last month";
+					tile.Caption = "vs last month" + TransportMix.CaptionSuffix(filter);
 					break;
 
 				case TILE_PRICE:
@@ -306,7 +320,7 @@ namespace GridKrafter.WisejDemo.Model.Boards
 				default:
 					tile.Value = s.TonsCaptured.ToString("N0", Culture);
 					tile.Change = Signed(s.CapturedChangePct, "%");
-					tile.Caption = "vs last month";
+					tile.Caption = "vs last month" + TransportMix.CaptionSuffix(filter);
 					break;
 			}
 		}

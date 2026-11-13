@@ -383,4 +383,89 @@
     </EmbeddedResource>
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- PnlWaterfall: its files, each embedded under the name Wisej.NET or the Toolbox reads it by (added by Component Studio) -->
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\PnlWaterfall\PnlWaterfall.mixin.theme">
+      <DependentUpon>PnlWaterfall.cs</DependentUpon>
+      <LogicalName>$(RootNamespace).Themes.PnlWaterfall.mixin.theme</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\PnlWaterfall\PnlWaterfall.bmp">
+      <DependentUpon>PnlWaterfall.cs</DependentUpon>
+      <LogicalName>GridKrafter.WisejDemo.PnlWaterfall.bmp</LogicalName>
+    </EmbeddedResource>
+    <None Remove="$(MSBuildThisFileDirectory)Controls\PnlWaterfall\gridkrafter.wisejdemo.PnlWaterfall.js" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\PnlWaterfall\gridkrafter.wisejdemo.PnlWaterfall.js">
+      <DependentUpon>PnlWaterfall.cs</DependentUpon>
+      <LogicalName>$(RootNamespace).Platform.gridkrafter.wisejdemo.PnlWaterfall.js</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- AgingBuckets: its files, each embedded under the name Wisej.NET or the Toolbox reads it by (added by Component Studio) -->
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\AgingBuckets\AgingBuckets.mixin.theme">
+      <DependentUpon>AgingBuckets.cs</DependentUpon>
+      <LogicalName>$(RootNamespace).Themes.AgingBuckets.mixin.theme</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\AgingBuckets\AgingBuckets.bmp">
+      <DependentUpon>AgingBuckets.cs</DependentUpon>
+      <LogicalName>GridKrafter.WisejDemo.AgingBuckets.bmp</LogicalName>
+    </EmbeddedResource>
+    <None Remove="$(MSBuildThisFileDirectory)Controls\AgingBuckets\gridkrafter.wisejdemo.AgingBuckets.js" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\AgingBuckets\gridkrafter.wisejdemo.AgingBuckets.js">
+      <DependentUpon>AgingBuckets.cs</DependentUpon>
+      <LogicalName>$(RootNamespace).Platform.gridkrafter.wisejdemo.AgingBuckets.js</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- CashFlowChart: its files, each embedded under the name Wisej.NET or the Toolbox reads it by (added by Component Studio) -->
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\CashFlowChart\CashFlowChart.mixin.theme">
+      <DependentUpon>CashFlowChart.cs</DependentUpon>
+      <LogicalName>$(RootNamespace).Themes.CashFlowChart.mixin.theme</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\CashFlowChart\CashFlowChart.bmp">
+      <DependentUpon>CashFlowChart.cs</DependentUpon>
+      <LogicalName>GridKrafter.WisejDemo.CashFlowChart.bmp</LogicalName>
+    </EmbeddedResource>
+    <None Remove="$(MSBuildThisFileDirectory)Controls\CashFlowChart\gridkrafter.wisejdemo.CashFlowChart.js" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\CashFlowChart\gridkrafter.wisejdemo.CashFlowChart.js">
+      <DependentUpon>CashFlowChart.cs</DependentUpon>
+      <LogicalName>$(RootNamespace).Platform.gridkrafter.wisejdemo.CashFlowChart.js</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- LimitUtilization: its files, each embedded under the name Wisej.NET or the Toolbox reads it by (added by Component Studio) -->
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\LimitUtilization\LimitUtilization.mixin.theme">
+      <DependentUpon>LimitUtilization.cs</DependentUpon>
+      <LogicalName>$(RootNamespace).Themes.LimitUtilization.mixin.theme</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\LimitUtilization\LimitUtilization.bmp">
+      <DependentUpon>LimitUtilization.cs</DependentUpon>
+      <LogicalName>GridKrafter.WisejDemo.LimitUtilization.bmp</LogicalName>
+    </EmbeddedResource>
+    <None Remove="$(MSBuildThisFileDirectory)Controls\LimitUtilization\gridkrafter.wisejdemo.LimitUtilization.js" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\LimitUtilization\gridkrafter.wisejdemo.LimitUtilization.js">
+      <DependentUpon>LimitUtilization.cs</DependentUpon>
+      <LogicalName>$(RootNamespace).Platform.gridkrafter.wisejdemo.LimitUtilization.js</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- TerminalSlotBoard: its files, each embedded under the name Wisej.NET or the Toolbox reads it by (added by Component Studio) -->
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\TerminalSlotBoard\TerminalSlotBoard.mixin.theme">
+      <DependentUpon>TerminalSlotBoard.cs</DependentUpon>
+      <LogicalName>$(RootNamespace).Themes.TerminalSlotBoard.mixin.theme</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\TerminalSlotBoard\TerminalSlotBoard.bmp">
+      <DependentUpon>TerminalSlotBoard.cs</DependentUpon>
+      <LogicalName>GridKrafter.WisejDemo.TerminalSlotBoard.bmp</LogicalName>
+    </EmbeddedResource>
+    <None Remove="$(MSBuildThisFileDirectory)Controls\TerminalSlotBoard\gridkrafter.wisejdemo.TerminalSlotBoard.js" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Controls\TerminalSlotBoard\gridkrafter.wisejdemo.TerminalSlotBoard.js">
+      <DependentUpon>TerminalSlotBoard.cs</DependentUpon>
+      <LogicalName>$(RootNamespace).Platform.gridkrafter.wisejdemo.TerminalSlotBoard.js</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
 </Project>

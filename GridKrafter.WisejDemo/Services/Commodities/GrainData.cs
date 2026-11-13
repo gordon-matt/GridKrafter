@@ -90,8 +90,21 @@ namespace GridKrafter.WisejDemo.Services.Commodities
 			["Ohio"] = -28,
 		};
 
+		// The share of the corn that moves by the filter's MOT: 1 for All MOT. Bushels scale; bids, basis,
+		// percentages and the plants' run do not.
+		private static double ModeShare(PlantFilter filter) => (filter ?? PlantFilter.All).ModeShare(BOARD);
+
 		/// <inheritdoc/>
 		public IReadOnlyList<GrainPlantDay> Plants(PlantFilter filter, int refresh)
+		{
+			double share = ModeShare(filter);
+			var list = PlantsCore(filter, refresh);
+			return share == 1 ? list : list
+				.Select(p => p with { GrindBu = TransportMix.Scale(p.GrindBu, share), ReceiptsBu = TransportMix.Scale(p.ReceiptsBu, share) })
+				.ToList();
+		}
+
+		private static List<GrainPlantDay> PlantsCore(PlantFilter filter, int refresh)
 		{
 			var list = new List<GrainPlantDay>();
 			foreach (var plant in PlantRegistry.Where(filter))
@@ -103,7 +116,14 @@ namespace GridKrafter.WisejDemo.Services.Commodities
 		/// <inheritdoc/>
 		public GrainTotals Totals(PlantFilter filter, int refresh)
 		{
-			var plants = Plants(filter, refresh);
+			double share = ModeShare(filter);
+			var t = TotalsCore(filter, refresh);
+			return t == null || share == 1 ? t : t with { GrindBu = TransportMix.Scale(t.GrindBu, share), ReceiptsBu = TransportMix.Scale(t.ReceiptsBu, share) };
+		}
+
+		private static GrainTotals TotalsCore(PlantFilter filter, int refresh)
+		{
+			var plants = PlantsCore(filter, refresh);
 			if (plants.Count == 0)
 				return null;
 
@@ -146,7 +166,8 @@ namespace GridKrafter.WisejDemo.Services.Commodities
 				double prior = Math.Round(price - (market.NextDouble() - 0.5) * 0.1, 2);
 				double volume = Math.Round(monthlyBu * Coverage[i] * (0.95 + hedge.NextDouble() * 0.1), 0);
 				double hedgedPrice = Math.Round(price - 0.03 - hedge.NextDouble() * 0.12, 2);
-				points.Add(new ForwardCurvePoint(CurveMonths[i], price, prior, hedgedPrice, volume));
+				// the bushels are the mode's (Plants scales them); a month with none hedged has no hedged price
+				points.Add(new ForwardCurvePoint(CurveMonths[i], price, prior, volume > 0 || ModeShare(filter) == 1 ? hedgedPrice : 0, volume));
 			}
 
 			return points;
@@ -156,8 +177,9 @@ namespace GridKrafter.WisejDemo.Services.Commodities
 		public IReadOnlyList<HedgeCoverageMonth> Hedges(PlantFilter filter, int refresh)
 		{
 			var months = new List<HedgeCoverageMonth>();
+			// the mode's bushels: Plants scales them
 			var plants = Plants(filter, refresh);
-			if (plants.Count == 0)
+			if (plants.Count == 0 || ModeShare(filter) <= 0)
 				return months;
 
 			double exposure = plants.Sum(p => p.GrindBu) * 30;

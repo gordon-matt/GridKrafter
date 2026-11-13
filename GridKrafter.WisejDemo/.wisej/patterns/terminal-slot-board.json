@@ -1,0 +1,14 @@
+{
+  "id": "terminal-slot-board",
+  "name": "Terminal slot board",
+  "purpose": "A terminal's loading slots through the day: bays by hours, each slot a bar coloured by status with its MOT, a now-line, counts per status and free capacity.",
+  "keywords": [
+    "terminal slot board",
+    "terminalslotboard"
+  ],
+  "control": "TerminalSlotBoard",
+  "type": "GridKrafter.WisejDemo.TerminalSlotBoard",
+  "extends": null,
+  "component": null,
+  "preview": "<div data-wisej-pattern=\"terminal-slot-board\"><div class=\"tsb\">\n  <div class=\"head\">\n    <div class=\"title\"></div>\n    <div class=\"counts\"></div>\n    <div class=\"free\"><span class=\"free-value\"></span><span class=\"free-label\">free</span></div>\n  </div>\n  <div class=\"scroller\">\n    <div class=\"board\">\n      <div class=\"axis\"><div class=\"corner\"></div><div class=\"hours\"></div></div>\n      <div class=\"bays\"></div>\n    </div>\n  </div>\n  <div class=\"tip\"></div>\n</div></div>"
+}

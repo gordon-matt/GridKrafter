@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -8,14 +8,15 @@ using Wisej.Web;
 namespace GridKrafter.WisejDemo.Panels
 {
 	/// <summary>
-	/// The plants a commodity board shows: a region, one plant of it, and owned, 3rd-party or both. It raises
+	/// The plants a commodity board shows: a region, one plant of it, the mode of transport (MOT) and owned,
+	/// 3rd-party or both. It raises
 	/// <see cref="FilterChanged"/> once for every change the user makes, and lays its choices out one under the
 	/// other when it is narrow.
 	/// </summary>
 	public partial class PlantFilterBar : Wisej.Web.UserControl
 	{
 		// the widths the choices have side by side, the gap between them and under the bar
-		private const int REGION_WIDTH = 220, PLANT_WIDTH = 270, OWNERSHIP_WIDTH = 260, GAP = 12;
+		private const int REGION_WIDTH = 220, PLANT_WIDTH = 270, MOT_WIDTH = 180, OWNERSHIP_WIDTH = 260, GAP = 12;
 
 		// the id of each entry of the plant list; the first, "All plants", has none
 		private readonly List<string> plantIds = new List<string>();
@@ -37,6 +38,9 @@ namespace GridKrafter.WisejDemo.Panels
 			this.region.Items.Add("All regions");
 			foreach (string name in PlantRegistry.Regions)
 				this.region.Items.Add(name);
+			this.mot.Items.Add(TransportMix.Name(TransportMode.All));
+			foreach (var mode in TransportMix.Modes)
+				this.mot.Items.Add(TransportMix.Name(mode));
 			this.updating = false;
 
 			ShowFilter();
@@ -68,6 +72,7 @@ namespace GridKrafter.WisejDemo.Panels
 				int regionIndex = regionName == null ? -1 : PlantRegistry.Regions.ToList().IndexOf(regionName);
 
 				this.region.SelectedIndex = regionIndex + 1;
+				this.mot.SelectedIndex = Math.Max(0, TransportMix.Modes.ToList().IndexOf(this.filter.Mode) + 1);
 				this.ownership.SelectedIndex = (int)this.filter.Ownership;
 				FillPlants();
 				this.plant.SelectedIndex = Math.Max(0, this.plantIds.IndexOf(one?.Id));
@@ -81,6 +86,8 @@ namespace GridKrafter.WisejDemo.Panels
 		private string SelectedRegion => this.region.SelectedIndex > 0 ? PlantRegistry.Regions[this.region.SelectedIndex - 1] : null;
 
 		private PlantOwnership SelectedOwnership => this.ownership.SelectedIndex > 0 ? (PlantOwnership)this.ownership.SelectedIndex : PlantOwnership.All;
+
+		private TransportMode SelectedMode => this.mot.SelectedIndex > 0 ? TransportMix.Modes[this.mot.SelectedIndex - 1] : TransportMode.All;
 
 		private string SelectedPlant => this.plant.SelectedIndex > 0 && this.plant.SelectedIndex < this.plantIds.Count ? this.plantIds[this.plant.SelectedIndex] : null;
 
@@ -120,6 +127,14 @@ namespace GridKrafter.WisejDemo.Panels
 			Apply();
 		}
 
+		private void mot_SelectedIndexChanged(object sender, EventArgs e)
+		{
+			if (this.updating)
+				return;
+
+			Apply();
+		}
+
 		private void ownership_SelectedIndexChanged(object sender, EventArgs e)
 		{
 			if (this.updating)
@@ -137,7 +152,7 @@ namespace GridKrafter.WisejDemo.Panels
 		// Takes the filter the choices show and tells the board when it differs.
 		private void Apply()
 		{
-			var chosen = new PlantFilter(SelectedRegion, SelectedPlant, SelectedOwnership);
+			var chosen = new PlantFilter(SelectedRegion, SelectedPlant, SelectedOwnership) { Mode = SelectedMode };
 			if (chosen == this.filter)
 				return;
 
@@ -150,31 +165,42 @@ namespace GridKrafter.WisejDemo.Panels
 			LayoutBar();
 		}
 
-		// Side by side when they fit; the region and plant on one line and the ownership under them when only
-		// those fit; otherwise one under the other, as wide as the bar.
+		// Side by side when they fit; the region, plant and MOT on one line and the ownership under them when only
+		// those fit; then two to a line; otherwise one under the other, as wide as the bar.
 		private void LayoutBar()
 		{
 			int width = this.ClientSize.Width;
 			int bottom;
-			if (width >= REGION_WIDTH + PLANT_WIDTH + OWNERSHIP_WIDTH + 2 * GAP)
+			if (width >= REGION_WIDTH + PLANT_WIDTH + MOT_WIDTH + OWNERSHIP_WIDTH + 3 * GAP)
 			{
 				this.region.SetBounds(0, 0, REGION_WIDTH, this.region.Height);
 				this.plant.SetBounds(this.region.Right + GAP, 0, PLANT_WIDTH, this.plant.Height);
-				this.ownership.SetBounds(this.plant.Right + GAP, 0, OWNERSHIP_WIDTH, this.ownership.Height);
+				this.mot.SetBounds(this.plant.Right + GAP, 0, MOT_WIDTH, this.mot.Height);
+				this.ownership.SetBounds(this.mot.Right + GAP, 0, OWNERSHIP_WIDTH, this.ownership.Height);
 				bottom = Math.Max(this.region.Bottom, this.ownership.Bottom);
+			}
+			else if (width >= REGION_WIDTH + PLANT_WIDTH + MOT_WIDTH + 2 * GAP)
+			{
+				this.region.SetBounds(0, 0, REGION_WIDTH, this.region.Height);
+				this.plant.SetBounds(this.region.Right + GAP, 0, PLANT_WIDTH, this.plant.Height);
+				this.mot.SetBounds(this.plant.Right + GAP, 0, MOT_WIDTH, this.mot.Height);
+				this.ownership.SetBounds(0, this.region.Bottom + 8, OWNERSHIP_WIDTH, this.ownership.Height);
+				bottom = this.ownership.Bottom;
 			}
 			else if (width >= REGION_WIDTH + PLANT_WIDTH + GAP)
 			{
 				this.region.SetBounds(0, 0, REGION_WIDTH, this.region.Height);
 				this.plant.SetBounds(this.region.Right + GAP, 0, width - REGION_WIDTH - GAP, this.plant.Height);
-				this.ownership.SetBounds(0, this.region.Bottom + 8, OWNERSHIP_WIDTH, this.ownership.Height);
-				bottom = this.ownership.Bottom;
+				this.mot.SetBounds(0, this.region.Bottom + 8, REGION_WIDTH, this.mot.Height);
+				this.ownership.SetBounds(this.mot.Right + GAP, this.mot.Top, Math.Min(OWNERSHIP_WIDTH, width - REGION_WIDTH - GAP), this.ownership.Height);
+				bottom = Math.Max(this.mot.Bottom, this.ownership.Bottom);
 			}
 			else
 			{
 				this.region.SetBounds(0, 0, width, this.region.Height);
 				this.plant.SetBounds(0, this.region.Bottom + 8, width, this.plant.Height);
-				this.ownership.SetBounds(0, this.plant.Bottom + 8, width, this.ownership.Height);
+				this.mot.SetBounds(0, this.plant.Bottom + 8, width, this.mot.Height);
+				this.ownership.SetBounds(0, this.mot.Bottom + 8, width, this.ownership.Height);
 				bottom = this.ownership.Bottom;
 			}
 

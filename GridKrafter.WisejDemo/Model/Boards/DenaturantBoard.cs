@@ -197,6 +197,16 @@ namespace GridKrafter.WisejDemo.Model.Boards
 				return;
 			}
 
+			string none = TransportMix.NoneMessage(filter, this.Key, "denaturant");
+			if (none != null && tile.Name != KIND_COST)
+			{
+				tile.Value = "—";
+				tile.Change = "";
+				tile.Caption = none.TrimEnd('.');
+				return;
+			}
+
+			string mode = TransportMix.CaptionSuffix(filter);
 			switch (tile.Name)
 			{
 				case KIND_DAYS:
@@ -208,13 +218,13 @@ namespace GridKrafter.WisejDemo.Model.Boards
 				case KIND_INVENTORY:
 					tile.Value = FormatGallons(summary.InventoryGal);
 					tile.Change = Percent(summary.InventoryChange);
-					tile.Caption = "vs last week";
+					tile.Caption = "vs last week" + mode;
 					break;
 
 				case KIND_RECEIPTS:
 					tile.Value = FormatGallons(summary.ReceiptsMtdGal);
 					tile.Change = "";
-					tile.Caption = DateTime.Today.ToString("MMMM", Culture) + " to date";
+					tile.Caption = DateTime.Today.ToString("MMMM", Culture) + " to date" + mode;
 					break;
 
 				case KIND_COST:
@@ -236,7 +246,10 @@ namespace GridKrafter.WisejDemo.Model.Boards
 			tracker.Rows = deliveries
 				.Select(d => new LiftingScheduleRow(d.Supplier, d.Route, d.ScheduledGal, d.ReceivedGal))
 				.ToList();
-			tracker.Title = deliveries.Count == 0 ? NO_PLANTS : "Denaturant deliveries";
+			string none = TransportMix.NoneMessage(filter, this.Key, "denaturant");
+			tracker.Title = none != null && PlantRegistry.Where(filter).Any() ? none.TrimEnd('.')
+				: deliveries.Count == 0 ? NO_PLANTS
+				: "Denaturant deliveries" + TransportMix.CaptionSuffix(filter);
 		}
 
 		private static DataGridView CreateSupplyGrid()
@@ -283,6 +296,13 @@ namespace GridKrafter.WisejDemo.Model.Boards
 			if (stock.Count == 0)
 			{
 				grid.Rows.Add(NO_PLANTS, "", "", "", "");
+				return;
+			}
+
+			string none = TransportMix.NoneMessage(filter, this.Key, "denaturant");
+			if (none != null)
+			{
+				grid.Rows.Add(none.TrimEnd('.'), "", "", "", "");
 				return;
 			}
 

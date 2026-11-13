@@ -139,7 +139,10 @@ namespace GridKrafter.WisejDemo.Model.Boards
 					meter.Months = this.data.Hedges(filter, refresh).ToList();
 					break;
 				case LiftingScheduleTracker lifting:
-					lifting.Rows = this.data.Plants(filter, refresh)
+					// corn comes by rail and truck only: by another mode the tracker says so in place of its rows
+					string none = PlantRegistry.Where(filter).Any() ? TransportMix.NoneMessage(filter, this.Key, "corn") : null;
+					lifting.Title = none != null ? none.TrimEnd('.') : "Grind and receipts" + TransportMix.CaptionSuffix(filter);
+					lifting.Rows = none != null ? new List<LiftingScheduleRow>() : this.data.Plants(filter, refresh)
 						.Select(p => new LiftingScheduleRow(p.Plant.Name, p.Plant.Region + (p.Plant.Owned ? "" : " · 3rd-party"), p.GrindBu, p.ReceiptsBu))
 						.ToList();
 					break;
@@ -176,17 +179,26 @@ namespace GridKrafter.WisejDemo.Model.Boards
 				return;
 			}
 
+			string none = TransportMix.NoneMessage(filter, this.Key, "corn");
+			if (none != null && tile.Name != "basis")
+			{
+				tile.Value = "—";
+				tile.Change = "";
+				tile.Caption = none.TrimEnd('.');
+				return;
+			}
+
 			switch (tile.Name)
 			{
 				case "grind":
 					tile.Value = Bushels(totals.GrindBu);
 					tile.Change = Percent(totals.GrindTrend);
-					tile.Caption = "bu a day, vs yesterday";
+					tile.Caption = "bu a day, vs yesterday" + TransportMix.CaptionSuffix(filter);
 					break;
 				case "receipts":
 					tile.Value = Bushels(totals.ReceiptsBu);
 					tile.Change = Percent(totals.ReceiptsTrend);
-					tile.Caption = "bu today, vs yesterday";
+					tile.Caption = "bu today, vs yesterday" + TransportMix.CaptionSuffix(filter);
 					break;
 				case "basis":
 					tile.Value = Signed(totals.AvgBasisCents, "0") + "¢";

@@ -1,0 +1,71 @@
+{
+	"name": "AgingBuckets.mixin",
+
+	// bucket colours are the GridKrafter palette both themes define (grey, amber, orange, red); surfaces,
+	// text and borders are the theme's own colours.
+
+	"fonts": {
+		"aging-buckets-text": { "size": 12, "family": ["Segoe UI", "system-ui", "Roboto", "Helvetica Neue", "Arial", "sans-serif"] },
+		"aging-buckets-strong": { "size": 12, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] },
+		"aging-buckets-title": { "size": 14, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] },
+		"aging-buckets-tag": { "size": 11, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] }
+	},
+
+	"appearances": {
+
+		"aging-buckets": {
+			"inherit": "widget",
+			"states": {
+				"default": {
+					"properties": {
+						"themeBucket0Color": "grayText",
+						"themeBucket1Color": "amber",
+						"themeBucket2Color": "orange",
+						"themeBucket3Color": "red",
+						"themeBucket4Color": "red",
+						"themePastDueColor": "red",
+						"padding": [12, 14],
+						"font": "aging-buckets-text",
+						"textColor": "windowText",
+						"backgroundColor": "window",
+						"opacity": 1
+					},
+					"styles": { "width": 0 }
+				},
+				"disabled": { "properties": { "opacity": 0.55 } }
+			},
+			"components": {
+
+				"title": { "inherit": "label", "states": { "default": { "properties": { "font": "aging-buckets-title", "textColor": "windowText" } } } },
+				"summary": { "inherit": "label", "states": { "default": { "properties": { "font": "aging-buckets-text", "textColor": "grayText" } } } },
+
+				"caption": {
+					"inherit": "widget",
+					"states": { "default": { "properties": { "padding": [2, 6] }, "styles": { "widthBottom": 1, "styleBottom": "solid", "colorBottom": "windowFrame" } } }
+				},
+				"caption-text": { "inherit": "label", "states": { "default": { "properties": { "font": "aging-buckets-tag", "textColor": "grayText" } } } },
+
+				"row": {
+					"inherit": "widget",
+					"states": {
+						"default": {
+							"properties": { "padding": [2, 6] },
+							"styles": { "backgroundColor": "transparent", "radius": 6, "width": 1, "style": "solid", "color": "transparent" }
+						},
+						"hovered": { "styles": { "backgroundColor": "menuHighlight" } },
+						"selected": { "styles": { "backgroundColor": "menuHighlight", "color": "highlight" } }
+					}
+				},
+				"bucket": { "inherit": "label", "states": { "default": { "properties": { "font": "aging-buckets-strong", "textColor": "windowText" } } } },
+				"amount": { "inherit": "label", "states": { "default": { "properties": { "font": "aging-buckets-strong", "textColor": "windowText" } } } },
+				"count": { "inherit": "label", "states": { "default": { "properties": { "font": "aging-buckets-text", "textColor": "grayText" } } } },
+				"percent": { "inherit": "label", "states": { "default": { "properties": { "font": "aging-buckets-strong", "textColor": "windowText" } } } },
+
+				"track": { "inherit": "widget", "states": { "default": { "styles": { "backgroundColor": "appWorkspace", "radius": 5 } } } },
+				"fill": { "inherit": "widget", "states": { "default": { "styles": { "radius": 5 } } } },
+
+				"empty": { "inherit": "label", "states": { "default": { "properties": { "textColor": "grayText", "padding": [24, 0] } } } }
+			}
+		}
+	}
+}

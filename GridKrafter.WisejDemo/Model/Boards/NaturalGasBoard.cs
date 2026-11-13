@@ -185,8 +185,10 @@ namespace GridKrafter.WisejDemo.Model.Boards
 
 			if (body is ChartBody chart)
 			{
-				chart.ShowEmpty(empty);
-				if (empty)
+				// gas moves by pipeline only: by any other mode the hedges and the schedule have nothing to show
+				string none = chart.Kind is KIND_HEDGE or KIND_SCHEDULE ? TransportMix.NoneMessage(filter, this.Key, "natural gas") : null;
+				chart.ShowEmpty(empty || none != null, empty ? EMPTY_TEXT : none);
+				if (empty || none != null)
 					return;
 
 				switch (chart.Kind)
@@ -221,6 +223,15 @@ namespace GridKrafter.WisejDemo.Model.Boards
 				tile.Value = "–";
 				tile.Change = "";
 				tile.Caption = EMPTY_TEXT;
+				return;
+			}
+
+			string none = TransportMix.NoneMessage(filter, this.Key, "natural gas");
+			if (none != null && (tile.Tag as string) != KIND_PRICE)
+			{
+				tile.Value = "–";
+				tile.Change = "";
+				tile.Caption = none.TrimEnd('.');
 				return;
 			}
 
@@ -290,8 +301,9 @@ namespace GridKrafter.WisejDemo.Model.Boards
 
 			public Control Content { get; }
 
-			public void ShowEmpty(bool show)
+			public void ShowEmpty(bool show, string text = EMPTY_TEXT)
 			{
+				this.empty.Text = text ?? EMPTY_TEXT;
 				this.empty.Visible = show;
 				this.Content.Visible = !show;
 			}

@@ -1,0 +1,81 @@
+{
+	"name": "CashFlowChart.mixin",
+
+	// the GridKrafter palette: inflows green, outflows and a balance below the minimum red; the balance
+	// line is the theme's highlight, and surfaces, text and borders are the theme's own colours so it
+	// follows Light and Dark.
+	"colors": {
+		"cash-flow-chart-positive": "#1fb57a",
+		"cash-flow-chart-negative": "#e5484d"
+	},
+
+	"fonts": {
+		"cash-flow-chart-small": { "size": 12, "family": ["Segoe UI", "system-ui", "Roboto", "Helvetica Neue", "Arial", "sans-serif"] },
+		"cash-flow-chart-legend": { "size": 11.5, "family": ["Segoe UI", "system-ui", "Roboto", "Helvetica Neue", "Arial", "sans-serif"] },
+		"cash-flow-chart-title": { "size": 13.5, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] },
+		"cash-flow-chart-value": { "size": 18, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] }
+	},
+
+	"appearances": {
+
+		"cash-flow-chart": {
+			"inherit": "widget",
+			"states": {
+				"default": {
+					"properties": {
+						"themeAccentColor": "highlight",
+						"themePositiveColor": "cash-flow-chart-positive",
+						"themeNegativeColor": "cash-flow-chart-negative",
+						"padding": [10, 12],
+						"font": "cash-flow-chart-small",
+						"textColor": "windowText",
+						"backgroundColor": "window",
+						"opacity": 1
+					},
+					"styles": { "width": 0 }
+				},
+				"disabled": { "properties": { "opacity": 0.55 } }
+			},
+			"components": {
+
+				"title": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "cash-flow-chart-title", "textColor": "windowText" } } }
+				},
+
+				"stat-label": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "cash-flow-chart-small", "textColor": "grayText" } } }
+				},
+
+				"stat-value": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "cash-flow-chart-value", "textColor": "windowText" } } }
+				},
+
+				"chart": {
+					"inherit": "widget",
+					"states": { "default": { "properties": { "backgroundColor": "transparent", "font": "cash-flow-chart-small" } } }
+				},
+
+				"tip": {
+					"inherit": "label",
+					"states": {
+						"default": {
+							"properties": { "font": "cash-flow-chart-small", "textColor": "grayText", "padding": [7, 10], "minWidth": 150 },
+							"styles": {
+								"backgroundColor": "window",
+								"width": 1, "color": "windowFrame", "radius": 8
+							}
+						}
+					}
+				},
+
+				"legend": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "cash-flow-chart-legend", "textColor": "grayText" } } }
+				}
+			}
+		}
+	}
+}

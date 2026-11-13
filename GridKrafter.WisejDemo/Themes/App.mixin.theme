@@ -1,21 +1,32 @@
 {
   "name": "App.mixin",
-  "colors": {
-    "navbar-background": "#0f1f17",
-    "navbar-background-hover": "#17301f",
-    "navbar-background-selected": "#1f3a2a",
-    "navbar-text": "#e8f0ea",
-    "navbar-text-hover": "#ffffff",
-    "navbar-text-selected": "#ffffff"
-  },
+  "colors": {},
   "appearances": {
     "navbar-item": {
       "components": {
         "header": {
           "states": {
+            "default": {
+              "properties": {
+                "textColor": "controlText",
+                "backgroundColor": "transparent"
+              }
+            },
+            "hovered": {
+              "properties": {
+                "textColor": "controlText",
+                "backgroundColor": "controlDark"
+              }
+            },
             "selected": {
+              "properties": {
+                "textColor": "buttonSelectedText",
+                "backgroundColor": "buttonSelected"
+              },
               "styles": {
-                "css": "{\"box-shadow\":\"inset 3px 0 0 #8bc34a\"}"
+                "widthLeft": 3,
+                "styleLeft": "solid",
+                "colorLeft": "highlight"
               }
             }
           }
@@ -102,6 +113,73 @@
               },
               "styles": {
                 "color": "highlight"
+              }
+            }
+          }
+        }
+      }
+    },
+    "navbar": {
+      "states": {
+        "default": {
+          "properties": {
+            "textColor": "controlText",
+            "backgroundColor": "desktop"
+          },
+          "styles": {
+            "widthRight": 1,
+            "styleRight": "solid",
+            "colorRight": "windowFrame"
+          }
+        }
+      }
+    },
+    "navbar-menu": {
+      "states": {
+        "default": {
+          "styles": {
+            "backgroundColor": "desktop",
+            "width": 1,
+            "style": "solid",
+            "color": "windowFrame"
+          }
+        }
+      },
+      "components": {
+        "item": {
+          "states": {
+            "default": {
+              "properties": {
+                "textColor": "controlText"
+              }
+            },
+            "selected": {
+              "styles": {
+                "backgroundColor": "buttonSelected"
+              },
+              "properties": {
+                "textColor": "buttonSelectedText"
+              }
+            }
+          },
+          "components": {
+            "icon": {
+              "states": {
+                "default": {
+                  "properties": {
+                    "textColor": "controlText"
+                  }
+                },
+                "hovered": {
+                  "properties": {
+                    "textColor": "controlText"
+                  }
+                },
+                "selected": {
+                  "properties": {
+                    "textColor": "buttonSelectedText"
+                  }
+                }
               }
             }
           }

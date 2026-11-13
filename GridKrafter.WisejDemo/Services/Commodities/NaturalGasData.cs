@@ -68,8 +68,23 @@ namespace GridKrafter.WisejDemo.Services.Commodities
 
 		private sealed record CurveMonth(DateTime Start, double Price, double Prior);
 
+		// The share of the gas that moves by the filter's MOT: all of it by pipeline, none by any other mode.
+		// MMBtu scale; prices and percentages do not.
+		private static double ModeShare(PlantFilter filter) => (filter ?? PlantFilter.All).ModeShare(BOARD);
+
 		/// <inheritdoc/>
 		public NaturalGasSummary Summary(PlantFilter filter, int refresh)
+		{
+			double share = ModeShare(filter);
+			var s = SummaryCore(filter, refresh);
+			return share == 1 ? s : s with
+			{
+				BurnMmbtuPerDay = TransportMix.Scale(s.BurnMmbtuPerDay, share),
+				ImbalanceMmbtu = TransportMix.Scale(s.ImbalanceMmbtu, share),
+			};
+		}
+
+		private NaturalGasSummary SummaryCore(PlantFilter filter, int refresh)
 		{
 			var days = PlantDays(filter, refresh);
 			if (days.Count == 0)
@@ -79,7 +94,7 @@ namespace GridKrafter.WisejDemo.Services.Commodities
 			double burn = days.Sum(d => d.BurnPerDay);
 
 			var curve = Curve(refresh);
-			var months = HedgeCoverage(filter, refresh);
+			var months = HedgeMonths(days, filter, refresh);
 			double exposure = months.Sum(m => m.Exposure);
 			double hedged = months.Sum(m => m.Futures + m.Physical);
 			double pctHedged = exposure > 0 ? 100 * hedged / exposure : 0;
@@ -105,6 +120,7 @@ namespace GridKrafter.WisejDemo.Services.Commodities
 			if (days.Count == 0)
 				return new List<ForwardCurvePoint>();
 
+			double share = ModeShare(filter);
 			var hedge = HedgeMonths(days, filter, refresh);
 			var rnd = SampleRandom.For(BOARD + ".curve", filter, refresh);
 			var curve = Curve(refresh);
@@ -114,8 +130,10 @@ namespace GridKrafter.WisejDemo.Services.Commodities
 				double volume = i < hedge.Count ? hedge[i].Futures + hedge[i].Physical : 0;
 				// the average price locked in earlier sits a little off today's curve
 				double hedgedPrice = volume > 0 ? Math.Round(curve[i].Price + (rnd.NextDouble() - 0.55) * 0.35, 3) : 0;
+				// the hedges of the mode's gas: the curve itself is the market's and stays
+				double modeVolume = TransportMix.Scale(Math.Round(volume), share);
 				points.Add(new ForwardCurvePoint(curve[i].Start.ToString("MMM-yy", System.Globalization.CultureInfo.InvariantCulture),
-					curve[i].Price, curve[i].Prior, hedgedPrice, Math.Round(volume)));
+					curve[i].Price, curve[i].Prior, share == 1 || modeVolume > 0 ? hedgedPrice : 0, modeVolume));
 			}
 
 			return points;
@@ -125,19 +143,27 @@ namespace GridKrafter.WisejDemo.Services.Commodities
 		public IReadOnlyList<HedgeCoverageMonth> HedgeCoverage(PlantFilter filter, int refresh)
 		{
 			var days = PlantDays(filter, refresh);
-			return days.Count == 0 ? new List<HedgeCoverageMonth>() : HedgeMonths(days, filter, refresh);
+			double share = ModeShare(filter);
+			if (days.Count == 0 || share <= 0)
+				return new List<HedgeCoverageMonth>();
+
+			var months = HedgeMonths(days, filter, refresh);
+			return share == 1 ? months : months
+				.Select(m => new HedgeCoverageMonth(m.Month, TransportMix.Scale(m.Exposure, share), TransportMix.Scale(m.Futures, share), TransportMix.Scale(m.Physical, share)))
+				.ToList();
 		}
 
 		/// <inheritdoc/>
 		public NaturalGasSchedule Schedule(PlantFilter filter, int refresh)
 		{
 			int daysInMonth = DateTime.DaysInMonth(DateTime.Today.Year, DateTime.Today.Month);
-			var rows = PlantDays(filter, refresh)
+			double share = ModeShare(filter);
+			var rows = share <= 0 ? new List<LiftingScheduleRow>() : PlantDays(filter, refresh)
 				.Select(d => new LiftingScheduleRow(
 					d.Plant.Name,
 					d.Plant.Region + (d.Plant.Owned ? "" : " · 3rd-party"),
-					Math.Round(d.NominatedPerDay * daysInMonth),
-					Math.Round(d.BurnedMtd)))
+					TransportMix.Scale(Math.Round(d.NominatedPerDay * daysInMonth), share),
+					TransportMix.Scale(Math.Round(d.BurnedMtd), share)))
 				.ToList();
 
 			return new NaturalGasSchedule(rows, DateTime.Today.ToString("MMMM", System.Globalization.CultureInfo.InvariantCulture) + " MTD", Pace());

@@ -96,6 +96,10 @@ namespace GridKrafter.WisejDemo.Services.Commodities
 		// One plant's month: today's state, this month's and last month's average run rate, and its position.
 		private sealed record PlantMonth(Plant Plant, string Status, double RatePct, double MtdRatePct, double LastMonthRatePct, double NetShare, double NetMove);
 
+		// The share of the enterprise's volume that moves by the filter's MOT: 1 for All MOT. Volumes, margins
+		// earned on them, hedged dollars and credits held scale; run rates and percentages do not.
+		private static double ModeShare(PlantFilter filter, string commodity = KEY) => (filter ?? PlantFilter.All).ModeShare(commodity);
+
 		/// <inheritdoc/>
 		public OverviewTiles Tiles(PlantFilter filter, int refresh)
 		{
@@ -118,11 +122,13 @@ namespace GridKrafter.WisejDemo.Services.Commodities
 			double rate = plants.Sum(p => p.RatePct * p.Plant.CapacityMmgy) / capacity;
 			double lastRate = plants.Sum(p => p.LastMonthRatePct * p.Plant.CapacityMmgy) / capacity;
 
+			// the lines' margins are already the mode's; the volume and the position scale here
+			double share = ModeShare(filter);
 			return new OverviewTiles(
 				plants.Count,
-				volume, lastVolume > 0 ? volume / lastVolume - 1 : 0,
+				TransportMix.Scale(volume, share), lastVolume > 0 ? volume / lastVolume - 1 : 0,
 				margin, lastMargin != 0 ? margin / lastMargin - 1 : 0,
-				Math.Round(net / 1000) * 1000, Math.Round(move / 1000) * 1000,
+				TransportMix.Scale(Math.Round(net / 1000) * 1000, share, 1000), TransportMix.Scale(Math.Round(move / 1000) * 1000, share, 1000),
 				rate, rate - lastRate);
 		}
 
@@ -137,24 +143,28 @@ namespace GridKrafter.WisejDemo.Services.Commodities
 			double gal = plants.Sum(p => DailyGal(p.Plant) * p.MtdRatePct / 100 * day);
 			var random = SampleRandom.For(KEY + ".lines", filter, refresh);
 
-			// volume of each line from the ethanol made, and the margin it earns a unit
-			OverviewLine Line(string name, double volume, string unit, double marginLow, double marginHigh)
+			// volume of each line from the ethanol made, and the margin it earns a unit; under a MOT each line keeps
+			// its own commodity's share of the volume (and so of the margin), and a line none of moves by it is left out
+			OverviewLine Line(string name, string commodity, double volume, string unit, double marginLow, double marginHigh)
 			{
 				double perUnit = Between(random, marginLow, marginHigh);
 				double change = Between(random, -0.12, 0.15);
-				return new OverviewLine(name, Math.Round(volume), unit, Math.Round(volume * perUnit), change);
+				double share = ModeShare(filter, commodity);
+				if (share != 1)
+					volume *= share;
+				return share <= 0 ? null : new OverviewLine(name, Math.Round(volume), unit, Math.Round(volume * perUnit), change);
 			}
 
 			return new[]
 			{
-				Line("Ethanol", gal * 0.96, "gal", 0.12, 0.22),
-				Line("CO2", gal * 0.0033 * 0.45, "tons", 18, 32),
-				Line("Purified Ethanol", gal * 0.04, "gal", 0.35, 0.55),
-				Line("Denaturant", gal * 0.025, "gal", 0.03, 0.08),
-				Line("Natural Gas", gal * 0.023, "MMBtu", -0.02, 0.15),
-				Line("Grain", gal / 2.9, "bu", 0.04, 0.10),
-				Line("Freight", gal / 30000, "cars", 150, 400),
-			};
+				Line("Ethanol", "ethanol", gal * 0.96, "gal", 0.12, 0.22),
+				Line("CO2", "co2", gal * 0.0033 * 0.45, "tons", 18, 32),
+				Line("Purified Ethanol", "purified", gal * 0.04, "gal", 0.35, 0.55),
+				Line("Denaturant", "denaturant", gal * 0.025, "gal", 0.03, 0.08),
+				Line("Natural Gas", "natgas", gal * 0.023, "MMBtu", -0.02, 0.15),
+				Line("Grain", "grain", gal / 2.9, "bu", 0.04, 0.10),
+				Line("Freight", "freight", gal / 30000, "cars", 150, 400),
+			}.Where(l => l != null).ToArray();
 		}
 
 		/// <inheritdoc/>
@@ -200,8 +210,10 @@ namespace GridKrafter.WisejDemo.Services.Commodities
 					physical += lineExposure * hedged * (1 - line.Futures);
 				}
 
+				// the hedges of the mode's volume: the share hedged stays
+				double share = ModeShare(filter);
 				months.Add(new OverviewHedgeMonth(first.AddMonths(i).ToString("MMM yy", System.Globalization.CultureInfo.InvariantCulture),
-					Math.Round(exposure), Math.Round(futures), Math.Round(physical)));
+					TransportMix.Scale(Math.Round(exposure), share), TransportMix.Scale(Math.Round(futures), share), TransportMix.Scale(Math.Round(physical), share)));
 			}
 
 			return months;
@@ -232,6 +244,10 @@ namespace GridKrafter.WisejDemo.Services.Commodities
 
 				price = history[history.Count - 1];
 				double change = Math.Round(price - history[history.Count - 2], 2);
+				// the credits the mode's gallons earned: the prices are the market's
+				double share = ModeShare(filter);
+				if (share != 1)
+					held *= share;
 				return new OverviewCredit(id, name, program, price, unit, change, Math.Round(held), Math.Round(price * perGallonOfPrice, 2), history);
 			}
 

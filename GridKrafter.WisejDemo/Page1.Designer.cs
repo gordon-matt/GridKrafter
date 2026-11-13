@@ -41,6 +41,18 @@
             this.navigationBarNaturalGas = new Wisej.Web.Ext.NavigationBar.NavigationBarItem();
             this.navigationBarGrain = new Wisej.Web.Ext.NavigationBar.NavigationBarItem();
             this.navigationBarFreight = new Wisej.Web.Ext.NavigationBar.NavigationBarItem();
+            this.navigationBarCommercial = new Wisej.Web.Ext.NavigationBar.NavigationBarItem();
+            this.navigationBarCustomers = new Wisej.Web.Ext.NavigationBar.NavigationBarItem();
+            this.navigationBarContracts = new Wisej.Web.Ext.NavigationBar.NavigationBarItem();
+            this.navigationBarRisk = new Wisej.Web.Ext.NavigationBar.NavigationBarItem();
+            this.navigationBarLogistics = new Wisej.Web.Ext.NavigationBar.NavigationBarItem();
+            this.navigationBarCarriers = new Wisej.Web.Ext.NavigationBar.NavigationBarItem();
+            this.navigationBarScheduling = new Wisej.Web.Ext.NavigationBar.NavigationBarItem();
+            this.navigationBarFinance = new Wisej.Web.Ext.NavigationBar.NavigationBarItem();
+            this.navigationBarAccounting = new Wisej.Web.Ext.NavigationBar.NavigationBarItem();
+            this.navigationBarOperations = new Wisej.Web.Ext.NavigationBar.NavigationBarItem();
+            this.navigationBarPlantOps = new Wisej.Web.Ext.NavigationBar.NavigationBarItem();
+            this.navigationBarCompliance = new Wisej.Web.Ext.NavigationBar.NavigationBarItem();
             this.navigationBarSystem = new Wisej.Web.Ext.NavigationBar.NavigationBarItem();
             this.navigationBarEvents = new Wisej.Web.Ext.NavigationBar.NavigationBarItem();
             this.navigationBarAbout = new Wisej.Web.Ext.NavigationBar.NavigationBarItem();
@@ -80,6 +92,10 @@
             this.navigationBar.Items.AddRange(new Wisej.Web.Ext.NavigationBar.NavigationBarItem[] {
             this.navigationBarHome,
             this.navigationBarCommodities,
+            this.navigationBarCommercial,
+            this.navigationBarLogistics,
+            this.navigationBarFinance,
+            this.navigationBarOperations,
             this.navigationBarSystem,
             this.navigationBarCollapse});
             this.navigationBar.Logo = "Images\\poet-monogram.svg";
@@ -172,6 +188,98 @@
             this.navigationBarFreight.Name = "navigationBarFreight";
             this.navigationBarFreight.Tag = "FreightPanel";
             this.navigationBarFreight.Text = "Freight";
+            //
+            // navigationBarCommercial
+            //
+            this.navigationBarCommercial.Icon = "resource.wx/Wisej.Ext.BootstrapIcons/briefcase.svg";
+            this.navigationBarCommercial.Items.AddRange(new Wisej.Web.Ext.NavigationBar.NavigationBarItem[] {
+            this.navigationBarCustomers,
+            this.navigationBarContracts,
+            this.navigationBarRisk});
+            this.navigationBarCommercial.Name = "navigationBarCommercial";
+            this.navigationBarCommercial.Text = "Commercial";
+            //
+            // navigationBarCustomers
+            //
+            this.navigationBarCustomers.Icon = "resource.wx/Wisej.Ext.BootstrapIcons/people.svg";
+            this.navigationBarCustomers.Name = "navigationBarCustomers";
+            this.navigationBarCustomers.Tag = "CustomersPanel";
+            this.navigationBarCustomers.Text = "Customers";
+            //
+            // navigationBarContracts
+            //
+            this.navigationBarContracts.Icon = "resource.wx/Wisej.Ext.BootstrapIcons/file-earmark-text.svg";
+            this.navigationBarContracts.Name = "navigationBarContracts";
+            this.navigationBarContracts.Tag = "ContractsPanel";
+            this.navigationBarContracts.Text = "Contracts";
+            //
+            // navigationBarRisk
+            //
+            this.navigationBarRisk.Icon = "resource.wx/Wisej.Ext.BootstrapIcons/shield-check.svg";
+            this.navigationBarRisk.Name = "navigationBarRisk";
+            this.navigationBarRisk.Tag = "RiskPanel";
+            this.navigationBarRisk.Text = "Risk & Credit";
+            //
+            // navigationBarLogistics
+            //
+            this.navigationBarLogistics.Icon = "resource.wx/Wisej.Ext.BootstrapIcons/signpost-split.svg";
+            this.navigationBarLogistics.Items.AddRange(new Wisej.Web.Ext.NavigationBar.NavigationBarItem[] {
+            this.navigationBarCarriers,
+            this.navigationBarScheduling});
+            this.navigationBarLogistics.Name = "navigationBarLogistics";
+            this.navigationBarLogistics.Text = "Logistics";
+            //
+            // navigationBarCarriers
+            //
+            this.navigationBarCarriers.Icon = "resource.wx/Wisej.Ext.BootstrapIcons/truck-flatbed.svg";
+            this.navigationBarCarriers.Name = "navigationBarCarriers";
+            this.navigationBarCarriers.Tag = "CarriersPanel";
+            this.navigationBarCarriers.Text = "Carriers";
+            //
+            // navigationBarScheduling
+            //
+            this.navigationBarScheduling.Icon = "resource.wx/Wisej.Ext.BootstrapIcons/calendar-week.svg";
+            this.navigationBarScheduling.Name = "navigationBarScheduling";
+            this.navigationBarScheduling.Tag = "SchedulingPanel";
+            this.navigationBarScheduling.Text = "Scheduling";
+            //
+            // navigationBarFinance
+            //
+            this.navigationBarFinance.Icon = "resource.wx/Wisej.Ext.BootstrapIcons/bank.svg";
+            this.navigationBarFinance.Items.AddRange(new Wisej.Web.Ext.NavigationBar.NavigationBarItem[] {
+            this.navigationBarAccounting});
+            this.navigationBarFinance.Name = "navigationBarFinance";
+            this.navigationBarFinance.Text = "Finance";
+            //
+            // navigationBarAccounting
+            //
+            this.navigationBarAccounting.Icon = "resource.wx/Wisej.Ext.BootstrapIcons/calculator.svg";
+            this.navigationBarAccounting.Name = "navigationBarAccounting";
+            this.navigationBarAccounting.Tag = "AccountingPanel";
+            this.navigationBarAccounting.Text = "Accounting";
+            //
+            // navigationBarOperations
+            //
+            this.navigationBarOperations.Icon = "resource.wx/Wisej.Ext.BootstrapIcons/gear-wide-connected.svg";
+            this.navigationBarOperations.Items.AddRange(new Wisej.Web.Ext.NavigationBar.NavigationBarItem[] {
+            this.navigationBarPlantOps,
+            this.navigationBarCompliance});
+            this.navigationBarOperations.Name = "navigationBarOperations";
+            this.navigationBarOperations.Text = "Operations";
+            //
+            // navigationBarPlantOps
+            //
+            this.navigationBarPlantOps.Icon = "resource.wx/Wisej.Ext.BootstrapIcons/building.svg";
+            this.navigationBarPlantOps.Name = "navigationBarPlantOps";
+            this.navigationBarPlantOps.Tag = "PlantOpsPanel";
+            this.navigationBarPlantOps.Text = "Plant Operations";
+            //
+            // navigationBarCompliance
+            //
+            this.navigationBarCompliance.Icon = "resource.wx/Wisej.Ext.BootstrapIcons/clipboard-check.svg";
+            this.navigationBarCompliance.Name = "navigationBarCompliance";
+            this.navigationBarCompliance.Tag = "CompliancePanel";
+            this.navigationBarCompliance.Text = "Compliance";
             //
             // navigationBarSystem
             //
@@ -468,6 +576,18 @@
 		private Wisej.Web.Ext.NavigationBar.NavigationBarItem navigationBarNaturalGas;
 		private Wisej.Web.Ext.NavigationBar.NavigationBarItem navigationBarGrain;
 		private Wisej.Web.Ext.NavigationBar.NavigationBarItem navigationBarFreight;
+		private Wisej.Web.Ext.NavigationBar.NavigationBarItem navigationBarCommercial;
+		private Wisej.Web.Ext.NavigationBar.NavigationBarItem navigationBarCustomers;
+		private Wisej.Web.Ext.NavigationBar.NavigationBarItem navigationBarContracts;
+		private Wisej.Web.Ext.NavigationBar.NavigationBarItem navigationBarRisk;
+		private Wisej.Web.Ext.NavigationBar.NavigationBarItem navigationBarLogistics;
+		private Wisej.Web.Ext.NavigationBar.NavigationBarItem navigationBarCarriers;
+		private Wisej.Web.Ext.NavigationBar.NavigationBarItem navigationBarScheduling;
+		private Wisej.Web.Ext.NavigationBar.NavigationBarItem navigationBarFinance;
+		private Wisej.Web.Ext.NavigationBar.NavigationBarItem navigationBarAccounting;
+		private Wisej.Web.Ext.NavigationBar.NavigationBarItem navigationBarOperations;
+		private Wisej.Web.Ext.NavigationBar.NavigationBarItem navigationBarPlantOps;
+		private Wisej.Web.Ext.NavigationBar.NavigationBarItem navigationBarCompliance;
 		private Wisej.Web.Ext.NavigationBar.NavigationBarItem navigationBarSystem;
 		private Wisej.Web.Ext.NavigationBar.NavigationBarItem navigationBarCollapse;
 		private Wisej.Web.Ext.NavigationBar.NavigationBarItem navigationBarEvents;

@@ -89,15 +89,15 @@ namespace GridKrafter.WisejDemo.Services.Commodities
 
 		private static readonly Customer[] Customers =
 		{
-			new Customer("Meridian Pharma", "Pharma", Usp200, 0.60),
-			new Customer("Bayline Biologics", "Pharma", Usp200, 0.40),
-			new Customer("Harborview Labs", "Pharma", Usp190, 1.00),
-			new Customer("Copperhill Distilling", "Beverage", Bev190, 0.45),
-			new Customer("Silverleaf Spirits", "Beverage", Bev190, 0.35),
-			new Customer("Tallgrass Vodka Co.", "Beverage", Bev190, 0.20),
-			new Customer("Northgate Coatings", "Industrial", Ind200, 0.40),
-			new Customer("Allied Lab Supply", "Lab", Ind200, 0.25),
-			new Customer("CleanWorks Sanitizer", "Industrial", Ind200, 0.35),
+			new Customer(Business.CustomerRegistry.Name("c25"), "Pharma", Usp200, 0.60),
+			new Customer(Business.CustomerRegistry.Name("c26"), "Pharma", Usp200, 0.40),
+			new Customer(Business.CustomerRegistry.Name("c14"), "Pharma", Usp190, 1.00),
+			new Customer(Business.CustomerRegistry.Name("c27"), "Beverage", Bev190, 0.45),
+			new Customer(Business.CustomerRegistry.Name("c28"), "Beverage", Bev190, 0.35),
+			new Customer(Business.CustomerRegistry.Name("c12"), "Beverage", Bev190, 0.20),
+			new Customer(Business.CustomerRegistry.Name("c29"), "Industrial", Ind200, 0.40),
+			new Customer(Business.CustomerRegistry.Name("c13"), "Lab", Ind200, 0.25),
+			new Customer(Business.CustomerRegistry.Name("c21"), "Industrial", Ind200, 0.35),
 		};
 
 		private static readonly string[] Vessels = { "Tank T-01", "Tank T-03", "Tank T-05", "Tank T-07", "Tank T-08", "Tank T-12", "Railcar GATX 60917", "Railcar UTLX 84213", "Railcar TILX 30551" };
@@ -141,8 +141,19 @@ namespace GridKrafter.WisejDemo.Services.Commodities
 		/// <inheritdoc/>
 		public IReadOnlyList<QualitySpec> Specs() => SpecList;
 
+		// The share of the purified ethanol that moves by the filter's MOT: 1 for All MOT. Gallons scale;
+		// premiums, lots and the lab's results do not.
+		private static double ModeShare(PlantFilter filter) => (filter ?? PlantFilter.All).ModeShare(BOARD);
+
 		/// <inheritdoc/>
 		public PurifiedSummary Summary(PlantFilter filter, int refresh)
+		{
+			double share = ModeShare(filter);
+			var s = SummaryCore(filter, refresh);
+			return share == 1 ? s : s with { VolumeGal = TransportMix.Scale(s.VolumeGal, share), OpenGal = TransportMix.Scale(s.OpenGal, share, 1000) };
+		}
+
+		private PurifiedSummary SummaryCore(PlantFilter filter, int refresh)
 		{
 			var makers = Selected(filter);
 			if (makers.Count == 0)
@@ -162,7 +173,7 @@ namespace GridKrafter.WisejDemo.Services.Commodities
 
 			volume *= 1 + (rng.NextDouble() - 0.5) * 0.02 * Math.Min(refresh, 5);
 			var lots = Lots(filter, refresh);
-			var orders = Orders(filter, refresh);
+			var orders = OrdersCore(filter, refresh);
 			var open = orders.Rows.Where(r => r.Actual < r.Planned).ToList();
 			return new PurifiedSummary(
 				makers.Count,
@@ -294,6 +305,21 @@ namespace GridKrafter.WisejDemo.Services.Commodities
 		/// <inheritdoc/>
 		public PurifiedOrders Orders(PlantFilter filter, int refresh)
 		{
+			double share = ModeShare(filter);
+			var orders = OrdersCore(filter, refresh);
+			if (share == 1)
+				return orders;
+			if (share <= 0)
+				return new PurifiedOrders(orders.Period, orders.PaceRatio, new List<LiftingScheduleRow>());
+
+			var rows = orders.Rows
+				.Select(r => new LiftingScheduleRow(r.Label, r.Sublabel, TransportMix.Scale(r.Planned, share, 1000), TransportMix.Scale(r.Actual, share, 1000)))
+				.ToList();
+			return new PurifiedOrders(orders.Period, orders.PaceRatio, rows);
+		}
+
+		private static PurifiedOrders OrdersCore(PlantFilter filter, int refresh)
+		{
 			var makers = Selected(filter);
 			var rng = SampleRandom.For(BOARD + ".orders", filter, refresh);
 			double pace = Math.Min(1, DaysIn / MonthDays);
@@ -316,6 +342,21 @@ namespace GridKrafter.WisejDemo.Services.Commodities
 
 		/// <inheritdoc/>
 		public IReadOnlyList<PurifiedTank> Tanks(PlantFilter filter, int refresh)
+		{
+			double share = ModeShare(filter);
+			var tanks = TanksCore(filter, refresh);
+			if (share == 1)
+				return tanks;
+			if (share <= 0)
+				return new List<PurifiedTank>();
+
+			// the mode's barrels: how full and how many days stay
+			return tanks
+				.Select(t => t with { Capacity = Math.Max(100, TransportMix.Scale(t.Capacity, share, 100)), Level = TransportMix.Scale(t.Level, share), NetFlow = TransportMix.Scale(t.NetFlow, share) })
+				.ToList();
+		}
+
+		private static IReadOnlyList<PurifiedTank> TanksCore(PlantFilter filter, int refresh)
 		{
 			var makers = Selected(filter);
 			var tanks = new List<PurifiedTank>();

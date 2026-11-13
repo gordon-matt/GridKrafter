@@ -1,0 +1,154 @@
+{
+  "name": "CashFlowChart",
+  "namespace": "GridKrafter.WisejDemo",
+  "fullName": "GridKrafter.WisejDemo.CashFlowChart",
+  "language": "csharp",
+  "files": [
+    "Controls/CashFlowChart/CashFlowChart.cs",
+    "Controls/CashFlowChart/gridkrafter.wisejdemo.CashFlowChart.js",
+    "Controls/CashFlowChart/CashFlowChart.mixin.theme",
+    "Controls/CashFlowChart/CashFlowChart.bmp",
+    "GridKrafter.WisejDemo.csproj"
+  ],
+  "saved": "2026-11-13T17:35:44.2686749Z",
+  "sketch": {
+    "schema": "wisej-component-sketch/1",
+    "name": "CashFlowChart",
+    "namespace": "",
+    "description": "A 13-week cash forecast: weekly inflow columns above the zero line, outflow columns below, a net line, a running cash balance line against a minimum-cash line, with weeks below the minimum highlighted.",
+    "size": [
+      640,
+      320
+    ],
+    "html": "<div class=\"cf\">\n  <div class=\"head\">\n    <div class=\"titles\"><span class=\"title\"></span></div>\n    <div class=\"stats\">\n      <div class=\"stat\"><span class=\"slabel\">Ending</span><span class=\"svalue end\"></span></div>\n      <div class=\"stat\"><span class=\"slabel low-label\">Lowest</span><span class=\"svalue low\"></span></div>\n    </div>\n  </div>\n  <div class=\"chart\"><div class=\"plot\"></div><div class=\"tip\"></div></div>\n  <div class=\"legend\"></div>\n</div>",
+    "css": ".cf{box-sizing:border-box;width:100%;height:100%;display:flex;flex-direction:column;gap:6px;padding:10px 12px;background:var(--window);color:var(--text);font:12px \"Segoe UI\",system-ui,sans-serif}\n.head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}\n.title{font-weight:600;font-size:13.5px}\n.stats{display:flex;gap:18px;align-items:flex-end}\n.stat{display:flex;flex-direction:column;align-items:flex-end;line-height:1.15}\n.slabel{color:var(--muted);font-size:11.5px}\n.svalue{font-weight:600;font-size:18px}\n.svalue.low.bad{color:var(--negative)}\n.chart{position:relative;flex:1;min-height:90px}\n.plot{position:absolute;inset:0}\n.plot svg{display:block;width:100%;height:100%;overflow:visible}\n.tip{position:absolute;display:none;pointer-events:none;background:var(--window);border:1px solid var(--border);border-radius:8px;padding:7px 10px;min-width:150px;color:var(--muted);z-index:5}\n.tip .r{display:flex;justify-content:space-between;gap:14px}\n.tip b{color:var(--text);font-weight:600}\n.legend{color:var(--muted);font-size:11.5px;display:flex;flex-wrap:wrap;gap:4px 14px}\n.legend span{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}\n.legend i{display:inline-block}",
+    "js": "function render(root, props, fire) {\n  var weeks = (props.weeks || []).filter(function (w) { return w && w.week != null && w.week !== ''; });\n  var unit = props.unit == null ? '$' : props.unit;\n  var open = +props.openingBalance || 0, min = +props.minimumCash || 0;\n  var sel = props.selected || '';\n  function cs(n) { return getComputedStyle(root).getPropertyValue(n).trim() || '#888'; }\n  function fmt(v) {\n    var a = Math.abs(v), s = v < 0 ? '-' : '';\n    if (a >= 1e6) return s + unit + (a / 1e6).toFixed(2) + 'M';\n    if (a >= 1e3) return s + unit + Math.round(a / 1e3) + 'K';\n    return s + unit + Math.round(a);\n  }\n  root.querySelector('.title').textContent = props.title || '';\n  var bal = [], b = open;\n  weeks.forEach(function (w) { b += (+w.inflow || 0) - (+w.outflow || 0); bal.push(b); });\n  var endEl = root.querySelector('.end'), lowEl = root.querySelector('.low'), lowLabel = root.querySelector('.low-label');\n  var plot = root.querySelector('.plot'), tip = root.querySelector('.tip'), legend = root.querySelector('.legend');\n  if (!weeks.length) {\n    endEl.textContent = ''; lowEl.textContent = ''; lowLabel.textContent = ''; legend.innerHTML = '';\n    plot.innerHTML = '<div style=\"padding:30px 0;text-align:center;color:' + cs('--muted') + '\">No forecast</div>';\n    return;\n  }\n  var li = 0; bal.forEach(function (v, i) { if (v < bal[li]) li = i; });\n  endEl.textContent = fmt(bal[bal.length - 1]);\n  lowLabel.textContent = 'Lowest · ' + weeks[li].week;\n  lowEl.textContent = fmt(bal[li]);\n  lowEl.classList.toggle('bad', bal[li] < min);\n\n  var pos = cs('--positive'), neg = cs('--negative'), acc = cs('--accent'), mut = cs('--muted'), bor = cs('--border'), win = cs('--window'), txt = cs('--text');\n  var r = plot.getBoundingClientRect(), W = Math.max(300, r.width || 600), H = Math.max(90, r.height || 200);\n  var L = 46, R = 46, T = 6, B = 18, pw = W - L - R, ph = H - T - B, n = weeks.length, step = pw / n;\n  var mi = 0, mo = 0;\n  weeks.forEach(function (w) { mi = Math.max(mi, +w.inflow || 0); mo = Math.max(mo, +w.outflow || 0); });\n  var pHi = (mi || 1) * 1.12, pLo = -(mo || 1) * 1.12;\n  var py = function (v) { return T + (pHi - v) * ph / (pHi - pLo); };\n  var bLo = Math.min(min, Math.min.apply(null, bal), open), bHi = Math.max(min, Math.max.apply(null, bal), open);\n  var bs = (bHi - bLo) || 1; bLo -= bs * 0.1; bHi += bs * 0.1;\n  var by = function (v) { return T + (bHi - v) * ph / (bHi - bLo); };\n  var x = function (i) { return L + step * (i + 0.5); };\n  var f = function (v) { return v.toFixed(1); };\n  var s = '';\n  for (var g = 0; g <= 4; g++) {\n    var pv = pLo + (pHi - pLo) * g / 4, yy = py(pv), bv = bLo + (bHi - bLo) * g / 4;\n    s += '<line x1=\"' + L + '\" x2=\"' + (W - R) + '\" y1=\"' + f(yy) + '\" y2=\"' + f(yy) + '\" stroke=\"' + bor + '\"/>' +\n      '<text x=\"' + (L - 6) + '\" y=\"' + f(yy + 4) + '\" text-anchor=\"end\" fill=\"' + mut + '\" font-size=\"11\">' + fmt(pv) + '</text>' +\n      '<text x=\"' + (W - R + 6) + '\" y=\"' + f(yy + 4) + '\" fill=\"' + mut + '\" font-size=\"11\">' + fmt(bv) + '</text>';\n  }\n  s += '<line x1=\"' + L + '\" x2=\"' + (W - R) + '\" y1=\"' + f(py(0)) + '\" y2=\"' + f(py(0)) + '\" stroke=\"' + mut + '\" stroke-width=\"1.2\"/>';\n  var cw = Math.min(26, step * 0.5);\n  weeks.forEach(function (w, i) {\n    var below = bal[i] < min, isSel = w.week === sel;\n    s += '<rect data-i=\"' + i + '\" x=\"' + f(L + step * i) + '\" y=\"' + T + '\" width=\"' + f(step) + '\" height=\"' + f(ph) + '\" rx=\"4\" fill=\"' +\n      (below ? neg : isSel ? acc : 'transparent') + '\" fill-opacity=\"' + (below ? (isSel ? .2 : .1) : isSel ? .12 : 0) + '\" style=\"cursor:pointer\"/>';\n    var hi = ((+w.inflow || 0)) / pHi * 0 + py(+w.inflow || 0), ho = py(-(+w.outflow || 0));\n    s += '<rect x=\"' + f(x(i) - cw / 2) + '\" y=\"' + f(hi) + '\" width=\"' + f(cw) + '\" height=\"' + f(py(0) - hi) + '\" rx=\"2\" fill=\"' + pos + '\" fill-opacity=\".75\" pointer-events=\"none\"/>' +\n      '<rect x=\"' + f(x(i) - cw / 2) + '\" y=\"' + f(py(0)) + '\" width=\"' + f(cw) + '\" height=\"' + f(ho - py(0)) + '\" rx=\"2\" fill=\"' + neg + '\" fill-opacity=\".75\" pointer-events=\"none\"/>';\n  });\n  s += '<line x1=\"' + L + '\" x2=\"' + (W - R) + '\" y1=\"' + f(by(min)) + '\" y2=\"' + f(by(min)) + '\" stroke=\"' + neg + '\" stroke-width=\"1.5\" stroke-dasharray=\"5 4\" pointer-events=\"none\"/>';\n  var path = function (fn) { return weeks.map(function (w, i) { return (i ? 'L' : 'M') + f(x(i)) + ' ' + f(fn(w, i)); }).join(' '); };\n  s += '<path d=\"' + path(function (w) { return py((+w.inflow || 0) - (+w.outflow || 0)); }) + '\" fill=\"none\" stroke=\"' + txt + '\" stroke-width=\"1.6\" stroke-linejoin=\"round\" pointer-events=\"none\"/>';\n  s += '<path d=\"M' + f(L) + ' ' + f(by(open)) + ' ' + path(function (w, i) { return by(bal[i]); }).replace(/^M/, 'L') + '\" fill=\"none\" stroke=\"' + acc + '\" stroke-width=\"2.4\" stroke-linejoin=\"round\" pointer-events=\"none\"/>';\n  var every = step < 34 ? 2 : 1;\n  weeks.forEach(function (w, i) {\n    var net = (+w.inflow || 0) - (+w.outflow || 0);\n    s += '<circle cx=\"' + f(x(i)) + '\" cy=\"' + f(py(net)) + '\" r=\"2.6\" fill=\"' + win + '\" stroke=\"' + txt + '\" stroke-width=\"1.5\" pointer-events=\"none\"/>' +\n      '<circle cx=\"' + f(x(i)) + '\" cy=\"' + f(by(bal[i])) + '\" r=\"' + (w.week === sel ? 5 : 3.2) + '\" fill=\"' + (bal[i] < min ? neg : win) + '\" stroke=\"' + (bal[i] < min ? neg : acc) + '\" stroke-width=\"2\" pointer-events=\"none\"/>';\n    if (i % every === 0 || w.week === sel)\n      s += '<text x=\"' + f(x(i)) + '\" y=\"' + (H - 4) + '\" text-anchor=\"middle\" fill=\"' + mut + '\" font-size=\"11\" pointer-events=\"none\">' + w.week + '</text>';\n  });\n  plot.innerHTML = '<svg width=\"' + W + '\" height=\"' + H + '\" viewBox=\"0 0 ' + W + ' ' + H + '\">' + s + '</svg>';\n  legend.innerHTML =\n    '<span><i style=\"width:9px;height:9px;border-radius:2px;background:' + pos + '\"></i>Inflow</span>' +\n    '<span><i style=\"width:9px;height:9px;border-radius:2px;background:' + neg + '\"></i>Outflow</span>' +\n    '<span><i style=\"width:14px;border-top:1.6px solid ' + txt + '\"></i>Net</span>' +\n    '<span><i style=\"width:14px;border-top:2.4px solid ' + acc + '\"></i>Cash balance</span>' +\n    '<span><i style=\"width:14px;border-top:1.5px dashed ' + neg + '\"></i>Minimum cash ' + fmt(min) + '</span>';\n  plot.querySelectorAll('rect[data-i]').forEach(function (el) {\n    var i = +el.getAttribute('data-i'), w = weeks[i];\n    el.addEventListener('click', function () { fire('weekSelected', { week: String(w.week), selected: String(w.week) }); });\n    el.addEventListener('mouseenter', function () {\n      var net = (+w.inflow || 0) - (+w.outflow || 0);\n      var row = function (a, v) { return '<div class=\"r\"><span>' + a + '</span><b>' + v + '</b></div>'; };\n      tip.innerHTML = '<div style=\"font-weight:600;margin-bottom:3px;color:' + txt + '\">' + w.week + '</div>' + row('Inflow', fmt(+w.inflow || 0)) + row('Outflow', fmt(+w.outflow || 0)) + row('Net', fmt(net)) + row('Balance', fmt(bal[i]));\n      tip.style.display = 'block';\n      var tw = tip.offsetWidth, th = tip.offsetHeight, tx = x(i) + 12;\n      if (tx + tw > W) tx = x(i) - 12 - tw;\n      tip.style.left = Math.max(0, tx) + 'px';\n      tip.style.top = Math.max(0, Math.min(H - th, by(bal[i]) - th / 2)) + 'px';\n    });\n    el.addEventListener('mouseleave', function () { tip.style.display = 'none'; });\n  });\n}",
+    "props": [
+      {
+        "name": "title",
+        "type": "string",
+        "default": "13-week cash forecast",
+        "description": "The chart's name, shown in the header."
+      },
+      {
+        "name": "unit",
+        "type": "string",
+        "default": "$",
+        "description": "Currency prefix of every amount."
+      },
+      {
+        "name": "weeks",
+        "type": "rows",
+        "default": [
+          {
+            "week": "17 Nov",
+            "inflow": 1450000,
+            "outflow": 1220000
+          },
+          {
+            "week": "24 Nov",
+            "inflow": 1180000,
+            "outflow": 1390000
+          },
+          {
+            "week": "1 Dec",
+            "inflow": 1320000,
+            "outflow": 1510000
+          },
+          {
+            "week": "8 Dec",
+            "inflow": 1610000,
+            "outflow": 1780000
+          },
+          {
+            "week": "15 Dec",
+            "inflow": 980000,
+            "outflow": 1420000
+          },
+          {
+            "week": "22 Dec",
+            "inflow": 1040000,
+            "outflow": 1380000
+          },
+          {
+            "week": "29 Dec",
+            "inflow": 890000,
+            "outflow": 1260000
+          },
+          {
+            "week": "5 Jan",
+            "inflow": 1120000,
+            "outflow": 1310000
+          },
+          {
+            "week": "12 Jan",
+            "inflow": 1560000,
+            "outflow": 1190000
+          },
+          {
+            "week": "19 Jan",
+            "inflow": 1730000,
+            "outflow": 1240000
+          },
+          {
+            "week": "26 Jan",
+            "inflow": 1490000,
+            "outflow": 1360000
+          },
+          {
+            "week": "2 Feb",
+            "inflow": 1650000,
+            "outflow": 1420000
+          },
+          {
+            "week": "9 Feb",
+            "inflow": 1820000,
+            "outflow": 1290000
+          }
+        ],
+        "description": "The weeks in order: week label, inflow and outflow (both positive)."
+      },
+      {
+        "name": "openingBalance",
+        "type": "number",
+        "default": 2400000,
+        "description": "Cash balance at the start of the first week."
+      },
+      {
+        "name": "minimumCash",
+        "type": "number",
+        "default": 1000000,
+        "description": "The minimum cash policy; weeks whose balance is below it are highlighted."
+      },
+      {
+        "name": "selected",
+        "type": "string",
+        "default": "",
+        "description": "The selected week (its label); empty for none."
+      }
+    ],
+    "events": [
+      {
+        "name": "weekSelected",
+        "payload": {
+          "week": "string",
+          "selected": "string"
+        },
+        "sets": [
+          "selected"
+        ]
+      }
+    ],
+    "tokens": {
+      "positive": "#1fb57a",
+      "negative": "#e5484d"
+    },
+    "dependencies": [],
+    "notes": "",
+    "filledByAgent": true,
+    "icon": {
+      "rgba": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB+1eoAftXqAH7V6gAAAAAAAAAAAAAAAAAAAAAAftXr/H7V6/x+1ev8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAApqIr/JayF/x+1ev8AAAAAAAAAAAAAAAAAAAAAH7V6/x+1ev8ftXr/AAAAAAAAAAAAAAAAAAAAAAAAAABsTP8CWmbf/2VY8f8isX//AAAAAAAAAAAAAAAAAAAAAB+1ev8oqYn/LaOS/wAAAAAftXqAH7V6/x+1ev8ftXqAbU3/am1N//9Fg7r/H7V6/wAAAAAAAAAAAAAAAAAAAAAgtHv/YF7p/2VX8v9tTf8gH7V6gB+1ev8ftXr/LaKTnG1N//FfX+j/IbN9/x+1ev8AAAAAAAAAAAAAAAAAAAAAH7V6/zOanP9rUPv/bU3/2CmnjJMftXr/H7V6/1Zs2P1tTf/9L5+W/x+1ev8ftXr/AAAAAAAAAAAAAAAAAAAAAOVITf/lSE3/vEqJ/21N//2GTNr94EhV/7tKi/9tTf//bU3/j+VITf/lSE3/5UhN/wAAAAAAAAAAAAAAAAAAAADlSE3/5UhN/+VITf9tTf9tbU3//45Mzv94Te//bU3/321N/wrlSE3/5UhN/+VITf8AAAAAAAAAAAAAAAAAAAAA5UhN/+VITf/lSE3/AAAAAIBM46BtTf//bU3//6RLroEAAAAA5UhN/+VITf/lSE3/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADlSE6Ao0uv/6hLqP/lSE2AAAAAAOVITYDlSE2A5UhNgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA5UhNgOVITf/lSE3/5UhNgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 16 16\"><rect x=\"2\" y=\"3\" width=\"3\" height=\"5\" fill=\"#1fb57a\"/><rect x=\"6.5\" y=\"5\" width=\"3\" height=\"3\" fill=\"#1fb57a\"/><rect x=\"11\" y=\"2.5\" width=\"3\" height=\"5.5\" fill=\"#1fb57a\"/><rect x=\"2\" y=\"8\" width=\"3\" height=\"3\" fill=\"#e5484d\"/><rect x=\"6.5\" y=\"8\" width=\"3\" height=\"5\" fill=\"#e5484d\"/><rect x=\"11\" y=\"8\" width=\"3\" height=\"3.5\" fill=\"#e5484d\"/><polyline points=\"3.5,6 8,11 12.5,4\" fill=\"none\" stroke=\"#6d4dff\" stroke-width=\"1.6\" stroke-linejoin=\"round\"/></svg>"
+    }
+  }
+}

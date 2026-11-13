@@ -1,0 +1,14 @@
+{
+  "id": "cash-flow-chart",
+  "name": "Cash flow chart",
+  "purpose": "A 13-week cash forecast: weekly inflow columns above the zero line, outflow columns below, a net line, a running cash balance line against a minimum-cash line, with weeks below the minimum highlighted.",
+  "keywords": [
+    "cash flow chart",
+    "cashflowchart"
+  ],
+  "control": "CashFlowChart",
+  "type": "GridKrafter.WisejDemo.CashFlowChart",
+  "extends": null,
+  "component": null,
+  "preview": "<div data-wisej-pattern=\"cash-flow-chart\"><div class=\"cf\">\n  <div class=\"head\">\n    <div class=\"titles\"><span class=\"title\"></span></div>\n    <div class=\"stats\">\n      <div class=\"stat\"><span class=\"slabel\">Ending</span><span class=\"svalue end\"></span></div>\n      <div class=\"stat\"><span class=\"slabel low-label\">Lowest</span><span class=\"svalue low\"></span></div>\n    </div>\n  </div>\n  <div class=\"chart\"><div class=\"plot\"></div><div class=\"tip\"></div></div>\n  <div class=\"legend\"></div>\n</div></div>"
+}

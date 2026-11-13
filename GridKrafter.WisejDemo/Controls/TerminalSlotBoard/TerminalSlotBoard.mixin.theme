@@ -1,0 +1,126 @@
+{
+	"name": "TerminalSlotBoard.mixin",
+
+	// loading is the theme's highlight (the accent), done and late the GridKrafter palette's green and
+	// red, which the Light and Dark themes both define; surfaces, text and borders are the theme's own.
+
+	"fonts": {
+		"terminal-slot-board-small": { "size": 11.5, "family": ["Segoe UI", "system-ui", "Roboto", "Helvetica Neue", "Arial", "sans-serif"] },
+		"terminal-slot-board-text": { "size": 12, "family": ["Segoe UI", "system-ui", "Roboto", "Helvetica Neue", "Arial", "sans-serif"] },
+		"terminal-slot-board-strong": { "size": 12, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] },
+		"terminal-slot-board-name": { "size": 11.5, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] },
+		"terminal-slot-board-title": { "size": 13, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] },
+		"terminal-slot-board-hour": { "size": 10.5, "family": ["Segoe UI", "system-ui", "Roboto", "Helvetica Neue", "Arial", "sans-serif"] },
+		"terminal-slot-board-tag": { "size": 9.5, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] },
+		"terminal-slot-board-now": { "size": 10, "bold": true, "family": ["Segoe UI Semibold", "Segoe UI", "system-ui", "Roboto", "Arial", "sans-serif"] }
+	},
+
+	"appearances": {
+
+		"terminal-slot-board": {
+			"inherit": "widget",
+			"states": {
+				"default": {
+					"properties": {
+						"padding": [10, 12],
+						"font": "terminal-slot-board-text",
+						"textColor": "windowText",
+						"backgroundColor": "window",
+						"opacity": 1
+					},
+					"styles": { "width": 0 }
+				},
+				"disabled": { "properties": { "opacity": 0.55 } }
+			},
+			"components": {
+
+				"title": { "inherit": "label", "states": { "default": { "properties": { "font": "terminal-slot-board-title", "textColor": "windowText" } } } },
+
+				"swatch": {
+					"inherit": "widget",
+					"states": {
+						"default": { "styles": { "backgroundColor": "window", "radius": 2, "width": 1, "style": "solid", "color": "grayText", "widthLeft": 1, "colorLeft": "grayText" } },
+						"loading": { "styles": { "backgroundColor": "highlight", "color": "highlight", "colorLeft": "highlight" } },
+						"done": { "styles": { "backgroundColor": "appWorkspace", "color": "appWorkspace", "widthLeft": 3, "colorLeft": "green" } },
+						"late": { "styles": { "backgroundColor": "red", "color": "red", "colorLeft": "red" } }
+					}
+				},
+				"count-text": { "inherit": "label", "states": { "default": { "properties": { "font": "terminal-slot-board-small", "textColor": "grayText" } } } },
+				"count-value": { "inherit": "label", "states": { "default": { "properties": { "font": "terminal-slot-board-strong", "textColor": "windowText" } } } },
+
+				"free": {
+					"inherit": "widget",
+					"states": { "default": { "properties": { "padding": [1, 8] }, "styles": { "backgroundColor": "appWorkspace", "radius": 10 } } }
+				},
+				"free-value": { "inherit": "label", "states": { "default": { "properties": { "font": "terminal-slot-board-strong", "textColor": "windowText" } } } },
+				"free-label": { "inherit": "label", "states": { "default": { "properties": { "font": "terminal-slot-board-small", "textColor": "grayText" } } } },
+
+				"board": {
+					"inherit": "scrollarea",
+					"states": { "default": { "styles": { "backgroundColor": "window", "width": 0, "widthTop": 1, "styleTop": "solid", "colorTop": "windowFrame" } } }
+				},
+
+				"hour": { "inherit": "label", "states": { "default": { "properties": { "font": "terminal-slot-board-hour", "textColor": "grayText" } } } },
+				"now-label": {
+					"inherit": "label",
+					"states": { "default": { "properties": { "font": "terminal-slot-board-now", "textColor": "red", "padding": [0, 3] }, "styles": { "backgroundColor": "window", "radius": 4 } } }
+				},
+
+				"bay": {
+					"inherit": "widget",
+					"states": { "default": { "styles": { "widthBottom": 1, "styleBottom": "solid", "colorBottom": "windowFrame" } } }
+				},
+				"bay-name": { "inherit": "label", "states": { "default": { "properties": { "font": "terminal-slot-board-name", "textColor": "windowText", "padding": [0, 8, 0, 0] } } } },
+
+				"grid": { "inherit": "widget", "states": { "default": { "properties": { "backgroundColor": "windowFrame" } } } },
+				"now": { "inherit": "widget", "states": { "default": { "properties": { "backgroundColor": "red" } } } },
+
+				"slot": {
+					"inherit": "widget",
+					"states": {
+						"default": {
+							"properties": { "padding": [0, 6, 0, 3], "opacity": 1 },
+							"styles": {
+								"backgroundColor": "window", "radius": 6, "width": 1, "style": "solid", "color": "grayText", "widthLeft": 1, "colorLeft": "grayText",
+								"shadowColor": "windowText", "shadowBlurRadius": 0, "shadowLength": 0, "shadowSpreadRadius": 0
+							}
+						},
+						"loading": { "styles": { "backgroundColor": "highlight", "color": "highlight", "colorLeft": "highlight" } },
+						"done": { "styles": { "backgroundColor": "appWorkspace", "color": "appWorkspace", "widthLeft": 3, "colorLeft": "green" } },
+						"late": { "styles": { "backgroundColor": "red", "color": "red", "colorLeft": "red" } },
+						"hovered": { "properties": { "opacity": 0.88 } },
+						"selected": { "properties": { "opacity": 1 }, "styles": { "shadowColor": "windowText", "shadowSpreadRadius": 2 } }
+					}
+				},
+				"mot": {
+					"inherit": "label",
+					"states": {
+						"default": { "properties": { "font": "terminal-slot-board-tag", "textColor": "windowText", "padding": [1, 0, 0, 0] }, "styles": { "backgroundColor": "appWorkspace", "radius": 4 } },
+						"loading": { "styles": { "backgroundColor": "window" } },
+						"late": { "styles": { "backgroundColor": "window" } },
+						"done": { "styles": { "backgroundColor": "window" } }
+					}
+				},
+				"counterparty": {
+					"inherit": "label",
+					"states": {
+						"default": { "properties": { "font": "terminal-slot-board-strong", "textColor": "windowText" } },
+						"loading": { "properties": { "textColor": "highlightText" } },
+						"late": { "properties": { "textColor": "highlightText" } },
+						"done": { "properties": { "textColor": "grayText" } }
+					}
+				},
+				"product": {
+					"inherit": "label",
+					"states": {
+						"default": { "properties": { "font": "terminal-slot-board-text", "textColor": "grayText" } },
+						"loading": { "properties": { "textColor": "highlightText" } },
+						"late": { "properties": { "textColor": "highlightText" } }
+					}
+				},
+
+				"empty": { "inherit": "label", "states": { "default": { "properties": { "textColor": "grayText", "padding": [24, 0] } } } }
+			}
+		}
+	}
+}
