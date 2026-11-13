@@ -1,4 +1,4 @@
-/**
+﻿/**
  * gridkrafter.wisejdemo.GridBoard
  *
  * The client half of GridKrafter.WisejDemo.Controls.GridBoard: a scrollable Wisej container with a
@@ -135,6 +135,12 @@ qx.Class.define("gridkrafter.wisejdemo.GridBoard", {
 		 * Whether the toolbar shows.
 		 */
 		showToolbar: { init: true, check: "Boolean", apply: "_applyShowToolbar" },
+
+		/**
+		 * Whether the toolbar's own Edit / Add widget / Add section / Reset layout row shows; off when the page
+		 * offers those actions itself.
+		 */
+		showActions: { init: true, check: "Boolean", apply: "_applyShowToolbar" },
 
 		/**
 		 * The height of the toolbar, in pixels: the server lays the grid out below it.
@@ -732,6 +738,10 @@ qx.Class.define("gridkrafter.wisejdemo.GridBoard", {
 
 			var toolbar = this.getChildControl("toolbar");
 			toolbar.setHeight(this.getToolbarHeight());
+			if (this.getShowActions())
+				this.getChildControl("actions").show();
+			else
+				this.getChildControl("actions").exclude();
 			if (this.getShowToolbar())
 				toolbar.show();
 			else
@@ -1376,7 +1386,8 @@ qx.Class.define("gridkrafter.wisejdemo.GridWidget", {
 			var tool = function (action, icon, label, cursor) {
 				return '<span role="button" tabindex="-1" aria-label="' + label + '" title="' + label + '" data-action="' + action +
 					'" style="display:inline-flex;padding:3px;border-radius:5px;cursor:' + cursor + ';color:' + muted + '">' +
-					GridBoard.iconHtml(icon, 16).replace("<svg ", '<svg style="pointer-events:none" ') + '</span>';
+					// one style attribute: a second one would be dropped by the browser, and with it the icon's stroke
+					GridBoard.iconHtml(icon, 16).replace('style="', 'style="pointer-events:none;') + '</span>';
 			};
 			this.__hover.setAttribute("html", tool("grip", "grip", "Move", "move") + tool("color", "color", "Colour", "pointer") + tool("delete", "delete", "Close", "pointer"));
 

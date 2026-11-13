@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -35,6 +35,12 @@ namespace GridKrafter.WisejDemo.Controls
 		/// underlined section tabs and the Collapse all / Expand all links, as in the GridKrafter demos.
 		/// </summary>
 		internal const int ToolbarHeight = 128;
+
+		// the Edit / Add widget / Add section / Reset layout row and the space under it
+		private const int ActionsRowHeight = 38;
+
+		/// <summary>The toolbar's height as shown: without the actions row when <see cref="ShowActions"/> is off.</summary>
+		internal int EffectiveToolbarHeight => this.showActions ? ToolbarHeight : ToolbarHeight - ActionsRowHeight;
 
 		private int columns = 12;
 		private int rowHeight = 62;
@@ -323,6 +329,29 @@ namespace GridKrafter.WisejDemo.Controls
 		}
 
 		/// <summary>
+		/// Gets or sets whether the toolbar's own Edit, Add widget, Add section and Reset layout buttons show. Turn it
+		/// off when the page offers them itself, through <see cref="EditMode"/>, <see cref="RequestAddWidget"/>,
+		/// <see cref="RequestRestoreWidget"/>, <see cref="AddSection"/> and <see cref="RequestResetLayout"/>.
+		/// </summary>
+		[Category("Appearance"), DefaultValue(true)]
+		[Description("Shows the toolbar's Edit, Add widget, Add section and Reset layout buttons.")]
+		public bool ShowActions
+		{
+			get => this.showActions;
+			set
+			{
+				if (this.showActions == value)
+					return;
+
+				this.showActions = value;
+				PerformLayout();
+				Update();
+			}
+		}
+
+		private bool showActions = true;
+
+		/// <summary>
 		/// Gets or sets the id of the section whose widgets show; empty or unknown shows the first section.
 		/// </summary>
 		[Category("Data"), DefaultValue("")]
@@ -377,7 +406,7 @@ namespace GridKrafter.WisejDemo.Controls
 			{
 				var rect = base.DisplayRectangle;
 				if (this.showToolbar)
-					rect.Height = Math.Max(0, rect.Height - ToolbarHeight);
+					rect.Height = Math.Max(0, rect.Height - EffectiveToolbarHeight);
 				return rect;
 			}
 		}
@@ -1113,21 +1142,43 @@ namespace GridKrafter.WisejDemo.Controls
 
 		private void ProcessEditToggleWebEvent(WisejEventArgs e)
 		{
+			ToggleEditMode();
+		}
+
+		/// <summary>Turns edit mode on or off, as the toolbar's Edit / Done button does, and reports the change.</summary>
+		public void ToggleEditMode()
+		{
 			this.EditMode = !this.EditMode;
 			OnChanged(new GridBoardChangedEventArgs("edit-mode", null, CurrentSectionId(), CurrentLayout, null));
 		}
 
+		/// <summary>Asks for a widget of a catalog kind, as choosing it in Add widget does: raises <see cref="AddWidgetRequested"/>.</summary>
+		public void RequestAddWidget(string kind)
+		{
+			var item = this.Catalog.FirstOrDefault(k => string.Equals(k.Kind, kind, StringComparison.Ordinal));
+			if (item != null)
+				OnAddWidgetRequested(new GridWidgetKindEventArgs(item));
+		}
+
+		/// <summary>The title and icon of a widget that was closed and can be brought back, or <see langword="null"/>.</summary>
+		public DashboardItem GetRemovedItem(string id)
+		{
+			DashboardItem item;
+			return id != null && this.removedIds.Contains(id) && this.removedItems.TryGetValue(id, out item) ? item : null;
+		}
+
 		private void ProcessWidgetAddWebEvent(WisejEventArgs e)
 		{
-			string kind = Convert.ToString((object)e.Parameters.Data, CultureInfo.InvariantCulture);
-			var item = this.Catalog.FirstOrDefault(k => string.Equals(k.Kind, kind, StringComparison.Ordinal));
-			if (item == null)
-				return;
-
-			OnAddWidgetRequested(new GridWidgetKindEventArgs(item));
+			RequestAddWidget(Convert.ToString((object)e.Parameters.Data, CultureInfo.InvariantCulture));
 		}
 
 		private void ProcessSectionAddWebEvent(WisejEventArgs e)
+		{
+			AddSection();
+		}
+
+		/// <summary>Adds a new section and shows it, as the toolbar's Add section button does.</summary>
+		public void AddSection()
 		{
 			int n = this.Sections.Count + 1;
 			string id = "section-" + n.ToString(CultureInfo.InvariantCulture);
@@ -1205,6 +1256,15 @@ namespace GridKrafter.WisejDemo.Controls
 
 		private void ProcessResetLayoutWebEvent(WisejEventArgs e)
 		{
+			RequestResetLayout();
+		}
+
+		/// <summary>
+		/// Asks whether to put the board back as it started, as the toolbar's Reset layout button does, and raises
+		/// <see cref="ResetRequested"/> when the user agrees. Only in edit mode.
+		/// </summary>
+		public void RequestResetLayout()
+		{
 			if (!this.editMode || !this.Enabled)
 				return;
 
@@ -1220,7 +1280,12 @@ namespace GridKrafter.WisejDemo.Controls
 
 		private void ProcessWidgetRestoreWebEvent(WisejEventArgs e)
 		{
-			string id = Convert.ToString((object)e.Parameters.Data, CultureInfo.InvariantCulture);
+			RequestRestoreWidget(Convert.ToString((object)e.Parameters.Data, CultureInfo.InvariantCulture));
+		}
+
+		/// <summary>Brings a closed widget back, as choosing it in Add widget does: raises <see cref="RestoreRequested"/>.</summary>
+		public void RequestRestoreWidget(string id)
+		{
 			DashboardItem item;
 			if (string.IsNullOrEmpty(id) || !this.removedIds.Contains(id) || FindWidget(id) != null)
 				return;
@@ -1295,7 +1360,8 @@ namespace GridKrafter.WisejDemo.Controls
 			config.selectedSection = CurrentSectionId();
 			config.editMode = this.EditMode;
 			config.showToolbar = this.ShowToolbar;
-			config.toolbarHeight = ToolbarHeight;
+			config.toolbarHeight = EffectiveToolbarHeight;
+			config.showActions = this.ShowActions;
 			config.columns = layout.Columns;
 			config.rowHeight = this.RowHeight;
 			config.gap = this.Gap;

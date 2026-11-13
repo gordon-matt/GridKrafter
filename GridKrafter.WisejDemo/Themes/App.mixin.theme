@@ -6,15 +6,7 @@
     "navbar-background-selected": "#1f3a2a",
     "navbar-text": "#e8f0ea",
     "navbar-text-hover": "#ffffff",
-    "navbar-text-selected": "#ffffff",
-    "segment-text": "windowText",
-    "segment-track": "appWorkspace",
-    "segment-selected": "window",
-    "segment-border": "windowFrame",
-    "segment-primary": "highlight",
-    "segment-pill": "windowText",
-    "segment-pill-text": "window",
-    "segment-shadow": "buttonShadow"
+    "navbar-text-selected": "#ffffff"
   },
   "appearances": {
     "navbar-item": {
@@ -24,6 +16,92 @@
             "selected": {
               "styles": {
                 "css": "{\"box-shadow\":\"inset 3px 0 0 #8bc34a\"}"
+              }
+            }
+          }
+        }
+      }
+    },
+    "segmentedbutton": {
+      "states": {
+        "default": {
+          "properties": {
+            "textColor": "windowText"
+          }
+        }
+      },
+      "components": {
+        "row": {
+          "states": {
+            "default": {
+              "properties": {
+                "padding": 0,
+                "backgroundColor": "transparent"
+              }
+            }
+          }
+        },
+        "option": {
+          "states": {
+            "default": {
+              "properties": {
+                "textColor": "windowText",
+                "backgroundColor": "window",
+                "minHeight": 30,
+                "padding": [
+                  0,
+                  12
+                ],
+                "margin": [
+                  0,
+                  6,
+                  0,
+                  0
+                ]
+              },
+              "styles": {
+                "width": 1,
+                "style": "solid",
+                "color": "windowFrame",
+                "radius": 6
+              }
+            },
+            "hovered": {
+              "styles": {
+                "color": "highlight"
+              }
+            },
+            "focused": {
+              "styles": {
+                "color": "highlight",
+                "shadowLength": 0,
+                "shadowBlurRadius": 0
+              }
+            },
+            "selected-raised": {
+              "properties": {
+                "backgroundColor": "highlight",
+                "textColor": "highlightText"
+              },
+              "styles": {
+                "color": "highlight",
+                "shadowLength": 0,
+                "shadowBlurRadius": 0
+              }
+            },
+            "selected-pill": {
+              "properties": {
+                "backgroundColor": "highlight",
+                "textColor": "highlightText"
+              }
+            },
+            "selected-outlined": {
+              "properties": {
+                "backgroundColor": "highlight",
+                "textColor": "highlightText"
+              },
+              "styles": {
+                "color": "highlight"
               }
             }
           }

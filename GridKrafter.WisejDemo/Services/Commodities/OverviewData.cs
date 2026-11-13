@@ -122,7 +122,7 @@ namespace GridKrafter.WisejDemo.Services.Commodities
 				plants.Count,
 				volume, lastVolume > 0 ? volume / lastVolume - 1 : 0,
 				margin, lastMargin != 0 ? margin / lastMargin - 1 : 0,
-				Math.Round(net, -3), Math.Round(move, -3),
+				Math.Round(net / 1000) * 1000, Math.Round(move / 1000) * 1000,
 				rate, rate - lastRate);
 		}
 

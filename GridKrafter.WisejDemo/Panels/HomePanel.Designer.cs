@@ -61,7 +61,7 @@ namespace GridKrafter.WisejDemo.Panels
 			this.board.Catalog.Add(this.kindNotes);
 			this.board.Catalog.Add(this.kindCalendar);
 			this.board.Catalog.Add(this.kindBookmarks);
-			this.board.Dock = Wisej.Web.DockStyle.Fill;
+			this.board.Dock = Wisej.Web.DockStyle.Top;
 			this.board.Location = new System.Drawing.Point(24, 12);
 			this.board.Name = "board";
 			this.board.Sections.Add(this.sectionOverview);
