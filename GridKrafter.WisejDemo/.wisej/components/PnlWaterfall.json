@@ -1,0 +1,117 @@
+{
+  "name": "PnlWaterfall",
+  "namespace": "GridKrafter.WisejDemo",
+  "fullName": "GridKrafter.WisejDemo.PnlWaterfall",
+  "language": "csharp",
+  "files": [
+    "Controls/PnlWaterfall/PnlWaterfall.cs",
+    "Controls/PnlWaterfall/gridkrafter.wisejdemo.PnlWaterfall.js",
+    "Controls/PnlWaterfall/PnlWaterfall.mixin.theme",
+    "Controls/PnlWaterfall/PnlWaterfall.bmp",
+    "GridKrafter.WisejDemo.csproj"
+  ],
+  "saved": "2026-11-13T17:35:32.5345305Z",
+  "sketch": {
+    "schema": "wisej-component-sketch/1",
+    "name": "PnlWaterfall",
+    "namespace": "",
+    "description": "A P&L waterfall in SVG: total bars from zero, up and down steps floating from the running total, connectors, compact value labels, under a header with the title and the final total.",
+    "size": [
+      640,
+      300
+    ],
+    "html": "<div class=\"pw\"><div class=\"head\"><span class=\"title\"></span><span class=\"spacer\"></span><span class=\"tlabel\">Total</span><span class=\"tvalue\"></span></div><div class=\"area\"><svg class=\"chart\"></svg><div class=\"tip\" hidden></div></div></div>",
+    "css": ".pw{box-sizing:border-box;width:100%;height:100%;display:flex;flex-direction:column;gap:6px;padding:10px 12px;background:var(--window);color:var(--text);font:12px 'Segoe UI',system-ui,sans-serif}\n.head{display:flex;align-items:baseline;gap:8px}\n.title{font-size:13.5px;font-weight:700}\n.spacer{flex:1}\n.tlabel{color:var(--muted)}\n.tvalue{font-size:20px;font-weight:700}\n.area{position:relative;flex:1;min-height:90px}\n.chart{position:absolute;inset:0;width:100%;height:100%;overflow:visible}\n.chart .band{fill:transparent;cursor:pointer}\n.chart .band:hover{fill:var(--hover)}\n.chart .band.selected{fill:var(--hover)}\n.chart text{fill:var(--muted);font-size:11px}\n.chart text.val{fill:var(--text);font-weight:600}\n.chart .grid{stroke:var(--border)}\n.chart .conn{stroke:var(--muted);stroke-width:1;stroke-dasharray:2 2}\n.tip{position:absolute;pointer-events:none;background:var(--window);border:1px solid var(--border);border-radius:8px;padding:7px 10px;min-width:150px;box-shadow:0 4px 14px rgba(20,20,50,.14);color:var(--muted)}\n.tip b{color:var(--text);font-weight:600}\n.tip div{display:flex;justify-content:space-between;gap:14px}",
+    "js": "function render(root, props, fire) {\n  var steps = (props.steps || []).filter(function (s) { return s && s.label != null && isFinite(+s.value); });\n  var unit = props.unit == null ? '$' : props.unit;\n  var sel = props.selected || '';\n  function fmt(v) {\n    var a = Math.abs(v), s = a >= 1e9 ? (a / 1e9).toFixed(1) + 'B' : a >= 1e6 ? (a / 1e6).toFixed(1) + 'M' : a >= 1e3 ? (a / 1e3).toFixed(1) + 'K' : a.toFixed(0);\n    return (v < 0 ? '-' : '') + unit + s.replace('.0', '');\n  }\n  root.querySelector('.title').textContent = props.title || '';\n  // running totals\n  var run = 0, bars = [];\n  steps.forEach(function (s) {\n    var v = +s.value, from, to;\n    if (s.kind === 'total') { from = 0; to = v; run = v; }\n    else { from = run; run += v; to = run; }\n    bars.push({ s: s, v: v, from: from, to: to, run: run });\n  });\n  root.querySelector('.tvalue').textContent = bars.length ? fmt(bars[bars.length - 1].run) : '';\n  var svg = root.querySelector('.chart'), area = svg.parentNode;\n  var W = Math.max(200, area.clientWidth), H = Math.max(80, area.clientHeight);\n  svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);\n  var tip = root.querySelector('.tip');\n  if (!bars.length) { svg.innerHTML = '<text x=\"' + W / 2 + '\" y=\"' + H / 2 + '\" text-anchor=\"middle\">No data</text>'; return; }\n  var lo = 0, hi = 0;\n  bars.forEach(function (b) { lo = Math.min(lo, b.from, b.to); hi = Math.max(hi, b.from, b.to); });\n  var span = (hi - lo) || 1, T = 18, B = 34, L = 6, R = 6, ph = H - T - B;\n  var y = function (v) { return T + (hi - v) * ph / (hi - lo + span * 0.0001); };\n  var step = (W - L - R) / bars.length, bw = Math.min(56, step * 0.62);\n  var s = '<line class=\"grid\" x1=\"' + L + '\" x2=\"' + (W - R) + '\" y1=\"' + y(0) + '\" y2=\"' + y(0) + '\"/>';\n  bars.forEach(function (b, i) {\n    var cx = L + step * (i + 0.5), top = y(Math.max(b.from, b.to)), h = Math.max(1.5, Math.abs(y(b.from) - y(b.to)));\n    var col = b.s.kind === 'total' ? 'var(--accent)' : b.v >= 0 ? 'var(--positive)' : 'var(--negative)';\n    s += '<rect class=\"band' + (b.s.label === sel ? ' selected' : '') + '\" data-i=\"' + i + '\" x=\"' + (L + step * i) + '\" y=\"' + T + '\" width=\"' + step + '\" height=\"' + ph + '\" rx=\"4\"/>';\n    if (i < bars.length - 1) s += '<line class=\"conn\" x1=\"' + (cx + bw / 2) + '\" x2=\"' + (cx + step - bw / 2) + '\" y1=\"' + y(b.run) + '\" y2=\"' + y(b.run) + '\"/>';\n    s += '<rect x=\"' + (cx - bw / 2) + '\" y=\"' + top + '\" width=\"' + bw + '\" height=\"' + h + '\" rx=\"2\" fill=\"' + col + '\" pointer-events=\"none\"/>';\n    var below = b.s.kind !== 'total' && b.v < 0;\n    s += '<text class=\"val\" x=\"' + cx + '\" y=\"' + (below ? top + h + 12 : top - 4) + '\" text-anchor=\"middle\" pointer-events=\"none\">' + fmt(b.v) + '</text>';\n    s += '<text x=\"' + cx + '\" y=\"' + (H - 12) + '\" text-anchor=\"middle\" pointer-events=\"none\">' + String(b.s.label) + '</text>';\n  });\n  svg.innerHTML = s;\n  svg.onmouseover = function (e) {\n    var i = e.target.getAttribute && e.target.getAttribute('data-i'); if (i == null) return;\n    var b = bars[+i];\n    tip.innerHTML = '<div><b>' + b.s.label + '</b></div><div><span>Value</span><b>' + fmt(b.v) + '</b></div><div><span>Running total</span><b>' + fmt(b.run) + '</b></div>';\n    tip.hidden = false;\n    var x = L + step * (+i + 0.5) + 14; if (x + 170 > W) x -= 184 + 28;\n    tip.style.left = Math.max(0, x) + 'px'; tip.style.top = '10px';\n  };\n  svg.onmouseout = function () { tip.hidden = true; };\n  svg.onclick = function (e) {\n    var i = e.target.getAttribute && e.target.getAttribute('data-i'); if (i == null) return;\n    fire('stepSelected', { label: bars[+i].s.label });\n  };\n}",
+    "props": [
+      {
+        "name": "title",
+        "type": "string",
+        "default": "Gross margin",
+        "description": "The waterfall's name, shown in the header."
+      },
+      {
+        "name": "unit",
+        "type": "string",
+        "default": "$",
+        "description": "Currency prefix of the value labels."
+      },
+      {
+        "name": "steps",
+        "type": "rows",
+        "default": [
+          {
+            "label": "Revenue",
+            "value": 48200000,
+            "kind": "total"
+          },
+          {
+            "label": "Corn",
+            "value": -31400000,
+            "kind": "down"
+          },
+          {
+            "label": "Natural gas",
+            "value": -4300000,
+            "kind": "down"
+          },
+          {
+            "label": "Freight",
+            "value": -3100000,
+            "kind": "down"
+          },
+          {
+            "label": "DDGS",
+            "value": 5900000,
+            "kind": "up"
+          },
+          {
+            "label": "Corn oil",
+            "value": 2100000,
+            "kind": "up"
+          },
+          {
+            "label": "Margin",
+            "value": 17400000,
+            "kind": "total"
+          }
+        ],
+        "description": "Steps left to right: label, value, kind (total, up, down)."
+      },
+      {
+        "name": "selected",
+        "type": "string",
+        "default": "",
+        "description": "The selected step's label."
+      }
+    ],
+    "events": [
+      {
+        "name": "stepSelected",
+        "payload": {
+          "label": "string"
+        },
+        "sets": [
+          "selected"
+        ]
+      }
+    ],
+    "tokens": {
+      "window": "#ffffff",
+      "text": "#1b1d2a",
+      "muted": "#6b6f85",
+      "accent": "#6d4dff",
+      "border": "#e3e4ec",
+      "hover": "#efeaff",
+      "positive": "#1fb57a",
+      "negative": "#e5484d"
+    },
+    "dependencies": [],
+    "notes": "",
+    "filledByAgent": true,
+    "icon": {
+      "rgba": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa2+FgGtvhYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAG1N//9tTf//bU3//2tvhYBrb4WA5UhN/+VITf/lSE3/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABtTf//bU3//21N//8AAAAAAAAAAOVITf/lSE3/5UhN/wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAbU3//21N//9tTf//AAAAAAAAAADlSE3/5UhN/+VITf8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAG1N//9tTf//bU3//wAAAAAAAAAA5UhN/+VITf/lSE3/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABtTf//bU3//21N//8AAAAAAAAAAOVITf/lSE3/5UhN/2tvhYBrb4WAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAbU3//21N//9tTf//AAAAAAAAAAAAAAAAAAAAAAAAAABrb4WAa2+FgB+1ev8ftXr/H7V6/wAAAAAAAAAAAAAAAG1N//9tTf//bU3//wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAftXr/H7V6/x+1ev8AAAAAAAAAAAAAAABtTf//bU3//21N//8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH7V6/x+1ev8ftXr/AAAAAAAAAAAAAAAAbU3//21N//9tTf//AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAG1N//9tTf//bU3//wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABtTf//bU3//21N//8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa2+F/2tvhf9rb4X/a2+F/2tvhf9rb4X/a2+F/2tvhf9rb4X/a2+F/2tvhf9rb4X/a2+F/2tvhf8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 16 16\"><rect x=\"1\" y=\"3\" width=\"3\" height=\"11\" fill=\"#6d4dff\"/><rect x=\"6\" y=\"3\" width=\"3\" height=\"5\" fill=\"#e5484d\"/><rect x=\"11\" y=\"8\" width=\"3\" height=\"3\" fill=\"#1fb57a\"/><path d=\"M4 3h2M9 8h2\" stroke=\"#6b6f85\" stroke-width=\"1\"/><path d=\"M1 14.5h14\" stroke=\"#6b6f85\" stroke-width=\"1\"/></svg>"
+    }
+  }
+}

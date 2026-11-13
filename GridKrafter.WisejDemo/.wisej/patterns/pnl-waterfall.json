@@ -1,0 +1,14 @@
+{
+  "id": "pnl-waterfall",
+  "name": "Pnl waterfall",
+  "purpose": "A P&L waterfall in SVG: total bars from zero, up and down steps floating from the running total, connectors, compact value labels, under a header with the title and the final total.",
+  "keywords": [
+    "pnl waterfall",
+    "pnlwaterfall"
+  ],
+  "control": "PnlWaterfall",
+  "type": "GridKrafter.WisejDemo.PnlWaterfall",
+  "extends": null,
+  "component": null,
+  "preview": "<div data-wisej-pattern=\"pnl-waterfall\"><div class=\"pw\"><div class=\"head\"><span class=\"title\"></span><span class=\"spacer\"></span><span class=\"tlabel\">Total</span><span class=\"tvalue\"></span></div><div class=\"area\"><svg class=\"chart\"></svg><div class=\"tip\" hidden></div></div></div></div>"
+}
