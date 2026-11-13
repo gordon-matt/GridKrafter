@@ -97,15 +97,15 @@ namespace GridKrafter.WisejDemo.Services.Commodities
 
 		private static readonly (string Customer, string Segment, double Share)[] Customers =
 		{
-			("Heartland Beverage Co.", "Food & beverage", 0.17),
-			("Prairie Bottling", "Food & beverage", 0.12),
-			("Great Plains Brewing", "Food & beverage", 0.07),
-			("Arctic Dry Ice", "Dry ice", 0.14),
-			("Polar Pack Logistics", "Dry ice", 0.08),
-			("Corn Belt Chemical", "Industrial", 0.12),
-			("Midwest Welding Gases", "Industrial", 0.06),
-			("Permian Recovery Partners", "Enhanced oil recovery", 0.18),
-			("Bakken EOR Co.", "Enhanced oil recovery", 0.06),
+			(Business.CustomerRegistry.Name("c16"), "Food & beverage", 0.17),
+			(Business.CustomerRegistry.Name("c17"), "Food & beverage", 0.12),
+			(Business.CustomerRegistry.Name("c18"), "Food & beverage", 0.07),
+			(Business.CustomerRegistry.Name("c19"), "Dry ice", 0.14),
+			(Business.CustomerRegistry.Name("c20"), "Dry ice", 0.08),
+			(Business.CustomerRegistry.Name("c21"), "Industrial", 0.12),
+			(Business.CustomerRegistry.Name("c22"), "Industrial", 0.06),
+			(Business.CustomerRegistry.Name("c23"), "Enhanced oil recovery", 0.18),
+			(Business.CustomerRegistry.Name("c24"), "Enhanced oil recovery", 0.06),
 		};
 
 		/// <summary>Whether a plant has a CO2 capture unit: about six in ten do, the same ones every run.</summary>

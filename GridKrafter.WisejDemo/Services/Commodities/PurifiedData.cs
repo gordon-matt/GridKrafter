@@ -89,15 +89,15 @@ namespace GridKrafter.WisejDemo.Services.Commodities
 
 		private static readonly Customer[] Customers =
 		{
-			new Customer("Meridian Pharma", "Pharma", Usp200, 0.60),
-			new Customer("Bayline Biologics", "Pharma", Usp200, 0.40),
-			new Customer("Harborview Labs", "Pharma", Usp190, 1.00),
-			new Customer("Copperhill Distilling", "Beverage", Bev190, 0.45),
-			new Customer("Silverleaf Spirits", "Beverage", Bev190, 0.35),
-			new Customer("Tallgrass Vodka Co.", "Beverage", Bev190, 0.20),
-			new Customer("Northgate Coatings", "Industrial", Ind200, 0.40),
-			new Customer("Allied Lab Supply", "Lab", Ind200, 0.25),
-			new Customer("CleanWorks Sanitizer", "Industrial", Ind200, 0.35),
+			new Customer(Business.CustomerRegistry.Name("c25"), "Pharma", Usp200, 0.60),
+			new Customer(Business.CustomerRegistry.Name("c26"), "Pharma", Usp200, 0.40),
+			new Customer(Business.CustomerRegistry.Name("c14"), "Pharma", Usp190, 1.00),
+			new Customer(Business.CustomerRegistry.Name("c27"), "Beverage", Bev190, 0.45),
+			new Customer(Business.CustomerRegistry.Name("c28"), "Beverage", Bev190, 0.35),
+			new Customer(Business.CustomerRegistry.Name("c12"), "Beverage", Bev190, 0.20),
+			new Customer(Business.CustomerRegistry.Name("c29"), "Industrial", Ind200, 0.40),
+			new Customer(Business.CustomerRegistry.Name("c13"), "Lab", Ind200, 0.25),
+			new Customer(Business.CustomerRegistry.Name("c21"), "Industrial", Ind200, 0.35),
 		};
 
 		private static readonly string[] Vessels = { "Tank T-01", "Tank T-03", "Tank T-05", "Tank T-07", "Tank T-08", "Tank T-12", "Railcar GATX 60917", "Railcar UTLX 84213", "Railcar TILX 30551" };

@@ -486,20 +486,20 @@ namespace GridKrafter.WisejDemo.Services.Commodities
 			{
 				EthanolProduct.E85 => new[]
 				{
-					("Corn Belt Fuel Stops", "Truck · Des Moines rack", 0.30), ("Hy-Way Stations", "Truck · Omaha rack", 0.24),
-					("Northstar Travel Centers", "Truck · Minneapolis rack", 0.20), ("Lakeside Fleet Fuels", "Truck · Chicago rack", 0.16),
-					("Prairie Co-op Energy", "Truck · Kansas City rack", 0.10),
+					(Business.CustomerRegistry.Name("c07"), "Truck · Des Moines rack", 0.30), (Business.CustomerRegistry.Name("c08"), "Truck · Omaha rack", 0.24),
+					(Business.CustomerRegistry.Name("c09"), "Truck · Minneapolis rack", 0.20), (Business.CustomerRegistry.Name("c10"), "Truck · Chicago rack", 0.16),
+					(Business.CustomerRegistry.Name("c11"), "Truck · Kansas City rack", 0.10),
 				},
 				EthanolProduct.Proof200 => new[]
 				{
-					("Heartland Distillers", "Truck · Pekin", 0.34), ("Allied Solvents", "Rail · Chicago", 0.28),
-					("BioPharm Supply", "Truck · Chicago", 0.20), ("Atlantic Export Co.", "Barge · Houston", 0.18),
+					(Business.CustomerRegistry.Name("c12"), "Truck · Pekin", 0.34), (Business.CustomerRegistry.Name("c13"), "Rail · Chicago", 0.28),
+					(Business.CustomerRegistry.Name("c14"), "Truck · Chicago", 0.20), (Business.CustomerRegistry.Name("c15"), "Barge · Houston", 0.18),
 				},
 				_ => new[]
 				{
-					("Great Plains Blending", "Rail · Kansas City", 0.22), ("Lakeshore Refining", "Rail · Chicago Argo", 0.20),
-					("Eastern Seaboard Fuels", "Unit train · NY Harbor", 0.18), ("Gulf Coast Terminals", "Barge · Houston", 0.15),
-					("Pacific Blenders", "Unit train · Los Angeles", 0.13), ("Sunshine Fuel Supply", "Rail · Tampa", 0.12),
+					(Business.CustomerRegistry.Name("c01"), "Rail · Kansas City", 0.22), (Business.CustomerRegistry.Name("c02"), "Rail · Chicago Argo", 0.20),
+					(Business.CustomerRegistry.Name("c03"), "Unit train · NY Harbor", 0.18), (Business.CustomerRegistry.Name("c04"), "Barge · Houston", 0.15),
+					(Business.CustomerRegistry.Name("c05"), "Unit train · Los Angeles", 0.13), (Business.CustomerRegistry.Name("c06"), "Rail · Tampa", 0.12),
 				},
 			};
 

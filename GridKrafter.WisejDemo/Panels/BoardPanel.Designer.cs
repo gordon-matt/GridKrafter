@@ -1,6 +1,6 @@
 namespace GridKrafter.WisejDemo.Panels
 {
-	partial class CommodityBoardPanel
+	partial class BoardPanel
 	{
 		/// <summary>
 		/// Required designer variable.
@@ -35,14 +35,13 @@ namespace GridKrafter.WisejDemo.Panels
 		{
 			this.components = new System.ComponentModel.Container();
 			this.board = new GridKrafter.WisejDemo.Controls.GridBoard();
-			this.filterBar = new GridKrafter.WisejDemo.Panels.PlantFilterBar();
 			this.timerSave = new Wisej.Web.Timer(this.components);
 			this.SuspendLayout();
 			//
 			// board
 			//
 			this.board.Dock = Wisej.Web.DockStyle.Top;
-			this.board.Location = new System.Drawing.Point(24, 54);
+			this.board.Location = new System.Drawing.Point(24, 12);
 			this.board.Name = "board";
 			this.board.Size = new System.Drawing.Size(1082, 600);
 			this.board.TabIndex = 1;
@@ -53,29 +52,19 @@ namespace GridKrafter.WisejDemo.Panels
 			this.board.WidgetRefresh += new GridKrafter.WisejDemo.Controls.GridWidgetEventHandler(this.board_WidgetRefresh);
 			this.board.AddWidgetRequested += new GridKrafter.WisejDemo.Controls.GridWidgetKindEventHandler(this.board_AddWidgetRequested);
 			//
-			// filterBar
-			//
-			this.filterBar.Dock = Wisej.Web.DockStyle.Top;
-			this.filterBar.Location = new System.Drawing.Point(24, 12);
-			this.filterBar.Name = "filterBar";
-			this.filterBar.Size = new System.Drawing.Size(1082, 42);
-			this.filterBar.TabIndex = 0;
-			this.filterBar.FilterChanged += new System.EventHandler(this.filterBar_FilterChanged);
-			//
 			// timerSave
 			//
 			this.timerSave.Interval = 600;
 			this.timerSave.Tick += new System.EventHandler(this.timerSave_Tick);
 			//
-			// CommodityBoardPanel
+			// BoardPanel
 			//
 			this.Controls.Add(this.board);
-			this.Controls.Add(this.filterBar);
-			this.Name = "CommodityBoardPanel";
+			this.Name = "BoardPanel";
 			this.Padding = new Wisej.Web.Padding(24, 12, 24, 20);
 			this.Size = new System.Drawing.Size(1130, 674);
-			this.Load += new System.EventHandler(this.CommodityBoardPanel_Load);
-			this.Resize += new System.EventHandler(this.CommodityBoardPanel_Resize);
+			this.Load += new System.EventHandler(this.BoardPanel_Load);
+			this.Resize += new System.EventHandler(this.BoardPanel_Resize);
 			this.ResumeLayout(false);
 
 		}
@@ -83,7 +72,6 @@ namespace GridKrafter.WisejDemo.Panels
 		#endregion
 
 		private GridKrafter.WisejDemo.Controls.GridBoard board;
-		private GridKrafter.WisejDemo.Panels.PlantFilterBar filterBar;
 		private Wisej.Web.Timer timerSave;
 	}
 }
