@@ -6,7 +6,15 @@
     "navbar-background-selected": "#1f3a2a",
     "navbar-text": "#e8f0ea",
     "navbar-text-hover": "#ffffff",
-    "navbar-text-selected": "#ffffff"
+    "navbar-text-selected": "#ffffff",
+    "segment-text": "windowText",
+    "segment-track": "appWorkspace",
+    "segment-selected": "window",
+    "segment-border": "windowFrame",
+    "segment-primary": "highlight",
+    "segment-pill": "windowText",
+    "segment-pill-text": "window",
+    "segment-shadow": "buttonShadow"
   },
   "appearances": {
     "navbar-item": {
