@@ -118,6 +118,18 @@ namespace GridKrafter.WisejDemo
 			this.navigationBarCollapse.Icon = compact
 				? "resource.wx/Wisej.Ext.BootstrapIcons/chevron-double-right.svg"
 				: "resource.wx/Wisej.Ext.BootstrapIcons/chevron-double-left.svg";
+
+			// the icon strip names each item, the groups too, in a tooltip
+			SetNavToolTips(this.navigationBar.Items, compact);
+		}
+
+		private static void SetNavToolTips(IEnumerable<NavigationBarItem> items, bool compact)
+		{
+			foreach (var item in items)
+			{
+				item.ToolTipText = compact ? item.Text : null;
+				SetNavToolTips(item.Items.Cast<NavigationBarItem>(), compact);
+			}
 		}
 
 		// the toggle is an item: it flips the view and gives the selection back to the page on show
