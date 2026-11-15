@@ -56,6 +56,8 @@
             this.navigationBarSystem = new Wisej.Web.Ext.NavigationBar.NavigationBarItem();
             this.navigationBarEvents = new Wisej.Web.Ext.NavigationBar.NavigationBarItem();
             this.navigationBarAbout = new Wisej.Web.Ext.NavigationBar.NavigationBarItem();
+            this.navigationBarUsers = new Wisej.Web.Ext.NavigationBar.NavigationBarItem();
+            this.navigationBarAudit = new Wisej.Web.Ext.NavigationBar.NavigationBarItem();
             this.navigationBarCollapse = new Wisej.Web.Ext.NavigationBar.NavigationBarItem();
             this.topBar = new GridKrafter.WisejDemo.AppTopBar();
             this.panelScroll = new Wisej.Web.Panel();
@@ -79,6 +81,10 @@
             this.menuItemTheme = new Wisej.Web.MenuItem();
             this.menuItemDemoNotes = new Wisej.Web.MenuItem();
             this.menuItemResetBoard = new Wisej.Web.MenuItem();
+            this.menuItemAccountSeparator = new Wisej.Web.MenuItem();
+            this.menuItemPublishTemplate = new Wisej.Web.MenuItem();
+            this.menuItemChangePassword = new Wisej.Web.MenuItem();
+            this.menuItemSignOut = new Wisej.Web.MenuItem();
             this.contextMenuAlerts = new Wisej.Web.ContextMenu(this.components);
             this.contextMenuSearch = new Wisej.Web.ContextMenu(this.components);
             this.timerAsOf = new Wisej.Web.Timer(this.components);
@@ -286,6 +292,8 @@
             this.navigationBarSystem.Icon = "resource.wx/Wisej.Ext.BootstrapIcons/gear.svg";
             this.navigationBarSystem.Items.AddRange(new Wisej.Web.Ext.NavigationBar.NavigationBarItem[] {
             this.navigationBarEvents,
+            this.navigationBarUsers,
+            this.navigationBarAudit,
             this.navigationBarAbout});
             this.navigationBarSystem.Name = "navigationBarSystem";
             this.navigationBarSystem.Text = "System";
@@ -296,6 +304,20 @@
             this.navigationBarEvents.Name = "navigationBarEvents";
             this.navigationBarEvents.Tag = "EventsPanel";
             this.navigationBarEvents.Text = "Events";
+            //
+            // navigationBarUsers
+            //
+            this.navigationBarUsers.Icon = "resource.wx/Wisej.Ext.BootstrapIcons/people.svg";
+            this.navigationBarUsers.Name = "navigationBarUsers";
+            this.navigationBarUsers.Tag = "UsersPanel";
+            this.navigationBarUsers.Text = "Users & roles";
+            //
+            // navigationBarAudit
+            //
+            this.navigationBarAudit.Icon = "resource.wx/Wisej.Ext.BootstrapIcons/shield-check.svg";
+            this.navigationBarAudit.Name = "navigationBarAudit";
+            this.navigationBarAudit.Tag = "AuditPanel";
+            this.navigationBarAudit.Text = "Audit trail";
             //
             // navigationBarAbout
             //
@@ -489,7 +511,11 @@
             this.menuItemUserSeparator,
             this.menuItemTheme,
             this.menuItemDemoNotes,
-            this.menuItemResetBoard});
+            this.menuItemResetBoard,
+            this.menuItemAccountSeparator,
+            this.menuItemPublishTemplate,
+            this.menuItemChangePassword,
+            this.menuItemSignOut});
             this.contextMenuUser.Name = "contextMenuUser";
             this.contextMenuUser.MenuItemClicked += new Wisej.Web.MenuItemEventHandler(this.contextMenuUser_MenuItemClicked);
             //
@@ -527,6 +553,34 @@
             this.menuItemResetBoard.Name = "menuItemResetBoard";
             this.menuItemResetBoard.Text = "Reset board";
             this.menuItemResetBoard.Visible = false;
+            //
+            // menuItemAccountSeparator
+            //
+            this.menuItemAccountSeparator.Index = 5;
+            this.menuItemAccountSeparator.Name = "menuItemAccountSeparator";
+            this.menuItemAccountSeparator.Text = "-";
+            //
+            // menuItemPublishTemplate
+            //
+            this.menuItemPublishTemplate.IconSource = "resource.wx/Wisej.Ext.BootstrapIcons/share.svg";
+            this.menuItemPublishTemplate.Index = 6;
+            this.menuItemPublishTemplate.Name = "menuItemPublishTemplate";
+            this.menuItemPublishTemplate.Text = "Publish board as template…";
+            this.menuItemPublishTemplate.Visible = false;
+            //
+            // menuItemChangePassword
+            //
+            this.menuItemChangePassword.IconSource = "resource.wx/Wisej.Ext.BootstrapIcons/key.svg";
+            this.menuItemChangePassword.Index = 7;
+            this.menuItemChangePassword.Name = "menuItemChangePassword";
+            this.menuItemChangePassword.Text = "Change password…";
+            //
+            // menuItemSignOut
+            //
+            this.menuItemSignOut.IconSource = "resource.wx/Wisej.Ext.BootstrapIcons/box-arrow-right.svg";
+            this.menuItemSignOut.Index = 8;
+            this.menuItemSignOut.Name = "menuItemSignOut";
+            this.menuItemSignOut.Text = "Sign out";
             //
             // contextMenuAlerts
             //
@@ -592,6 +646,8 @@
 		private Wisej.Web.Ext.NavigationBar.NavigationBarItem navigationBarCollapse;
 		private Wisej.Web.Ext.NavigationBar.NavigationBarItem navigationBarEvents;
 		private Wisej.Web.Ext.NavigationBar.NavigationBarItem navigationBarAbout;
+		private Wisej.Web.Ext.NavigationBar.NavigationBarItem navigationBarUsers;
+		private Wisej.Web.Ext.NavigationBar.NavigationBarItem navigationBarAudit;
 		private Wisej.Web.Animation animationIn;
 		private GridKrafter.WisejDemo.AppTopBar topBar;
 		private Wisej.Web.Label labelSubtitle;
@@ -601,6 +657,10 @@
 		private Wisej.Web.MenuItem menuItemTheme;
 		private Wisej.Web.MenuItem menuItemDemoNotes;
 		private Wisej.Web.MenuItem menuItemResetBoard;
+		private Wisej.Web.MenuItem menuItemAccountSeparator;
+		private Wisej.Web.MenuItem menuItemPublishTemplate;
+		private Wisej.Web.MenuItem menuItemChangePassword;
+		private Wisej.Web.MenuItem menuItemSignOut;
 		private Wisej.Web.ContextMenu contextMenuAlerts;
 		private Wisej.Web.ContextMenu contextMenuSearch;
 		private Wisej.Web.Timer timerAsOf;

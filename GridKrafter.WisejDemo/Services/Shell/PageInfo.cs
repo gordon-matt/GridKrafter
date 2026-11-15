@@ -93,6 +93,12 @@ namespace GridKrafter.WisejDemo.Services.Shell
 			Add("EventsPanel", "Events", new[] { "Home", "System", "Events" },
 				"Audit trail of changes made to your boards, newest first",
 				"Move, resize, collapse or edit a widget and it shows up here, newest first.");
+			Add("UsersPanel", "Users & roles", new[] { "Home", "System", "Users & roles" },
+				"Who can sign in, their roles, and the pages and actions each role allows",
+				"Users, roles and permissions live in the SQLite database behind the data API, which checks the role on every call. Every change here is written into the audit trail.");
+			Add("AuditPanel", "Audit trail", new[] { "Home", "System", "Audit trail" },
+				"Every sign-in, permission change, template and board change, kept and never edited",
+				"The data API writes the trail itself and the database refuses to change or delete an entry. Filter it, then export it as CSV for a review.");
 			Add("AboutPanel", "About", new[] { "Home", "System", "About" },
 				"About this application, its components and where to read more",
 				"How this demo is put together, and where to read more.");

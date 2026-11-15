@@ -29,6 +29,9 @@ namespace GridKrafter.WisejDemo.Panels
 	{
 		/// <summary>The board the page shows.</summary>
 		GridBoard Board { get; }
+
+		/// <summary>The key the board is saved and published under: home, ethanol, customers...</summary>
+		string BoardKey { get; }
 	}
 
 	/// <summary>

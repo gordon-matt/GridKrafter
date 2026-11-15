@@ -5,6 +5,8 @@ using GridKrafter.Models;
 using GridKrafter.WisejDemo.Controls;
 using GridKrafter.WisejDemo.Model;
 using GridKrafter.WisejDemo.Services;
+using GridKrafter.WisejDemo.Services.Api;
+using GridKrafter.WisejDemo.Services.Security;
 using GridKrafter.WisejDemo.Services.Shell;
 using GridKrafter.WisejDemo.Widgets;
 using Wisej.Web;
@@ -33,6 +35,9 @@ namespace GridKrafter.WisejDemo.Panels
 		public GridBoard Board => this.board;
 
 		/// <inheritdoc/>
+		public string BoardKey => BoardStore.HomeKey;
+
+		/// <inheritdoc/>
 		public int ContentHeight => this.fit.ContentHeight;
 
 		/// <inheritdoc/>
@@ -47,23 +52,32 @@ namespace GridKrafter.WisejDemo.Panels
 
 		private void HomePanel_Load(object sender, EventArgs e)
 		{
-			var saved = BoardStore.Load();
-			ShowBoard(saved);
-			BoardEvents.Status ??= saved == null
-				? "This is the page's own board. Change something and it's saved on the server."
-				: "This is the board saved on the server.";
+			ShowBoard(LoadSaved());
 			CenterBoard();
 		}
 
-		// The page's own board, with a saved one applied over it when there is one.
-		private void ShowBoard(DashboardBoard saved)
+		// The person's saved board and their role's template; nothing when the data API can't be reached.
+		private SavedBoard LoadSaved()
+		{
+			try
+			{
+				var saved = BoardStore.Load(BoardStore.HomeKey);
+				BoardEvents.Status = saved.Status;
+				return saved;
+			}
+			catch (DataApiException ex)
+			{
+				BoardEvents.Status = "The saved board couldn't be loaded (" + ex.Message + ").";
+				return null;
+			}
+		}
+
+		// The page's own board, with the role's template and then the person's own board applied over it.
+		private void ShowBoard(SavedBoard saved)
 		{
 			var model = DemoBoard.Create();
-			if (saved != null)
-			{
-				// Widgets added from the catalog stay as long as their kind is still offered.
-				BoardMerge.Apply(model, saved, item => this.board.Catalog.Any(k => k.Kind == item.Kind));
-			}
+			// Widgets added from the catalog stay as long as their kind is still offered.
+			saved?.ApplyTo(model, item => this.board.Catalog.Any(k => k.Kind == item.Kind));
 
 			this.board.SuspendLayout();
 			this.board.Controls.Clear(true);
@@ -94,12 +108,19 @@ namespace GridKrafter.WisejDemo.Panels
 
 		private void board_ResetRequested(object sender, EventArgs e)
 		{
-			BoardStore.Reset();
-			WidgetContentStore.Reset();
 			this.timerSave.Stop();
-			ShowBoard(null);
-			BoardEvents.Write("reset", "the page's own board");
-			BoardEvents.Status = "This is the page's own board. Change something and it's saved on the server.";
+			try
+			{
+				BoardStore.Reset(BoardStore.HomeKey);
+				WidgetContentStore.Reset();
+			}
+			catch (DataApiException ex)
+			{
+				BoardEvents.Status = "The board couldn't be reset (" + ex.Message + ").";
+				return;
+			}
+			ShowBoard(LoadSaved());
+			BoardEvents.Write("reset", "the dashboard");
 		}
 
 		// A deleted widget brought back from the catalog: the page's own definition when it has one,
@@ -151,7 +172,7 @@ namespace GridKrafter.WisejDemo.Panels
 				Chrome = item.Chrome == WidgetChrome.Plain ? GridWidgetChrome.Plain : GridWidgetChrome.Card,
 				// the original's buttons (colour, edit, full screen, collapse, delete), and Refresh on every
 				// widget that refreshes, as in the MVC demo
-				Buttons = (item.Buttons ?? WidgetButtons.Default) | ((item.Refresh ?? 0) > 0 ? WidgetButtons.Refresh : WidgetButtons.None),
+				Buttons = CurrentUser.Buttons((item.Buttons ?? WidgetButtons.Default) | ((item.Refresh ?? 0) > 0 ? WidgetButtons.Refresh : WidgetButtons.None)),
 				GridW = item.W ?? 4,
 				GridH = item.H ?? 3,
 				MinW = item.MinW ?? 0,
@@ -210,6 +231,7 @@ namespace GridKrafter.WisejDemo.Panels
 
 			if (kind.Refresh > 0)
 				widget.Buttons |= WidgetButtons.Refresh;
+			widget.Buttons = CurrentUser.Buttons(widget.Buttons);
 
 			Fill(widget, WidgetBodies.Create(kind.Kind, "", widget.Title), kind.Kind == "orders" || kind.Kind == "notes");
 			return widget;
@@ -219,8 +241,11 @@ namespace GridKrafter.WisejDemo.Panels
 		{
 			string detail = string.Join(" · ", new[] { e.ItemId, e.SectionId, e.Layout?.Id }.Where(s => !string.IsNullOrEmpty(s)));
 			BoardEvents.Write(e.Kind, detail);
+			BoardAudit.Report(BoardStore.HomeKey, e.Kind, detail);
 
-			// Saved once the changes stop for a moment.
+			// Saved once the changes stop for a moment; a role that may not arrange boards keeps nothing.
+			if (!CurrentUser.Can(Demo.Api.Permissions.EditBoards))
+				return;
 			this.timerSave.Stop();
 			this.timerSave.Start();
 		}
@@ -248,7 +273,7 @@ namespace GridKrafter.WisejDemo.Panels
 			BoardEvents.Status = "Saving…";
 			try
 			{
-				BoardStore.Save(this.board.ToBoard());
+				BoardStore.Save(BoardStore.HomeKey, this.board.ToBoard());
 				BoardEvents.Status = "Saved on the server at " + DateTime.Now.ToLongTimeString() + ".";
 				DataClock.Touch();
 			}

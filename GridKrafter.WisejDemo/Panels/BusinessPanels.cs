@@ -29,9 +29,6 @@ namespace GridKrafter.WisejDemo.Panels
 		/// <summary>The board this panel shows.</summary>
 		protected IBusinessBoard Definition => this.BusinessSource.Board;
 
-		/// <summary>The board's key: customers, carriers…</summary>
-		public string BoardKey => this.BusinessSource.Key;
-
 		/// <summary>What the board shows now.</summary>
 		public BusinessFilter Filter => this.BusinessSource.Filter;
 

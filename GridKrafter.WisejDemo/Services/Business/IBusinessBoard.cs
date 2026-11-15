@@ -14,7 +14,7 @@ namespace GridKrafter.WisejDemo.Services.Business
 	{
 		/// <summary>
 		/// The board's key: "customers", "carriers", "accounting", "contracts", "risk", "plantops", "scheduling" or
-		/// "compliance". Its layout is saved in App_Data/board-&lt;key&gt;.json and its filter in the session.
+		/// "compliance". Each person's layout is saved under it through the data API, and its filter in the session.
 		/// </summary>
 		string Key { get; }
 

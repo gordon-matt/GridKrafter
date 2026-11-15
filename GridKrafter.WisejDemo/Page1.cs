@@ -1,8 +1,12 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using GridKrafter.Demo.Api;
+using GridKrafter.WisejDemo.Dialogs;
 using GridKrafter.WisejDemo.Panels;
 using GridKrafter.WisejDemo.Services;
+using GridKrafter.WisejDemo.Services.Api;
+using GridKrafter.WisejDemo.Services.Security;
 using GridKrafter.WisejDemo.Services.Shell;
 using Wisej.Web;
 using Wisej.Web.Ext.NavigationBar;
@@ -48,8 +52,8 @@ namespace GridKrafter.WisejDemo
 			if (Application.Session[THEME_KEY] is string theme && theme != AUTO)
 				ApplyTheme(theme);
 
-			this.menuItemUser.Text = "<b>" + this.topBar.UserName + "</b><br/>" + this.topBar.UserRole;
-			this.topBar.AlertCount = ShellAlerts.Current().Count;
+			ShowUser();
+			this.topBar.AlertCount = VisibleAlerts().Count;
 			ShowDemoNotes();
 			this.timerAsOf.Start();
 
@@ -307,8 +311,11 @@ namespace GridKrafter.WisejDemo
 		#region Board actions on the title row
 
 		// The board of the page on show, or null on a page without one.
-		private Controls.GridBoard CurrentBoard =>
-			this.panelMain.Controls.Count > 0 ? (this.panelMain.Controls[0] as IBoardPage)?.Board : null;
+		private Controls.GridBoard CurrentBoard => CurrentBoardPage?.Board;
+
+		// The page on show when it is a board, or null.
+		private IBoardPage CurrentBoardPage =>
+			this.panelMain.Controls.Count > 0 ? this.panelMain.Controls[0] as IBoardPage : null;
 
 		// left to right, as on the board's own toolbar
 		private IEnumerable<Button> BoardActionButtons()
@@ -328,7 +335,7 @@ namespace GridKrafter.WisejDemo
 
 			// two buttons with colours of their own, rather than one that changes colour: an icon keeps the colour
 			// it was drawn in, so a button turned back from Done kept a white pencil on a light theme
-			this.buttonEdit.Visible = board != null && !editing;
+			this.buttonEdit.Visible = board != null && !editing && CurrentUser.Can(Permissions.EditBoards);
 			this.buttonDone.Visible = editing;
 
 			this.buttonAddWidget.Visible = editing;
@@ -403,6 +410,14 @@ namespace GridKrafter.WisejDemo
 
 		private void ShowPanel(string panelName)
 		{
+			// the role decides: a page it doesn't see is never created, however it was asked for
+			if (!CurrentUser.CanSee(panelName))
+			{
+				DataApi.Report("page.denied", panelName, "not a page of the role " + CurrentUser.Session?.RoleId);
+				AlertBox.Show("Your role doesn't include that page.", MessageBoxIcon.Warning);
+				return;
+			}
+
 			this.panelMain.Controls.Clear(true);
 
 			var panel = (Control)Activator.CreateInstance(Type.GetType($"GridKrafter.WisejDemo.Panels.{panelName}"));
@@ -518,9 +533,13 @@ namespace GridKrafter.WisejDemo
 
 		#region Alerts and search
 
+		// the alerts of the pages the role sees
+		private static List<ShellAlert> VisibleAlerts() =>
+			ShellAlerts.Current().Where(a => CurrentUser.CanSee(a.Panel)).ToList();
+
 		private void topBar_AlertsClicked(object sender, EventArgs e)
 		{
-			var alerts = ShellAlerts.Current();
+			var alerts = VisibleAlerts();
 			this.topBar.AlertCount = alerts.Count;
 
 			this.contextMenuAlerts.MenuItems.Clear(true);
@@ -544,7 +563,7 @@ namespace GridKrafter.WisejDemo
 			if (string.IsNullOrWhiteSpace(e.Text))
 				return;
 
-			var hits = ShellSearch.Find(e.Text);
+			var hits = ShellSearch.Find(e.Text, 20).Where(h => CurrentUser.CanSee(h.Panel)).Take(8).ToList();
 
 			this.contextMenuSearch.MenuItems.Clear(true);
 			foreach (var hit in hits)
@@ -601,6 +620,7 @@ namespace GridKrafter.WisejDemo
 
 			this.menuItemDemoNotes.Checked = DemoNotes.Enabled;
 			this.menuItemResetBoard.Visible = DemoNotes.Enabled;
+			this.menuItemPublishTemplate.Visible = CurrentUser.Can(Permissions.PublishTemplates) && CurrentBoardPage != null;
 			this.contextMenuUser.Show(this.topBar, Placement.BottomRight);
 		}
 
@@ -610,6 +630,71 @@ namespace GridKrafter.WisejDemo
 				DemoNotes.Enabled = !DemoNotes.Enabled;
 			else if (e.MenuItem == this.menuItemResetBoard)
 				ResetBoard();
+			else if (e.MenuItem == this.menuItemPublishTemplate)
+				PublishTemplate();
+			else if (e.MenuItem == this.menuItemChangePassword)
+				PasswordDialog.ForOwnPassword(required: false).ShowDialog((dialog, result) =>
+				{
+					if (result == DialogResult.OK)
+						AlertBox.Show("Your password was changed. You're signed out on your other browsers.", MessageBoxIcon.Information);
+				});
+			else if (e.MenuItem == this.menuItemSignOut)
+				CurrentUser.SignOut();
+		}
+
+		// Publishes the board on show as the starting layout of the roles chosen.
+		private void PublishTemplate()
+		{
+			var page = CurrentBoardPage;
+			if (page == null)
+				return;
+
+			new PublishTemplateDialog(page.BoardKey, this.labelTitle.Text, page.Board.ToBoard()).ShowDialog();
+		}
+
+		#endregion
+
+		#region Signed-in user
+
+		// The name, role and initials in the top bar and the user menu, and the pages the role sees.
+		private void ShowUser()
+		{
+			var user = CurrentUser.Session;
+			if (user == null)
+				return;
+
+			this.topBar.UserName = user.DisplayName;
+			this.topBar.UserRole = user.RoleName;
+			this.topBar.Initials = Initials(user.DisplayName);
+			this.menuItemUser.Text = "<b>" + user.DisplayName + "</b><br/>" + user.RoleName + " · " + user.UserName;
+			ShowAllowedPages(this.navigationBar.Items.Cast<NavigationBarItem>());
+		}
+
+		// A page shows when the role sees it; a group shows when one of its pages does.
+		private static bool ShowAllowedPages(IEnumerable<NavigationBarItem> items)
+		{
+			bool any = false;
+			foreach (var item in items)
+			{
+				bool visible;
+				if (item.Tag is string panel)
+					visible = CurrentUser.CanSee(panel);
+				else if (item.Items.Count > 0)
+					visible = ShowAllowedPages(item.Items.Cast<NavigationBarItem>());
+				else
+					visible = true; // the collapse toggle
+
+				item.Visible = visible;
+				any |= visible && (item.Tag is string || item.Items.Count > 0);
+			}
+			return any;
+		}
+
+		private static string Initials(string name)
+		{
+			var parts = (name ?? "").Split(' ', StringSplitOptions.RemoveEmptyEntries);
+			return parts.Length == 0 ? "?" : parts.Length == 1 ? parts[0].Substring(0, 1).ToUpperInvariant()
+				: (parts[0].Substring(0, 1) + parts[parts.Length - 1].Substring(0, 1)).ToUpperInvariant();
 		}
 
 		private void menuItemThemeChoice_Click(object sender, EventArgs e)
@@ -643,9 +728,16 @@ namespace GridKrafter.WisejDemo
 				return;
 			}
 
-			BoardStore.Reset();
-			BoardEvents.Write("reset", "the page's own board");
-			BoardEvents.Status = "This is the page's own board. Change something and it's saved on the server.";
+			try
+			{
+				BoardStore.Reset(BoardStore.HomeKey);
+			}
+			catch (DataApiException ex)
+			{
+				AlertBox.Show(ex.Message, MessageBoxIcon.Error);
+				return;
+			}
+			BoardEvents.Write("reset", "the dashboard");
 			this.navigationBar.SelectedItem = null;
 			this.navigationBar.SelectedItem = this.navigationBarHome;
 		}

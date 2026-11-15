@@ -1,0 +1,25 @@
+<Project Sdk="Aspire.AppHost.Sdk/13.6.5">
+
+  <!-- Starts the demo's data API and the Wisej demo together, wired to each other, with the Aspire dashboard. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <UserSecretsId>652af144-ddf1-4e78-a85c-99925a9e189f</UserSecretsId>
+    <!--
+      The dashboard and the process launcher come from NuGet packages, which is all this host needs. The Aspire CLI
+      bundle (AspireUseCliBundle=true) would install the Aspire CLI during every build, so it stays off and its
+      reminder is silenced.
+    -->
+    <AspireUseCliBundle>false</AspireUseCliBundle>
+    <NoWarn>$(NoWarn);ASPIRE010</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GridKrafter.Demo.Api\GridKrafter.Demo.Api.csproj" />
+    <!-- The Wisej demo targets net10.0-windows and net10.0: the reference names the Windows target, the one the host starts. -->
+    <ProjectReference Include="..\GridKrafter.WisejDemo\GridKrafter.WisejDemo.csproj" SetTargetFramework="TargetFramework=net10.0-windows" SkipGetTargetFrameworkProperties="true" />
+  </ItemGroup>
+
+</Project>

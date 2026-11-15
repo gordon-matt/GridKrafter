@@ -13,7 +13,7 @@ namespace GridKrafter.WisejDemo.Services.Commodities
 	{
 		/// <summary>
 		/// The board's key: "overview", "ethanol", "co2", "purified", "denaturant", "natgas", "grain" or "freight".
-		/// Its layout is saved in App_Data/board-&lt;key&gt;.json.
+		/// Each person's layout is saved under it through the data API.
 		/// </summary>
 		string Key { get; }
 

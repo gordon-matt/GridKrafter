@@ -1,0 +1,24 @@
+[
+  {
+    "Name": "Aspire: Wisej demo + data API",
+    "Projects": [
+      {
+        "Path": "GridKrafter.Demo.AppHost/GridKrafter.Demo.AppHost.csproj",
+        "Action": "Start"
+      }
+    ]
+  },
+  {
+    "Name": "Wisej demo + data API",
+    "Projects": [
+      {
+        "Path": "GridKrafter.Demo.Api/GridKrafter.Demo.Api.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "GridKrafter.WisejDemo/GridKrafter.WisejDemo.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]

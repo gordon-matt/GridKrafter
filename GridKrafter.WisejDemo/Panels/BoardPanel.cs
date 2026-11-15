@@ -3,6 +3,8 @@ using System.Linq;
 using GridKrafter.Models;
 using GridKrafter.WisejDemo.Controls;
 using GridKrafter.WisejDemo.Services;
+using GridKrafter.WisejDemo.Services.Api;
+using GridKrafter.WisejDemo.Services.Security;
 using GridKrafter.WisejDemo.Services.Shell;
 using GridKrafter.WisejDemo.Widgets;
 using Wisej.Web;
@@ -56,6 +58,9 @@ namespace GridKrafter.WisejDemo.Panels
 		public GridBoard Board => this.board;
 
 		/// <inheritdoc/>
+		public string BoardKey => this.source.Key;
+
+		/// <inheritdoc/>
 		public int ContentHeight => this.fit.ContentHeight;
 
 		/// <inheritdoc/>
@@ -76,34 +81,50 @@ namespace GridKrafter.WisejDemo.Panels
 		/// </summary>
 		public void ResetBoard()
 		{
-			BoardStore.Reset(this.source.Key);
 			this.timerSave.Stop();
-			ShowBoard(null);
+			try
+			{
+				BoardStore.Reset(this.source.Key);
+			}
+			catch (DataApiException ex)
+			{
+				BoardEvents.Status = "The board couldn't be reset (" + ex.Message + ").";
+				return;
+			}
+			ShowBoard(LoadSaved());
 			BoardEvents.Write("reset", "the " + this.source.Key + " board");
-			BoardEvents.Status = "This is the page's own board. Change something and it's saved on the server.";
 		}
 
 		private void BoardPanel_Load(object sender, EventArgs e)
 		{
 			this.source.Load();
 
-			var saved = BoardStore.Load(this.source.Key);
-			ShowBoard(saved);
-			BoardEvents.Status = saved == null
-				? "This is the page's own board. Change something and it's saved on the server."
-				: "This is the board saved on the server.";
+			ShowBoard(LoadSaved());
 			CenterBoard();
 		}
 
-		// The board's own definition, with a saved one applied over it when there is one.
-		private void ShowBoard(DashboardBoard saved)
+		// The person's saved board and their role's template; nothing when the data API can't be reached.
+		private SavedBoard LoadSaved()
+		{
+			try
+			{
+				var saved = BoardStore.Load(this.source.Key);
+				BoardEvents.Status = saved.Status;
+				return saved;
+			}
+			catch (DataApiException ex)
+			{
+				BoardEvents.Status = "The saved board couldn't be loaded (" + ex.Message + ").";
+				return null;
+			}
+		}
+
+		// The board's own definition, with the role's template and then the person's own board applied over it.
+		private void ShowBoard(SavedBoard saved)
 		{
 			var model = this.source.Create();
-			if (saved != null)
-			{
-				// Widgets added from the catalog stay as long as their kind is still offered.
-				BoardMerge.Apply(model, saved, item => this.board.Catalog.Any(k => k.Kind == item.Kind));
-			}
+			// Widgets added from the catalog stay as long as their kind is still offered.
+			saved?.ApplyTo(model, item => this.board.Catalog.Any(k => k.Kind == item.Kind));
 
 			this.board.SuspendLayout();
 			this.board.Controls.Clear(true);
@@ -189,7 +210,7 @@ namespace GridKrafter.WisejDemo.Panels
 				Color = item.Color ?? "",
 				Chrome = item.Chrome == WidgetChrome.Plain ? GridWidgetChrome.Plain : GridWidgetChrome.Card,
 				// the item's buttons, and Refresh on every widget that refreshes
-				Buttons = (item.Buttons ?? WidgetButtons.Default) | ((item.Refresh ?? 0) > 0 ? WidgetButtons.Refresh : WidgetButtons.None),
+				Buttons = CurrentUser.Buttons((item.Buttons ?? WidgetButtons.Default) | ((item.Refresh ?? 0) > 0 ? WidgetButtons.Refresh : WidgetButtons.None)),
 				GridW = item.W ?? 4,
 				GridH = item.H ?? 3,
 				MinW = item.MinW ?? 0,
@@ -252,6 +273,7 @@ namespace GridKrafter.WisejDemo.Panels
 
 			if (kind.Refresh > 0)
 				widget.Buttons |= WidgetButtons.Refresh;
+			widget.Buttons = CurrentUser.Buttons(widget.Buttons);
 
 			// the body sees the kind as an item without an id
 			var item = new DashboardItem
@@ -273,8 +295,11 @@ namespace GridKrafter.WisejDemo.Panels
 		{
 			string detail = string.Join(" · ", new[] { e.ItemId, e.SectionId, e.Layout?.Id }.Where(s => !string.IsNullOrEmpty(s)));
 			BoardEvents.Write(e.Kind, detail);
+			BoardAudit.Report(this.source.Key, e.Kind, detail);
 
-			// Saved once the changes stop for a moment.
+			// Saved once the changes stop for a moment; a role that may not arrange boards keeps nothing.
+			if (!CurrentUser.Can(Demo.Api.Permissions.EditBoards))
+				return;
 			this.timerSave.Stop();
 			this.timerSave.Start();
 		}

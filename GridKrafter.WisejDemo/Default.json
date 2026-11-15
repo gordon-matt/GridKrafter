@@ -48,5 +48,11 @@
 {
 	"theme": "GridKrafter-Light",
 	"url": "Default.html",
-	"startup": "GridKrafter.WisejDemo.Program.Main, GridKrafter.WisejDemo"
+	"startup": "GridKrafter.WisejDemo.Program.Main, GridKrafter.WisejDemo",
+	// The data API (GridKrafter.Demo.Api) that alone opens the database, and the key it expects
+	// (its appsettings.json "GridKrafter:AppKey"). GRIDKRAFTER_API_URL and GRIDKRAFTER_API_KEY override them.
+	"settings": {
+		"apiUrl": "http://localhost:5100",
+		"apiKey": "4dde42c77efffc7c16d50bdd3be17670579707b904c34f9d"
+	}
 }

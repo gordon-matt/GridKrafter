@@ -16,7 +16,7 @@ namespace GridKrafter.WisejDemo.Panels
 	/// </summary>
 	public interface IBoardSource
 	{
-		/// <summary>The board's key; its layout is saved in App_Data/board-&lt;key&gt;.json.</summary>
+		/// <summary>The board's key; each person's layout is saved under it through the data API.</summary>
 		string Key { get; }
 
 		/// <summary>The board as it is defined, before anyone changes it.</summary>

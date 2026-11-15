@@ -1,21 +1,20 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text.Json;
 using System.Text.Json.Nodes;
+using GridKrafter.Demo.Api;
+using GridKrafter.WisejDemo.Services.Api;
+using GridKrafter.WisejDemo.Services.Security;
 using Wisej.Web;
 
 namespace GridKrafter.WisejDemo.Services
 {
 	/// <summary>
-	/// Keeps what people write into widgets (to-do tasks, notes, bookmarks, a chart's range) by widget id,
-	/// in a JSON file in App_Data beside the board, as the Blazor and React demos keep it in the widget's options.
+	/// Keeps what people write into widgets (to-do tasks, notes, bookmarks, a chart's range) by person and widget id,
+	/// through the data API. A widget's content is read once per session and kept here until it changes.
 	/// </summary>
 	public static class WidgetContentStore
 	{
-		private static readonly object gate = new object();
-
-		private static string FilePath => Path.Combine(Application.StartupPath, "App_Data", "widgets.json");
+		private const string CACHE_KEY = "gk.content";
 
 		/// <summary>A value saved for a widget, or <see langword="null"/>.</summary>
 		public static JsonNode Get(string widgetId, string key)
@@ -23,28 +22,32 @@ namespace GridKrafter.WisejDemo.Services
 			if (string.IsNullOrEmpty(widgetId))
 				return null;
 
-			lock (gate)
+			var cache = Cache;
+			if (!cache.TryGetValue(widgetId, out var content))
 			{
-				var all = Read();
-				return all.TryGetValue(widgetId, out var content) ? content[key]?.DeepClone() : null;
+				try
+				{
+					cache[widgetId] = content = DataApi.Content(widgetId);
+				}
+				catch (DataApiException)
+				{
+					// the widget starts empty rather than failing the board
+					return null;
+				}
 			}
+
+			return content.TryGetValue(key, out var value) ? value?.DeepClone() : null;
 		}
 
-		/// <summary>Saves a value for a widget at once.</summary>
+		/// <summary>Saves a value for a widget at once; nothing is kept for a role that may not change boards.</summary>
 		public static void Set(string widgetId, string key, JsonNode value)
 		{
-			if (string.IsNullOrEmpty(widgetId))
+			if (string.IsNullOrEmpty(widgetId) || !CurrentUser.Can(Permissions.EditBoards))
 				return;
 
-			lock (gate)
-			{
-				var all = Read();
-				if (!all.TryGetValue(widgetId, out var content))
-					all[widgetId] = content = new JsonObject();
-
+			DataApi.SetContent(widgetId, key, value);
+			if (Cache.TryGetValue(widgetId, out var content))
 				content[key] = value?.DeepClone();
-				Write(all);
-			}
 		}
 
 		/// <summary>Forgets what was saved for one widget: a new widget that reuses its id starts empty.</summary>
@@ -53,58 +56,25 @@ namespace GridKrafter.WisejDemo.Services
 			if (string.IsNullOrEmpty(widgetId))
 				return;
 
-			lock (gate)
-			{
-				var all = Read();
-				if (all.Remove(widgetId))
-					Write(all);
-			}
+			Cache.Remove(widgetId);
+			DataApi.ClearContent(widgetId);
 		}
 
-		/// <summary>Forgets everything, with the board.</summary>
+		/// <summary>Forgets everything the person wrote into widgets, with the board.</summary>
 		public static void Reset()
 		{
-			lock (gate)
-			{
-				File.Delete(FilePath);
-			}
+			Cache.Clear();
+			DataApi.ClearContent(null);
 		}
 
-		private static Dictionary<string, JsonObject> Read()
+		private static Dictionary<string, Dictionary<string, JsonNode>> Cache
 		{
-			var all = new Dictionary<string, JsonObject>(StringComparer.Ordinal);
-			if (!File.Exists(FilePath))
-				return all;
-
-			try
+			get
 			{
-				if (JsonNode.Parse(File.ReadAllText(FilePath)) is JsonObject root)
-				{
-					foreach (var pair in root)
-					{
-						if (pair.Value is JsonObject content)
-							all[pair.Key] = (JsonObject)content.DeepClone();
-					}
-				}
+				if (!(Application.Session[CACHE_KEY] is Dictionary<string, Dictionary<string, JsonNode>> cache))
+					Application.Session[CACHE_KEY] = cache = new Dictionary<string, Dictionary<string, JsonNode>>(StringComparer.Ordinal);
+				return cache;
 			}
-			catch (JsonException)
-			{
-				// a damaged file starts over
-			}
-
-			return all;
-		}
-
-		private static void Write(Dictionary<string, JsonObject> all)
-		{
-			var root = new JsonObject();
-			foreach (var pair in all)
-				root[pair.Key] = pair.Value;
-
-			Directory.CreateDirectory(Path.GetDirectoryName(FilePath));
-			string temporary = FilePath + ".tmp";
-			File.WriteAllText(temporary, root.ToJsonString(new JsonSerializerOptions { WriteIndented = true }));
-			File.Move(temporary, FilePath, overwrite: true);
 		}
 	}
 }

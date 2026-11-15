@@ -59,6 +59,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\GridKrafter.Core\GridKrafter.Core.csproj" />
+    <ProjectReference Include="..\GridKrafter.Demo.Api.Contracts\GridKrafter.Demo.Api.Contracts.csproj" />
   </ItemGroup>
 
   <ItemGroup>

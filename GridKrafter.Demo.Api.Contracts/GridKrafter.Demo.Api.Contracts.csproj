@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- What the demo API and the Wisej demo exchange: requests, answers and the permission flags. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>GridKrafter.Demo.Api</RootNamespace>
+  </PropertyGroup>
+
+</Project>

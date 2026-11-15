@@ -4,6 +4,9 @@
     <File Path="README.md" />
   </Folder>
   <Folder Name="/Demos/">
+    <Project Path="GridKrafter.Demo.AppHost/GridKrafter.Demo.AppHost.csproj" />
+    <Project Path="GridKrafter.Demo.Api/GridKrafter.Demo.Api.csproj" />
+    <Project Path="GridKrafter.Demo.Api.Contracts/GridKrafter.Demo.Api.Contracts.csproj" />
     <Project Path="GridKrafter.Demo.Blazor/GridKrafter.Demo.Blazor.csproj" />
     <Project Path="GridKrafter.Demo.Mvc/GridKrafter.Demo.Mvc.csproj" />
     <Project Path="gridkrafter.demo.react/gridkrafter.demo.react.esproj">

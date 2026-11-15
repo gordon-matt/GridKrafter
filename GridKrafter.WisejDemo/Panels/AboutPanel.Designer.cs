@@ -85,7 +85,7 @@ namespace GridKrafter.WisejDemo.Panels
 			this.labelHow.Name = "labelHow";
 			this.labelHow.Size = new System.Drawing.Size(680, 152);
 			this.labelHow.TabIndex = 1;
-			this.labelHow.Text = "The board is defined in C# with the GridKrafter.Core model and shown with the GridBoard control. Each widget hosts real Wisej.NET controls: KPI panels for the figures at the top, a timeline for the activity, meter bars for the server load and a data grid for the orders, so the theme you pick styles all of them.\r\n\r\nWidgets refresh on their own: the server load every five seconds, the activity every thirty seconds and the orders every minute.\r\n\r\nEvery change is saved on the server in App_Data\\board.json, so the board follows you from browser to browser. Reset the board to start again from the page\'s own.";
+			this.labelHow.Text = "The board is defined in C# with the GridKrafter.Core model and shown with the GridBoard control. Each widget hosts real Wisej.NET controls: KPI panels for the figures at the top, a timeline for the activity, meter bars for the server load and a data grid for the orders, so the theme you pick styles all of them.\r\n\r\nWidgets refresh on their own: the server load every five seconds, the activity every thirty seconds and the orders every minute.\r\n\r\nEvery change is saved for you through the data API in its SQLite database, so your board follows you from browser to browser. Reset the board to start again from your role\'s template or the page\'s own.";
 			//
 			// labelLinksTitle
 			//

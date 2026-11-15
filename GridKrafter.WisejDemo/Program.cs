@@ -12,7 +12,12 @@ namespace GridKrafter.WisejDemo
 		{
 			// The theme switcher starts on Auto: light or dark, as the browser is.
 			GridKrafterThemes.FollowBrowser();
-			Application.MainPage = new Page1();
+
+			// nothing shows before sign-in; a reload in the same browser session stays signed in
+			if (Services.Security.CurrentUser.IsSignedIn)
+				Application.MainPage = new Page1();
+			else
+				Application.MainPage = new LoginPage();
 		}
 
 		//
