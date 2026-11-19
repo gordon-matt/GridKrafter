@@ -1,4 +1,5 @@
 using GridKrafter.Demo.Blazor.Components;
+using Heroicsoft.NetForge.WebAssets;
 using GridKrafter.Demo.Blazor.Widgets;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,5 +18,6 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseAntiforgery();
 app.MapStaticAssets();
+app.MapEmbeddedContent(typeof(Dashboard).Assembly);
 app.MapRazorComponents<App>().AddInteractiveServerRenderMode();
 app.Run();

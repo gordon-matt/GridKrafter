@@ -6,7 +6,7 @@ namespace GridKrafter.Components.Infrastructure;
 /// </summary>
 internal sealed class GridKrafterInterop(IJSRuntime js) : IAsyncDisposable
 {
-    private const string ModulePath = "./_content/GridKrafter.Components/gridkrafter.js";
+    private const string ModulePath = "/_content/GridKrafter.Components/gridkrafter.js";
 
     private Task<IJSObjectReference>? module;
 

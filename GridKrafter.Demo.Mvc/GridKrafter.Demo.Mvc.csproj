@@ -10,6 +10,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="Heroicsoft.NetForge.WebAssets" Version="1.2.6" />
 		<ProjectReference Include="..\GridKrafter.Components\GridKrafter.Components.csproj" />
 	</ItemGroup>
 
